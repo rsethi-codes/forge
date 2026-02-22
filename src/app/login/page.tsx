@@ -115,7 +115,6 @@ function LoginContent() {
                                     <input
                                         type="text"
                                         value=""
-                                        disabled
                                         autoComplete="off"
                                         className="w-full bg-[#0c0c0c]/50 border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-secondary font-mono"
                                     />
