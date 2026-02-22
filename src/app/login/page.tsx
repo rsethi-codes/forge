@@ -20,7 +20,7 @@ function LoginContent() {
 
     React.useEffect(() => {
         if (errorType === 'unauthorized') {
-            setError(`Account ${loggedEmail} not found in the Single-User allowlist. Please set ALLOWED_USER_EMAIL in your .env.local.`)
+            setError(`Account ${loggedEmail} is not allowed. Please update ALLOWED_USER_EMAIL in your Vercel Project Settings.`)
         }
     }, [errorType, loggedEmail])
 
@@ -33,7 +33,7 @@ function LoginContent() {
         if (isAdminMode) {
             // Dev Admin Bypass
             if (password === 'grind') {
-                document.cookie = "forge_dev_admin=true; path=/; max-age=86400"
+                document.cookie = "forge_dev_admin=true; path=/; max-age=86400; SameSite=Lax"
                 window.location.href = '/dashboard'
                 return
             } else {
