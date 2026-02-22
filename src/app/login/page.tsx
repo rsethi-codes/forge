@@ -97,7 +97,7 @@ function LoginContent() {
                                 <input
                                     id="email"
                                     type="email"
-                                    placeholder="general"
+                                    placeholder="be@focused.com"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -114,7 +114,7 @@ function LoginContent() {
                                     <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
                                     <input
                                         type="text"
-                                        value="FORGE-ROOT"
+                                        value=""
                                         disabled
                                         autoComplete="off"
                                         className="w-full bg-[#0c0c0c]/50 border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-secondary font-mono"
@@ -148,7 +148,7 @@ function LoginContent() {
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
                             <>
-                                {isAdminMode ? 'Bypass Security' : 'Send Magic Link'}
+                                {isAdminMode ? 'Login as Admin' : 'Send Magic Link'}
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
