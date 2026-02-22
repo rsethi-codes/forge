@@ -6,6 +6,7 @@ import { Terminal, Shield, BarChart3, Quote, Info, Settings, Zap, Target, Book, 
 import PomodoroTimer from './PomodoroTimer'
 import { cn } from '@/lib/utils'
 import { getAnalyticsData } from '@/lib/actions/analytics'
+import { usePathname } from 'next/navigation'
 
 type HUDMode = 'timer' | 'stats' | 'insight'
 
@@ -24,11 +25,16 @@ export default function ForgeHUD() {
 
     const [currentInsight, setCurrentInsight] = useState(insights[0])
     const [stats, setStats] = useState<any>(null)
+    const pathname = usePathname()
+
+    const isPublicPage = pathname === '/login' || pathname === '/profile' || pathname === '/'
 
     useEffect(() => {
         setCurrentInsight(insights[Math.floor(Math.random() * insights.length)])
         getAnalyticsData().then(setStats)
     }, [])
+
+    if (isPublicPage) return null
 
     return (
         <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-4">
