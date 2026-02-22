@@ -1,0 +1,3727 @@
+
+
+🚀
+
+RAGHAV SETHI
+
+60-DAY BEAST MODE ROADMAP
+
+Senior React Engineer  •  Frontend Architect  •  Next.js Specialist  •  Real-Time UI Engineer
+
+
+
+Month 1
+
+React Internals
++ Architecture
+
+Month 2
+
+Next.js + Perf
++ Real-Time
+
+8 hrs/day
+
+No off days
+No excuses
+
+Target
+
+20-35 LPA
+jobs
+
+
+
+🔥 BRUTAL RESUME ROAST — READ THIS FIRST
+
+THE BLUNT TRUTH ABOUT WHERE YOU STAND
+
+Raghav, you have a 9.0 CGPA, a hackathon win, a merit scholarship 3 times, and real SDE-1 work experience at 8 LPA. You are NOT a beginner. The startup shutting down is not a tragedy — it's a reset button at the perfect time.
+
+But here's where I'm going to be brutally honest with you. Because sugarcoating this will cost you lakhs in your next package.
+
+
+
+Area
+
+What Your Resume Shows
+
+The Brutal Gap
+
+React Depth
+
+React Native (Expo) with hooks, 50+ flows, component architecture
+
+You built screens. You have NOT demonstrated React.memo, useMemo, useCallback, Suspense, concurrent features, rendering optimization — the stuff seniors live in. Expo abstracts so much that you may not know the raw DOM-level React.
+
+Next.js
+
+Listed as a technology, used in PharmaSync
+
+You used it as a "fancy React router with pages." You have zero demonstrated knowledge of ISR, RSC, Edge Runtime, streaming SSR, or Next.js App Router architecture. Interviewers WILL probe this.
+
+TypeScript
+
+Listed as a skill
+
+Your resume has zero evidence of advanced TypeScript — generics, conditional types, discriminated unions, utility types, type inference. This is a MASSIVE red flag for senior roles. Mid-level devs use TS as "typed JavaScript." Seniors USE the type system.
+
+Performance
+
+Reduced upload latency with S3 direct upload
+
+This is ONE performance win. You have no evidence of Core Web Vitals knowledge, bundle optimization, virtualization, Profiler usage, or systematic performance engineering. Senior = you own perf.
+
+State Architecture
+
+Hook-based state management
+
+You used useState and hooks. "Hook-based state management" is not an architecture — it's a description. Senior engineers design state systems. You need Zustand/Jotai/TanStack Query patterns cold.
+
+Testing
+
+Jest/Vitest listed as skill
+
+Zero test code shown anywhere in your projects. This is embarrassing for a senior candidate. Every serious company will give you a take-home with tests or ask about testing philosophy.
+
+Real-Time UI
+
+WebSockets listed as skill
+
+Listed, not demonstrated. WhatsApp Business API webhooks ≠ real-time UI engineering. You need WebSocket state management, reconnection logic, optimistic UI, and conflict resolution.
+
+System Design (FE)
+
+n/a
+
+You have zero frontend system design evidence. Senior frontend interviews include: design a rich text editor, design an infinite feed, design a collaborative whiteboard. This is your biggest blindspot.
+
+
+
+WHAT YOU ACTUALLY HAVE GOING FOR YOU (give yourself credit here)
+
+✅ You shipped real production code (not just tutorials). The S3 multipart pipeline, WhatsApp webhook architecture, and n8n workflows show you can build end-to-end.
+
+✅ 9.0 CGPA means you can learn fast. This roadmap is going to be brutal and you will handle it.
+
+✅ You have MCA from PES University — better brand than most bootcamp grads applying to same roles.
+
+✅ You already know React Native. That's a bonus skill that gives you hybrid mobile+web positioning.
+
+✅ You understand async patterns, file handling, auth flows — backend-adjacent skills that make frontend engineers dangerous.
+
+⚡ BOTTOM LINE: You are a solid mid-level developer with the capacity to become a very strong senior in 60 days IF you stop building surface-level features and start mastering the deep internals. Let's go.
+
+
+
+📋 HOW TO EXECUTE THIS PLAN — NON-NEGOTIABLE RULES
+
+🌅 Block 1 (7am–9:30am)
+
+Deep theory: read, draw diagrams, understand WHY not just HOW
+
+💻 Block 2 (10am–1pm)
+
+Hands-on coding: build every example, break it, understand the failure
+
+🔨 Block 3 (2pm–5pm)
+
+Project work: apply today's concept to your running portfolio project
+
+🧠 Block 4 (6pm–8pm)
+
+Knowledge check + read open source code on GitHub (Linear, Vercel, Supabase)
+
+📝 Non-negotiable daily habit
+
+Write 3 insights you learned today in a Notion doc. If you can't write it, you don't know it.
+
+🚫 What NOT to do
+
+Watch YouTube tutorials as primary learning. Build instead of watching. Read docs instead of watching.
+
+
+
+🗓 MONTH 1 — REACT MASTERY & FRONTEND ARCHITECTURE
+
+MONTH 1 OBJECTIVE
+
+By end of Month 1: You can open any production React codebase and immediately understand every architectural decision. You can explain Fiber, reconciliation, rendering optimization, TypeScript generics, and state architecture to a senior panel. You stop being a React user and become a React expert.
+
+
+
+📅 WEEK 1 — JavaScript Engine Room + React Fiber Internals
+
+Most React devs skip this. Most React devs are stuck at mid-level. These are the foundations that make everything else make sense. ZERO shortcuts.
+
+
+
+DAY 1 — Closures, Prototype Chain, Event Loop (The JS Internals React Lives On)
+
+Why this matters for you specifically: Your hooks will produce stale closure bugs if you don't deeply understand this. The "why does my useEffect have old state?" bug that 80% of mid-level devs cannot explain? It's a closure. Understand this cold.
+
+
+
+TOPIC 1.1 — Closures & Lexical Scope
+
+Definition: A function that retains access to its outer scope's variables even after the outer function has returned and its execution context is gone
+
+Lexical scope: JS determines variable scope at WRITE TIME (where code is written), not at runtime
+
+How closures capture by reference, not by value — this is the exact mechanism behind stale closures in hooks
+
+Stale closure in useEffect: when your effect captures a value at mount and never updates it because deps array is wrong
+
+Fix pattern 1: Add the variable to the dependency array so effect re-runs with fresh value
+
+Fix pattern 2: useRef to hold mutable value that doesn't need to trigger re-render but always has latest value
+
+Fix pattern 3: Functional state update setCount(prev => prev + 1) bypasses stale closure entirely
+
+Classic closure-in-loop bug: var creates one binding, let creates per-iteration binding — understand WHY
+
+IIFE pattern for solving loop closure: (function(i){ ... })(i)
+
+Memory implications: closure keeps entire outer scope alive — how this causes memory leaks in long-lived subscriptions
+
+
+
+TOPIC 1.2 — Prototype Chain
+
+Every object has a [[Prototype]] internal slot pointing to another object or null
+
+Property lookup: checks own properties first, then walks prototype chain to Object.prototype, then returns undefined
+
+Object.create(proto): creates new object with proto as its [[Prototype]]
+
+The 4 this-binding rules: Default (undefined/global), Implicit (obj.method()), Explicit (call/apply/bind), New (constructor)
+
+Arrow functions: lexically bind this — they inherit this from the enclosing scope, no own this
+
+Why class components needed .bind(this) in constructor: regular method = implicit binding that breaks when passed as callback
+
+Why hooks solved this: function components + hooks have no this context problems
+
+
+
+TOPIC 1.3 — Event Loop, Microtasks, Macrotasks
+
+Call stack: synchronous execution, LIFO, one operation at a time
+
+Web APIs: setTimeout, fetch, DOM events — handled outside V8 by browser
+
+Callback queue (macrotask queue): setTimeout, setInterval, I/O callbacks
+
+Microtask queue: Promise .then/.catch/.finally, queueMicrotask, MutationObserver
+
+Execution order per iteration: All synchronous code → ALL microtasks → ONE macrotask → ALL microtasks again → repeat
+
+React batching: React 17 only batched state updates inside React event handlers; React 18 batches ALL updates including setTimeout, Promises, native events
+
+requestAnimationFrame: fires before next paint — React uses this for scheduling non-urgent work
+
+Long task: any JS that blocks the main thread > 50ms — causes dropped frames and Input Delay (INP issues)
+
+
+
+TOPIC 1.4 — Immutability & Structural Sharing
+
+JS primitives are immutable by nature (strings, numbers, booleans)
+
+Objects/arrays are mutable reference types — two variables can point to same object in memory
+
+Why React requires immutable updates: React uses Object.is() shallow comparison to detect changes — mutating existing object means old === new, React skips render
+
+Shallow clone: {...obj} or Object.assign({}, obj) — copies one level, nested objects still share reference
+
+Deep clone: structuredClone() (modern), JSON.parse(JSON.stringify()) (old, has limitations), Lodash cloneDeep
+
+Structural sharing in Immer: only creates new object nodes along the "path of change", everything else keeps same reference — O(log n) instead of O(n) for deep clones
+
+Why structural sharing matters: enables undo/redo with memory efficiency, powers Redux Toolkit
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Write a useEffect that causes a stale closure bug with a counter. Show the bug, explain exactly WHY it happens mechanically (what the closure is capturing), then fix it 3 different ways.
+
+Q2
+
+What is the execution order of: Promise.resolve().then(()=>console.log("A")); setTimeout(()=>console.log("B"),0); console.log("C")? Explain with the exact event loop mechanics.
+
+Q3
+
+Why does React 18 automatic batching work in setTimeout but React 17 did not? What specific mechanism changed?
+
+Q4
+
+Given: const a = {x: {y: 1}}; const b = {...a}; b.x.y = 99; Does a.x.y change? Why? How do you prevent this?
+
+Q5
+
+Explain the 4 this-binding rules with one code example for each. Then show how arrow functions break rule 2.
+
+Q6
+
+What is structural sharing in Immer? Draw a tree diagram showing a state tree before and after one nested property change, showing which nodes are reused vs newly created.
+
+Q7
+
+Why do hooks not need .bind(this) while class component methods do? Answer in terms of how this is bound in each case.
+
+Q8
+
+What causes a memory leak with closures? Write a subscription example that leaks and then fix it with useEffect cleanup.
+
+Q9
+
+What is Object.is() and how does it differ from === ? Give 2 examples where they produce different results. Why does React use Object.is()?
+
+Q10
+
+Your app has a button click that calls setState 3 times. In React 17 how many renders happen? In React 18? Why the difference?
+
+
+
+DAY 2 — React Fiber Architecture (The Engine Under React)
+
+This is the topic that separates senior devs from mid-level devs in interviews. "How does React work internally?" Most candidates say "virtual DOM". Wrong answer. The correct answer is Fiber. Know it cold.
+
+
+
+TOPIC 2.1 — Why Fiber Was Built (The Problem with Stack Reconciler)
+
+React 15 used recursive stack-based reconciler: once started, could NOT be interrupted
+
+Problem: large component trees would block the main thread for 100ms+ causing dropped frames
+
+Goal of Fiber: make rendering interruptible, pauseable, resumable, and prioritizable
+
+Fiber = unit of work: every component = one fiber node. React can pause between fibers.
+
+
+
+TOPIC 2.2 — Fiber Node Structure (What's Actually in a Fiber)
+
+type: component type (function, class, or string like "div")
+
+key: the key prop for reconciliation identity
+
+stateNode: the actual DOM node or class instance
+
+return: pointer to parent fiber
+
+child: pointer to first child fiber
+
+sibling: pointer to next sibling fiber
+
+pendingProps / memoizedProps: props being processed vs props from last render
+
+memoizedState: the hooks linked list is stored here (useState, useEffect, etc.)
+
+effectTag / flags: marks what work needs to happen in commit phase (Placement, Update, Deletion)
+
+lanes: priority level of pending work (SyncLane = urgent, DefaultLane = normal, IdleLane = low priority)
+
+
+
+TOPIC 2.3 — The Two-Tree Architecture (Current vs Work-In-Progress)
+
+React always maintains TWO fiber trees simultaneously
+
+Current tree: the tree currently rendered on screen
+
+Work-in-progress tree: the new tree being built during reconciliation
+
+alternate pointer: each fiber in current points to its counterpart in work-in-progress
+
+Double buffering: when reconciliation completes, work-in-progress becomes current atomically
+
+Why: allows React to discard in-progress work without affecting what's on screen
+
+
+
+TOPIC 2.4 — Render Phase vs Commit Phase
+
+Render phase (Reconciliation): Pure computation — builds work-in-progress fiber tree, diffs against current tree. INTERRUPTIBLE. Can be paused, aborted, restarted. Runs your render function / component body.
+
+Commit phase: Applies all DOM mutations, runs layout effects (useLayoutEffect), then passive effects (useEffect). SYNCHRONOUS — never interrupted. Split into 3 sub-phases: before mutation, mutation, layout.
+
+Why render phase must be pure/free of side effects: React may run it multiple times in Concurrent Mode
+
+Why useLayoutEffect fires synchronously after DOM mutation: it's in the commit phase
+
+Why useEffect fires asynchronously after paint: it's scheduled after commit phase completes
+
+
+
+TOPIC 2.5 — Priority Lanes in React 18
+
+SyncLane: Discrete user input (click, keyboard) — must update immediately, no interruption
+
+InputContinuousLane: Continuous input (scroll, drag, mouse move)
+
+DefaultLane: Normal updates (data fetching, non-urgent state changes)
+
+TransitionLane: Updates wrapped in startTransition — can be interrupted
+
+IdleLane: Background work when browser is idle
+
+How React decides priority: user interaction = high, startTransition = low
+
+Concurrent Mode: high priority work can interrupt low priority work mid-render
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Explain what a Fiber node is and list 8 fields it contains. What does each field store?
+
+Q2
+
+Why was React's stack reconciler a problem? What exactly could it not do that Fiber can?
+
+Q3
+
+What is the difference between the render phase and commit phase? Which is interruptible? Why does this matter?
+
+Q4
+
+React maintains two fiber trees. What are they called and why? What is the alternate pointer?
+
+Q5
+
+What are "lanes" in React 18? List 4 different lane priorities and give a real UI example of when each is used.
+
+Q6
+
+Why must the render phase (component body / render function) be free of side effects? What happens in Concurrent Mode if it isn't?
+
+Q7
+
+Why does useLayoutEffect fire before useEffect even though both are "after render"? Trace the commit phase sequence.
+
+Q8
+
+Your component's render function runs 2-3 times without any state change in Strict Mode. Why does React do this and what does it help catch?
+
+Q9
+
+What is double buffering in React's fiber architecture? Why is it important?
+
+Q10
+
+A high-priority click event interrupts a startTransition update mid-render. What happens to the in-progress work? How does React handle this?
+
+
+
+DAY 3 — Reconciliation, Diffing Algorithm & The Key Prop
+
+
+
+TOPIC 3.1 — React's Two Diffing Assumptions
+
+Assumption 1: Two elements of different TYPES produce completely different trees. React will unmount the old tree entirely and mount a new one.
+
+Assumption 2: The developer can hint at element stability across renders with the key prop.
+
+Without these assumptions: O(n³) tree comparison algorithm (too slow for UI). With them: O(n) — React only compares at same tree level.
+
+
+
+TOPIC 3.2 — Element Type Comparison Rules
+
+Same type, same position: React updates the existing DOM node with new props — preserves DOM node, preserves state
+
+Different type, same position: React unmounts old component (calls cleanup, destroys state), mounts new component from scratch
+
+This is why conditionally rendering <Input> vs <textarea> resets form state completely
+
+This is why switching between <ComponentA> and <ComponentB> at same position resets their state
+
+To preserve state across type changes: lift state up or use a state manager
+
+
+
+TOPIC 3.3 — The key Prop — Deep Mechanics
+
+Key tells React "this specific component instance should be identified by this key, not by position"
+
+Same key, same position: React treats it as same component → preserves state
+
+Different key, same position: React unmounts old and mounts new → resets state entirely
+
+Using index as key: works fine for static lists, BREAKS for reordered or filtered lists — React thinks old item 0 is still item 0, carries over wrong state
+
+Correct key: must be stable, unique, and tied to the data item itself (e.g., item.id from database)
+
+Power pattern: use key to force remount and reset state: <Input key={userId} /> — changing userId creates fresh Input
+
+List diffing without keys: React tries position-based matching, cannot detect moves, produces unnecessary DOM operations
+
+List diffing with keys: React detects moves, deletions, insertions correctly — only mutates what actually changed
+
+
+
+TOPIC 3.4 — Component Identity & State Preservation
+
+State is tied to component position in the tree, not to the component function reference
+
+If same component function renders at same position → state is preserved even if props change
+
+If component function changes (e.g., you define a component inside render) → position is same but React sees new type → unmounts and remounts → state lost
+
+This is the exact reason never to define components inside other components' render
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+React uses O(n) diffing not O(n³). What are the two assumptions that make this possible? What breaks if those assumptions are violated?
+
+Q2
+
+You have <Component condition={true}> and you change to <OtherComponent condition={false}> at the same tree position. What happens to the state of Component? Why?
+
+Q3
+
+You have a list of todos and you use index as key. A user deletes item at index 0. What does React incorrectly do? Draw the before/after DOM state.
+
+Q4
+
+You want to reset a form Input component whenever the user changes. How do you use the key prop to force a remount without conditionals?
+
+Q5
+
+Why does defining a component inside another component's render function cause state to reset on every re-render of the parent?
+
+Q6
+
+What is "component identity" in React? Is it determined by the function reference, position in tree, or key prop?
+
+Q7
+
+A user has a <Counter> at position 0. You conditionally render <Counter> or <div> at that position. Describe exactly what happens to Counter's state in both cases.
+
+Q8
+
+React walks the fiber tree level by level (not across levels). Why does this constraint make the O(n) algorithm safe?
+
+Q9
+
+You have a keyed list [A, B, C]. You reorder to [C, A, B]. What DOM operations does React perform with keys? Without keys?
+
+Q10
+
+What is the reconciliation process for a component that renders from <input type="text"> to <input type="checkbox">? Same DOM node or different?
+
+
+
+DAY 4 — useState & useReducer Internals + Hook Rules
+
+
+
+TOPIC 4.1 — How Hooks Are Stored (The Linked List)
+
+Hooks are stored as a linked list on the fiber's memoizedState field
+
+Each hook call = one node in the list: { memoizedState: currentValue, queue: updateQueue, next: nextHook }
+
+On every render, React traverses this list in ORDER — this is why hook call order must be stable
+
+If you add/remove a hook conditionally, the list order changes → wrong state is assigned to wrong hook → bugs
+
+Hook rule "only call hooks at top level" is not just a style guide — it's a technical requirement of the linked list architecture
+
+
+
+TOPIC 4.2 — useState Internal Mechanics
+
+useState is implemented as useReducer with a built-in reducer: (state, action) => typeof action === "function" ? action(state) : action
+
+Initial render: creates hook node, sets memoizedState to initial value, returns [state, dispatcher]
+
+Update render: reads memoizedState from hook node, processes any pending updates in the queue
+
+Batching: multiple setState calls in same event handler are queued, processed together, produce one render
+
+State update is enqueued (not applied immediately). React processes the queue on next render.
+
+Functional update form: setCount(prev => prev + 1) — React passes the LATEST queued state as prev, preventing stale closures
+
+Why functional update is safer: in async code or callbacks, count may be stale, but prev is always the latest queued value
+
+Object.is() check: if new state === old state, React bails out of re-render entirely
+
+
+
+TOPIC 4.3 — useReducer — When and Why
+
+useReducer(reducer, initialState) — pure function: (state, action) => newState
+
+When to prefer useReducer over useState: multiple related pieces of state that change together, complex state transition logic, state update depends on multiple previous values, testing state logic in isolation
+
+Reducer must be pure: no side effects, no async, no API calls — just compute new state
+
+dispatch is stable: same reference across renders — safe to pass to children without useCallback
+
+Dispatch is synchronous: action is queued, state is NOT updated immediately, new state available on next render
+
+Initializer function (3rd argument): useReducer(reducer, {}, init) — init(3rd arg) runs once, avoids expensive computation on every render
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Draw a diagram of the hooks linked list for a component with: useState(0), useEffect(fn,[]), useState("hello"). Show what each node contains.
+
+Q2
+
+Why can't you call a hook inside an if statement? Explain specifically what breaks in the linked list data structure.
+
+Q3
+
+You have: const [count, setCount] = useState(0). Inside a setTimeout you call setCount(count + 1) three times. How many times does count increment? Why? Fix it.
+
+Q4
+
+What does the functional update form setCount(prev => prev + 1) do differently from setCount(count + 1)? When does this matter?
+
+Q5
+
+Why is React's dispatch function from useReducer safe to include in dependency arrays without useCallback? How is this different from setState?
+
+Q6
+
+Your reducer receives action {type: "TOGGLE"} and you do state.active = !state.active inside it. What goes wrong? Why must reducers be pure?
+
+Q7
+
+useReducer vs useState: you're building a form with 8 fields, validation state, submission loading, and error messages. Which do you use and why?
+
+Q8
+
+What is the lazy initializer pattern in useReducer? When would you use it vs just passing the initial state directly?
+
+Q9
+
+React bails out of a re-render if new state === old state via Object.is(). You call setState with the same object reference (mutated). Does React re-render? Why?
+
+Q10
+
+On the very first render, how does React know which hook in the linked list corresponds to which useState call? What information does it use?
+
+
+
+DAY 5 — useEffect Deep Dive + useLayoutEffect + Cleanup
+
+
+
+TOPIC 5.1 — What useEffect Actually Does
+
+"useEffect lets you synchronize a component with an external system." — React docs. Not "do stuff after render."
+
+External systems: browser APIs, third-party libraries, network, timers, subscriptions, WebSockets
+
+Run timing: effect runs AFTER React commits to DOM and AFTER the browser paints
+
+Effect runs after mount, then after every re-render where dependencies changed
+
+Cleanup runs BEFORE next effect runs and BEFORE component unmounts
+
+
+
+TOPIC 5.2 — Dependency Array Deep Mechanics
+
+React compares deps using Object.is() (same as ===, except NaN === NaN)
+
+No array: effect runs after EVERY render — rarely what you want
+
+Empty array []: effect runs only after mount, cleanup only on unmount
+
+[dep1, dep2]: effect runs after mount and whenever dep1 or dep2 changes by reference
+
+Object in deps: { user } changes reference every render (new object each render) → infinite loop
+
+Fix: destructure to primitives { user.id, user.name } which are stable primitives
+
+Function in deps: inline function creates new reference each render → infinite loop if in deps
+
+Fix: useCallback to stabilize function reference, or move function inside effect
+
+Linter rule react-hooks/exhaustive-deps: ALWAYS follow it. If it says add X to deps, add it. If that causes bugs, fix the architecture.
+
+
+
+TOPIC 5.3 — Race Conditions & Cleanup in Async Effects
+
+Problem: user types "r" → fetch starts → user types "re" → second fetch starts → second fetch may resolve BEFORE first → stale data displayed
+
+Solution 1: Boolean flag — let ignore = false; return () => { ignore = true; } — check if(!ignore) before setting state
+
+Solution 2: AbortController — const controller = new AbortController(); fetch(url, {signal: controller.signal}); return () => controller.abort()
+
+AbortController is preferred: actually cancels the network request, not just ignores the result
+
+Never make useEffect async directly: async function returns a Promise, React expects the cleanup function — Promise is not a function
+
+Pattern: define async function inside effect, then call it — const fetchData = async () => {...}; fetchData();
+
+
+
+TOPIC 5.4 — useLayoutEffect — When & Why
+
+useLayoutEffect fires synchronously AFTER DOM mutation but BEFORE browser paint
+
+useEffect fires asynchronously AFTER browser paint
+
+Use useLayoutEffect when: reading DOM measurements (element size, position) that affect what you render next → prevents visual flicker
+
+Use useLayoutEffect for: tooltips that need to calculate position, scroll restoration, animations that need DOM position
+
+Warning: useLayoutEffect in SSR causes React to warn — use useEffect or dynamically import the component
+
+Default to useEffect. Use useLayoutEffect only when visual flicker is actually occurring and you've confirmed the timing difference fixes it.
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Why should you never make a useEffect callback async? Show the wrong code, explain what React receives, and show the correct pattern.
+
+Q2
+
+Write an async data fetching effect that handles race conditions using AbortController. Explain why AbortController is better than an "ignore" flag.
+
+Q3
+
+What happens if you put an object directly in the useEffect dependency array? Why does it cause an infinite loop? Fix it.
+
+Q4
+
+Your useEffect has a function dependency. The function is created inline in the component. What happens? Provide 2 ways to fix it.
+
+Q5
+
+Explain the exact sequence of events: component renders, DOM is updated, browser paints, useLayoutEffect fires, useEffect fires. Which of these fire synchronously?
+
+Q6
+
+When should you use useLayoutEffect instead of useEffect? Give a concrete UI example where using useEffect instead would cause visible flickering.
+
+Q7
+
+What does the cleanup function in useEffect do and WHEN does it run? Write a WebSocket subscription with proper cleanup.
+
+Q8
+
+You have useEffect with [] — runs once. But inside it you call a function that uses state. The function always sees the initial state value. Why? Fix it.
+
+Q9
+
+What is the "exhaustive-deps" ESLint rule? Should you ever disable it with eslint-disable? What should you do instead?
+
+Q10
+
+A component mounts, then state changes 3 times. In what order do effects and cleanups run across these 4 renders? List them in sequence.
+
+
+
+DAY 6 — useMemo, useCallback, React.memo — When They Help and When They Hurt
+
+
+
+TOPIC 6.1 — Why React Re-Renders
+
+React re-renders when: 1) State changes. 2) Context value changes. 3) Parent re-renders (by default, EVERY child re-renders).
+
+Re-render ≠ DOM update: React re-renders (calls the function), diffs the output, only updates DOM if output changed
+
+So most re-renders are actually cheap — the function runs again but DOM stays unchanged
+
+Premature optimization with memo is harmful: memo adds comparison cost. If component is cheap, the comparison may cost more than just re-rendering.
+
+When optimization IS worth it: component is genuinely expensive (complex calculations, large subtrees), confirmed by React DevTools Profiler
+
+
+
+TOPIC 6.2 — React.memo Deep Mechanics
+
+Wraps component, performs shallow comparison of props before re-rendering
+
+Shallow comparison: compares each prop with Object.is() — primitives compared by value, objects/arrays/functions compared by reference
+
+If all props are same reference → skip re-render
+
+CRITICAL: If parent passes an object/array/function as prop without memoizing it, it creates NEW reference every parent render → React.memo is bypassed every time
+
+Custom comparator: React.memo(Component, (prevProps, nextProps) => areEqual) — return true to skip re-render
+
+React.memo does NOT help with context changes or internal state changes — only prop changes
+
+
+
+TOPIC 6.3 — useMemo — Memoize Expensive Computations
+
+const value = useMemo(() => expensiveCalc(a, b), [a, b])
+
+Skips recalculation unless a or b changes
+
+Also used to stabilize object/array references passed to memoized children: const options = useMemo(() => ({size: "large"}), []) — same reference every render
+
+Measure BEFORE using useMemo — most computations are cheap (microseconds). useMemo itself has overhead.
+
+Good candidate for useMemo: filtering/sorting 10,000+ items, expensive math, derived data used in many places
+
+Bad candidate: simple string concatenation, conditional logic, any computation under 1ms
+
+
+
+TOPIC 6.4 — useCallback — Stabilize Function References
+
+const fn = useCallback(() => doSomething(a), [a]) — returns same function reference unless a changes
+
+Primary use case: function passed as prop to memoized child component — without useCallback, child re-renders every time
+
+Secondary use case: function in dependency array of another hook
+
+useCallback(fn, deps) is equivalent to useMemo(() => fn, deps)
+
+Anti-pattern: wrapping every function in useCallback "just to be safe" — adds overhead with zero benefit if function isn't passed to memoized children
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+You wrap a component in React.memo but it still re-renders every time the parent renders. What are 3 possible reasons? How do you diagnose each?
+
+Q2
+
+What is the difference between useMemo and useCallback? Show they are equivalent using only useMemo.
+
+Q3
+
+You have a list of 50,000 items. Parent state changes on every keystroke. The list is wrapped in React.memo. The parent passes filter function as prop. Does memo help? Why not? Fix it.
+
+Q4
+
+When is React.memo harmful to use? Give a specific example where wrapping a component in memo makes performance WORSE.
+
+Q5
+
+useMemo vs external caching: you have an expensive calc in a component. Should you use useMemo or cache the result outside the component? When does each apply?
+
+Q6
+
+You use useMemo to memoize an object: const opts = useMemo(() => ({color}), [color]). But color is a string. Could you achieve the same with no memo? What's different?
+
+Q7
+
+Open React DevTools Profiler, record an interaction. How do you read the flame graph? What does each bar represent? How do you identify the problematic component?
+
+Q8
+
+Write a SearchResults component that renders 10,000 filtered items. Implement it correctly using React.memo, useMemo, and useCallback where appropriate and ONLY where appropriate.
+
+Q9
+
+What is the "render vs commit" cost model? Why does re-rendering not necessarily mean DOM mutation?
+
+Q10
+
+Your memoized child component uses a callback from the parent. The parent's state changes for an UNRELATED reason. Does the child re-render? What combination of React.memo + useCallback prevents this?
+
+
+
+DAY 7 — Week 1 Integration Project + Deep Review
+
+No new theory. Build, review, articulate. If you cannot explain a topic out loud clearly, you don't own it yet.
+
+Project: Build "React Internals Explorer" — a visual app that shows fiber tree, render counts per component, and effect timing
+
+Add React DevTools Profiler to a complex component and find and fix 3 performance issues
+
+Voice record yourself explaining: Fiber, reconciliation, and the linked list. If you stumble, study that section again.
+
+Write a 1-page technical summary: "How React works under the hood" — as if explaining to a senior engineer hiring you
+
+Review ALL knowledge check questions from Days 1-6. Every single one.
+
+
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon
+
+JS Internals
+
+Study closures with 10 code examples traced manually
+
+Draw event loop diagram with full microtask/macrotask queue
+
+Implement stale closure bug → 3 different fixes
+
+Prototype chain: trace property lookup for 5 examples
+
+Write: object mutability demo, explain each result
+
+8h
+
+Tue
+
+React Fiber
+
+Read React Fiber architecture article by Lin Clark
+
+Draw Fiber node structure on paper with all 10 fields
+
+Draw: current tree vs work-in-progress tree for 5-component app
+
+Study React source: ReactFiber.new.js on GitHub
+
+Explain Fiber out loud to yourself 3 times — record the third one
+
+8h
+
+Wed
+
+Reconciliation
+
+Build demo: type change at same position → observe state reset
+
+Build demo: index key vs stable key — delete item at index 0
+
+Build: key as reset mechanism for a form
+
+Draw diffing algorithm walkthrough for a 6-item list reorder
+
+Study React docs: Reconciliation deep dive page
+
+8h
+
+Thu
+
+useState/useReducer
+
+Build shopping cart with useReducer — 5 actions minimum
+
+Demonstrate stale closure in counter → fix with functional update
+
+Build form with 6 fields using useReducer
+
+Console.log inside reducer to trace all dispatches
+
+Build: lazy initializer pattern for expensive initial state
+
+8h
+
+Fri
+
+useEffect
+
+Build data fetcher with AbortController race condition fix
+
+Demonstrate infinite loop from object in deps → fix it
+
+Build WebSocket connection with full cleanup
+
+Build useLayoutEffect tooltip that measures DOM position
+
+Build: 5 different effects, each with correct cleanup
+
+8h
+
+Sat
+
+useMemo/useCallback
+
+Build: 50,000 item filtered list — add memo progressively
+
+Profile: before and after with React DevTools
+
+Build: parent-child where parent causes child re-renders → fix
+
+Intentionally over-optimize with memo everywhere → measure cost
+
+Write: decision flowchart for when to use each memoization tool
+
+8h
+
+Sun
+
+Integration
+
+Build "React Internals Explorer" app
+
+Voice-record explanation of all Week 1 topics
+
+Review all 70 knowledge check questions
+
+Fix any gaps — re-study weak areas
+
+Write technical summary doc in Notion
+
+8h
+
+
+
+📅 WEEK 2 — TypeScript Mastery + Advanced Hooks + State Architecture
+
+Raghav, this week will be the single biggest upgrade to your hirability. Your resume lists TypeScript but shows zero advanced usage. Senior roles at 20-35 LPA require advanced TS. This week you close that gap completely.
+
+
+
+DAY 8 — TypeScript: Generics, Conditional Types, Utility Types
+
+
+
+TOPIC 8.1 — Generics (The Most Important TS Feature)
+
+Generics: write one function/type that works with multiple types while preserving type information
+
+Basic generic: function identity<T>(arg: T): T { return arg; } — T is inferred from argument
+
+Generic constraints: <T extends object> — T must be an object type
+
+<T extends keyof U> — T must be a key of U
+
+Generic with default: <T = string> — T defaults to string if not specified
+
+Generic React components: type Props<T> = { items: T[]; renderItem: (item: T) => ReactNode }
+
+Real use: custom hook return types, API response wrappers, reusable data structures
+
+Generic inference: TypeScript infers T from usage in most cases — prefer inference over explicit annotation
+
+
+
+TOPIC 8.2 — Conditional Types
+
+Syntax: T extends U ? X : Y — "if T is assignable to U, use type X, otherwise use type Y"
+
+Use case: return type depends on input type
+
+Distributive conditional types: when T is a union, condition distributes over each member
+
+infer keyword: extract a type from within another type — infer R in return position
+
+Example: type ReturnType<T> = T extends (...args: any[]) => infer R ? R : never
+
+Example: type UnwrapPromise<T> = T extends Promise<infer U> ? U : T
+
+NonNullable<T>: T extends null | undefined ? never : T
+
+
+
+TOPIC 8.3 — Utility Types (Use These Daily)
+
+Partial<T>: makes all properties optional — great for update payloads
+
+Required<T>: makes all properties required
+
+Readonly<T>: makes all properties readonly — great for state
+
+Pick<T, K>: select subset of properties — Pick<User, "id" | "name">
+
+Omit<T, K>: remove properties — Omit<User, "password"> for API responses
+
+Record<K, V>: object with specific key and value types — Record<string, number>
+
+Extract<T, U>: from union T, keep only what extends U
+
+Exclude<T, U>: from union T, remove what extends U
+
+ReturnType<T>: infer return type of a function
+
+Parameters<T>: infer parameter types as tuple
+
+Awaited<T>: unwrap Promise type recursively
+
+
+
+TOPIC 8.4 — Discriminated Unions (The Pattern Senior Devs Love)
+
+Discriminated union: union of types, each with a common literal property (the discriminant)
+
+type Result<T> = { status: "success"; data: T } | { status: "error"; error: string } | { status: "loading" }
+
+TypeScript narrows type based on discriminant in switch/if blocks — fully type-safe
+
+Exhaustiveness check: add a default case with assertNever() to ensure all union members are handled
+
+Perfect for: API state (loading/success/error), action types in reducers, form states
+
+Alternative to optional chaining hell: instead of result.data?.user?.name, use discriminated union narrowing
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Write a generic useFetch<T> hook that returns { data: T | null, loading: boolean, error: string | null }. The component using it should have full type safety on data.
+
+Q2
+
+What is the infer keyword? Write a type that extracts the element type from any array type: ArrayElement<string[]> = string.
+
+Q3
+
+Write a type-safe API client function fetchUser(id: string): Promise<User> using generics and conditional types for error handling.
+
+Q4
+
+Create a discriminated union for async operation state: idle, loading, success<T>, error. Write a component that uses it with full type narrowing.
+
+Q5
+
+What is the difference between Pick and Omit? When would you use each? Give a real API response example.
+
+Q6
+
+Write a generic component <List<T>> that accepts items: T[] and renderItem: (item: T) => ReactNode with correct TypeScript types.
+
+Q7
+
+What is an exhaustiveness check? Write an assertNever function and show it catching a missing union member at compile time.
+
+Q8
+
+Explain distributive conditional types: why does (string | number) extends string ? true : false evaluate to boolean instead of false?
+
+Q9
+
+You receive an API response that may be User | Admin | SuperAdmin. Each has different fields. How do you model this with discriminated unions and handle each case safely?
+
+Q10
+
+What is the ReturnType utility type? Write your own version of it without using the built-in, using only conditional types and infer.
+
+
+
+DAY 9 — Advanced Custom Hooks + Custom Hook Design Patterns
+
+
+
+TOPIC 9.1 — Custom Hook Design Principles
+
+A custom hook is just a function that starts with "use" and calls other hooks — no magic
+
+Single responsibility: one hook does one thing. useSearch is different from useDebounce.
+
+Composition over complexity: build complex hooks from simple hooks
+
+Return value design: return arrays ([value, setter]) when used like useState; objects ({data, loading, error}) when multiple named values
+
+Type the return: always provide TypeScript types for your custom hooks
+
+
+
+TOPIC 9.2 — Production-Grade Hook Library to Build
+
+useDebounce<T>(value: T, delay: number): T — debounce any value change
+
+useThrottle<T>(value: T, limit: number): T — throttle value updates
+
+useLocalStorage<T>(key: string, initial: T): [T, Setter<T>] — persists to localStorage with cross-tab sync
+
+usePrevious<T>(value: T): T | undefined — stores previous render's value via ref
+
+useMediaQuery(query: string): boolean — responsive without CSS-only
+
+useIntersectionObserver(ref, options): entry — lazy loading, infinite scroll
+
+useEventListener(event, handler, target) — safe event listener with cleanup
+
+useClickOutside(ref, handler) — dropdown/modal close on outside click
+
+useAsync<T>(asyncFn, deps): AsyncState<T> — async operation with loading/error/data
+
+useLatest<T>(value: T): RefObject<T> — always-fresh value ref (no stale closures)
+
+useInterval(callback, delay) — safe setInterval with cleanup
+
+useToggle(initial): [boolean, toggle] — common pattern extracted
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Write useDebounce from scratch with full TypeScript types. Explain every line including why cleanup cancels the timeout.
+
+Q2
+
+Write useAsync that accepts an async function and dependency array, returns {data, loading, error}, and handles cancellation.
+
+Q3
+
+Write useLocalStorage with cross-tab synchronization using the storage event. Handle JSON parse errors gracefully.
+
+Q4
+
+Why does usePrevious need useRef instead of useState? What would happen if you used useState? Would it cause bugs?
+
+Q5
+
+Write useIntersectionObserver and use it to build a lazy-loading image component that only fetches when visible.
+
+Q6
+
+What is the "useLatest" pattern? When does it solve stale closure issues better than adding to dependency arrays?
+
+Q7
+
+Design the public API (types/signature) for a useWebSocket hook. What should it return? What options should it accept? What does cleanup look like?
+
+Q8
+
+Write useClickOutside. Handle the case where clicking inside a portal (like a tooltip) should NOT trigger the outside click.
+
+Q9
+
+How do you test a custom hook? Write a test for useDebounce using React Testing Library's renderHook.
+
+Q10
+
+You have useSearch that debounces input and calls an API. It uses useDebounce and useAsync. Show how to compose them into one hook.
+
+
+
+DAY 10 — Context API Optimization + State Architecture Design
+
+
+
+TOPIC 10.1 — How Context Causes Re-Renders
+
+When context value changes, ALL components subscribed with useContext re-render — regardless of which part of the value they use
+
+If context value is an object and parent passes new object every render → all consumers re-render every time
+
+Fix: memoize context value with useMemo — const value = useMemo(() => ({user, logout}), [user, logout])
+
+Better fix: split contexts — AuthContext (user) separate from AuthActionsContext (logout, login) — actions are stable, only user data changes
+
+Context selectors (manual): use separate contexts for separate concerns, consumer only subscribes to what it needs
+
+
+
+TOPIC 10.2 — Context + useReducer Pattern
+
+Pattern: one context for state, one for dispatch — dispatch never changes, only state changes
+
+Components that only dispatch actions subscribe to dispatch context → never re-render when state changes
+
+This is the "poor man's Redux" pattern built into React
+
+Scale limit: fine for medium apps, breaks down when you need middleware, devtools, or cross-context coordination
+
+
+
+TOPIC 10.3 — State Colocation Principle
+
+Rule: Keep state as close to where it's used as possible
+
+Global state is expensive (causes more re-renders). Local state is cheap.
+
+Before reaching for global state: can this live in the component? In the parent? In a common ancestor?
+
+Anti-pattern: putting everything in a global store because it's "easier" — this kills performance and testability
+
+Colocation with TanStack Query: server state doesn't need to be in global store — let React Query cache it and access it anywhere with the same query key
+
+
+
+TOPIC 10.4 — Full State Architecture Decision Framework
+
+useState: component-local UI state (modal open, active tab, form field)
+
+useReducer: complex local state with multiple related fields
+
+Context: truly global UI state (theme, user auth, locale) — max 2-3 contexts
+
+Zustand: shared non-server state that doesn't fit in Context without re-render pain
+
+TanStack Query: ALL server state — it handles caching, refetching, loading, errors
+
+URL params: state that should be shareable, bookmarkable, or survive page refresh (filters, search, pagination)
+
+React Hook Form: form state — do NOT use useState for forms with 3+ fields
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+You have a UserContext that provides {user, theme, notifications, cart}. What is the performance problem? Redesign it.
+
+Q2
+
+Implement the Context + useReducer pattern with split state/dispatch contexts. Show a component that only dispatches and never re-renders from state changes.
+
+Q3
+
+When should you use Zustand over Context? Give 3 specific scenarios.
+
+Q4
+
+What is state colocation? Give an example of state that was wrongly put in a global store and show how to move it to be colocated.
+
+Q5
+
+Your auth user state is in Context. Your shopping cart is server-side (React Query). A component needs both. How do you access both without over-subscribing?
+
+Q6
+
+Explain why URL state is often the right answer for filter and search state. What does the user experience benefit?
+
+Q7
+
+You memoize a context value: const val = useMemo(() => ({count, increment}), [count, increment]). increment is defined inline. Does memoization work? Why not? Fix it.
+
+Q8
+
+Describe a full state architecture for an e-commerce app with: auth, cart (server-side), product filters, active modal, and theme.
+
+Q9
+
+What are the performance limits of React Context? At what point should you migrate from Context to Zustand?
+
+Q10
+
+What is "context selector" and why doesn't React have it built in? How do you simulate it with split contexts?
+
+
+
+DAY 11 — React Hook Form + Server State with TanStack Query
+
+
+
+TOPIC 11.1 — Why Controlled Forms Are Wrong for Complex Forms
+
+Controlled form: every keystroke → state update → re-render → entire form re-renders
+
+10-field form, user types 100 characters = 100 * renders of entire form = 1000+ render cycles
+
+React Hook Form: uncontrolled inputs, reads values only on submit, validates on blur/change without re-rendering
+
+Result: 0 extra renders per keystroke, same user experience, dramatically better performance
+
+
+
+TOPIC 11.2 — React Hook Form Deep Patterns
+
+register: connects input to RHF without making it controlled
+
+handleSubmit: wraps your submit handler, prevents default, validates before calling
+
+formState: { errors, isDirty, isSubmitting, isValid, touchedFields, dirtyFields }
+
+watch: subscribes to field value — causes re-render. Use sparingly. Use getValues() for non-reactive reads.
+
+Controller: for custom inputs that aren't native HTML inputs (custom select, date picker, etc.)
+
+useFieldArray: dynamic field arrays — add/remove/move items with correct validation
+
+Validation: built-in rules (required, min, max, pattern), or integrate with Zod via zodResolver
+
+Async validation: validate field against API (check username availability) — handle loading state
+
+Multi-step form: use one form across steps with setValue and getValues
+
+
+
+TOPIC 11.3 — TanStack Query Deep Patterns
+
+Query keys as cache identifiers: ["users", userId] — always include dynamic variables that affect the query
+
+staleTime: how long data is "fresh" before background refetch. Default: 0 (always stale). Set to 5min for reference data.
+
+gcTime (was cacheTime): how long unused data stays in cache before garbage collected
+
+Optimistic updates: mutate cache immediately on mutation, rollback on error — instant UI feedback
+
+Invalidation: queryClient.invalidateQueries(["users"]) — marks data stale, triggers refetch
+
+Prefetching: queryClient.prefetchQuery() — fetch data before user navigates to a page
+
+useInfiniteQuery: for pagination and infinite scroll — manages pages array, hasNextPage, fetchNextPage
+
+useSuspenseQuery: integrates with React Suspense — component suspends while data loads
+
+Parallel queries: run multiple useQuery calls, they run in parallel automatically
+
+Dependent queries: enabled: !!userId — don't run query until dependency is available
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Build a registration form with RHF + Zod: name, email, password, confirmPassword (must match), username (async check). Show all validation patterns.
+
+Q2
+
+What is the difference between watch and getValues in RHF? When does each cause a re-render?
+
+Q3
+
+What is optimistic mutation in TanStack Query? Write an optimistic "like" button that updates the UI instantly and rolls back on error.
+
+Q4
+
+Explain query key structure. Why is ["users"] different from ["users", userId] and why does this matter for cache?
+
+Q5
+
+What is staleTime vs gcTime? Set up TanStack Query for: user profile data (rarely changes), feed data (changes often), reference data like countries (never changes).
+
+Q6
+
+Build an infinite scroll list using useInfiniteQuery. Handle loading more, loading state, and the end of data.
+
+Q7
+
+You need to prefetch user data when hovering over a profile link. Write the code using TanStack Query.
+
+Q8
+
+How do you handle a mutation that affects multiple query caches? You add a comment — invalidate both comments list and post (which shows comment count).
+
+Q9
+
+Write a useFieldArray example for a dynamic "add education" form where users can add multiple education entries.
+
+Q10
+
+What is useSuspenseQuery and how does it integrate with React Suspense? How does error handling work differently from regular useQuery?
+
+
+
+DAY 12 — Zustand + Jotai + State Management Mastery
+
+
+
+TOPIC 12.1 — Zustand Architecture
+
+createStore creates a store outside React — no Provider needed, just import and use
+
+Store contains: state (data) + actions (functions that update state) together
+
+useStore(selector): component subscribes only to selected slice — only re-renders when THAT slice changes
+
+Selector performance: const bears = useStore(state => state.bears) — only re-renders when bears changes, not entire store
+
+Shallow comparison: useShallow for selecting objects/arrays that would otherwise create new references
+
+Middleware: persist (localStorage), devtools (Redux DevTools), immer (immutable updates)
+
+Slicing large stores: split into slices for maintainability, combine with spread
+
+When to use: shared non-server state that is too painful in Context (auth state, cart, user preferences, UI state that many components need)
+
+
+
+TOPIC 12.2 — Jotai — Atomic State
+
+Atom: smallest unit of state — const countAtom = atom(0)
+
+useAtom(countAtom): [value, setter] — only re-renders component when THIS atom changes
+
+Derived atoms: atom(get => get(priceAtom) * get(quantityAtom)) — computed from other atoms
+
+Write atoms: atom(get => ..., set => ...) — custom read and write logic
+
+Async atoms: atom(async get => { const res = await fetch(...); return res.json(); }) — integrates with Suspense
+
+Fine-grained subscriptions: each component subscribes to exactly what it needs — no over-subscription
+
+Provider scope: wrap part of app with Provider to give isolated atom state
+
+When to use Jotai over Zustand: when you have many independent pieces of state that different components subscribe to independently
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Build a Zustand shopping cart with: addItem, removeItem, updateQuantity, clearCart, persist to localStorage. Use selectors to minimize re-renders.
+
+Q2
+
+What is the selector pattern in Zustand? Why is const x = useStore() (no selector) a performance anti-pattern?
+
+Q3
+
+What is useShallow in Zustand and when do you need it?
+
+Q4
+
+Build the same shopping cart with Jotai. Compare the mental model. When would you prefer Jotai's approach?
+
+Q5
+
+Zustand has middleware. What does the persist middleware do? What are edge cases when using it (e.g., state shape changes)?
+
+Q6
+
+You have a Zustand store with 20 fields. A component only needs 2 of them. Write the selector. What happens if you don't use a selector?
+
+Q7
+
+Explain derived atoms in Jotai. Build a cart total atom derived from items atom and discount atom.
+
+Q8
+
+Final decision framework: you're building a SaaS dashboard. List every piece of state and assign it to: useState, Context, Zustand, TanStack Query, or URL params. Justify each.
+
+Q9
+
+What is the difference between Jotai atoms at module scope vs inside a component? What is Provider in Jotai and why would you use it?
+
+Q10
+
+How do you use Redux DevTools with Zustand? How do you name store actions for better DevTools experience?
+
+
+
+DAYS 13-14 — Testing React Apps Like a Senior Engineer
+
+You listed Jest/Vitest on your resume with zero test code shown anywhere. This will get you rejected at companies that care about quality. Learn this properly.
+
+
+
+TOPIC 13.1 — Testing Philosophy
+
+"Test behavior, not implementation" — Kent C. Dodds. Test what the user sees and does, not internal function calls.
+
+Testing pyramid: many unit tests, fewer integration tests, few E2E tests
+
+React Testing Library philosophy: query DOM like a user would. getByRole, getByText, not getByClassName.
+
+Avoid testing implementation details: component internal state, which function was called, React internals
+
+Test confidence: your tests should fail when the behavior breaks, not when you refactor internal implementation
+
+
+
+TOPIC 13.2 — React Testing Library Core API
+
+render(component): renders component into jsdom, returns queries
+
+screen: query methods on the rendered output
+
+getByRole: most accessible query — matches by ARIA role (button, textbox, heading, listitem)
+
+getByText: matches visible text content
+
+getByLabelText: finds form input by its label — mirrors how screen readers work
+
+queryBy vs getBy: queryBy returns null if not found (use for asserting NOT present), getBy throws
+
+findBy: async query, waits up to 1s for element to appear — for async operations
+
+userEvent vs fireEvent: userEvent simulates real user interaction (type, click, tab), fireEvent is synthetic
+
+waitFor: wait for any expectation to pass — for async state updates
+
+
+
+TOPIC 13.3 — Testing Patterns
+
+Testing hooks: renderHook from @testing-library/react
+
+Mocking API calls: MSW (Mock Service Worker) — intercept at network level, most realistic
+
+Testing async: findBy queries, waitFor, act()
+
+Testing forms: userEvent.type, userEvent.click submit button, assert validation messages
+
+Testing context: wrap component in context provider in render, or create custom renderWithProviders
+
+Testing React Query: wrap with QueryClientProvider, use fresh QueryClient per test
+
+Snapshot testing: use sparingly — captures DOM output, fails on any change. Better for stable UI components.
+
+Accessibility testing: @testing-library/jest-dom + axe-core for automated a11y checks
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Write a test for a login form: user types email and password, clicks submit, see loading state, then success message. Mock the API with MSW.
+
+Q2
+
+What is the difference between getByRole and getByText? Which is preferred and why?
+
+Q3
+
+Write a test for your useDebounce hook using renderHook. Assert that the value doesn't update until delay ms have passed.
+
+Q4
+
+What is userEvent vs fireEvent? Why does the RTL docs recommend userEvent?
+
+Q5
+
+Write a test that asserts an element is NOT in the document. Which query do you use? Why?
+
+Q6
+
+How do you test a component that uses TanStack Query? What setup is required? Write an example.
+
+Q7
+
+What does act() do in React Testing Library? When do you need to wrap code in act()?
+
+Q8
+
+Write a test for an infinite scroll component that loads more items when user scrolls to bottom.
+
+Q9
+
+What is MSW and why is it better than mocking fetch directly? Set up MSW for a test suite.
+
+Q10
+
+What does "test behavior not implementation" mean? Give an example of a test that tests implementation (wrong) and one that tests behavior (right).
+
+
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon
+
+TypeScript Mastery
+
+Build generic useFetch<T> hook with full types
+
+Write 5 utility types from scratch (Partial, Pick, Omit, ReturnType, Awaited)
+
+Build discriminated union for API states — use in 3 components
+
+Write conditional type: UnwrapArray<T[]> = T
+
+Practice: 10 TypeScript challenges on TypeHero or type-challenges
+
+8h
+
+Tue
+
+Custom Hooks
+
+Build full hook library: useDebounce, useThrottle, useLocalStorage, usePrevious
+
+Build: useAsync with loading/error/data + cancellation
+
+Build: useIntersectionObserver — add lazy image demo
+
+Build: useClickOutside — add dropdown that closes on outside click
+
+Type every hook with generics
+
+8h
+
+Wed
+
+Context + State Arch
+
+Demonstrate context re-render problem with DevTools → fix with split contexts
+
+Build Context + useReducer pattern: state context + dispatch context
+
+Write state architecture doc for the e-commerce app you're building
+
+Implement URL state for filters with URLSearchParams + React Router
+
+8h
+
+Thu
+
+RHF + TanStack Query
+
+Build registration form with RHF + Zod — all validation patterns
+
+Build optimistic mutation: like button with rollback
+
+Build infinite scroll with useInfiniteQuery
+
+Implement query prefetching on hover
+
+Build useFieldArray: dynamic education entries form
+
+8h
+
+Fri
+
+Zustand + Jotai
+
+Build full Zustand store with persist + devtools middleware
+
+Implement sliced Zustand store — separate auth slice, cart slice
+
+Build same cart with Jotai — compare patterns
+
+Write selector performance demo — measure re-renders with/without selector
+
+8h
+
+Sat
+
+Testing Day 1
+
+Set up RTL + Vitest + MSW in a project
+
+Write tests for 3 components using getByRole queries exclusively
+
+Write renderHook tests for useDebounce and useAsync
+
+Set up MSW handlers for your mock API
+
+8h
+
+Sun
+
+Testing Day 2 + Review
+
+Write full test suite for registration form
+
+Write TanStack Query component tests
+
+Review all knowledge checks from Week 2
+
+Build: small app integrating everything from Week 1-2
+
+Record: voice explanation of TypeScript generics, discriminated unions, state architecture
+
+8h
+
+
+
+📅 WEEK 3 — React Performance Engineering + Frontend System Design
+
+This is where you become worth 20+ LPA. Not because you know how to use React, but because you can make React fast AND design complex frontend systems.
+
+
+
+DAY 15 — Performance Measurement, Core Web Vitals, Profiling
+
+
+
+TOPIC 15.1 — Core Web Vitals (Know These Cold)
+
+LCP (Largest Contentful Paint): time until largest visible element (image or text block) is rendered. Target: < 2.5s. Poor: > 4s.
+
+INP (Interaction to Next Paint): replaces FID. Time from user interaction to next frame rendered. Target: < 200ms. Poor: > 500ms.
+
+CLS (Cumulative Layout Shift): unexpected visual shifts during page load. Target: < 0.1. Caused by: images without dimensions, ads, dynamic content insertion above existing content.
+
+TTFB (Time to First Byte): time for browser to receive first byte from server. Not a Core Web Vital but important for SSR.
+
+FCP (First Contentful Paint): when first content appears. Not a CWV but measures perceived load speed.
+
+
+
+TOPIC 15.2 — React DevTools Profiler
+
+Flame graph: each bar = one component. Width = time spent. Click bar to see why it rendered.
+
+"Why did this render" section: shows which props/state/hooks changed to trigger render
+
+Ranked chart: components sorted by render duration — spot slow components instantly
+
+Record: click record, perform interaction, click stop — then analyze
+
+Identify: unnecessarily re-rendering components (renders when parent renders without any prop change)
+
+Highlight updates: enable "Highlight updates when components render" setting to see live re-renders
+
+
+
+TOPIC 15.3 — Chrome Performance Tab
+
+Long tasks: any script > 50ms shown in red — these block user interaction
+
+FPS chart: dropped frames appear as red bars in top section
+
+Call tree: see which functions take most time, expand to find the slow code
+
+Bottom-up: find total time spent in each function across all call stacks
+
+Layout and paint: large green blocks = expensive layout recalculations (often caused by reading then writing DOM)
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+What are the 3 Core Web Vitals? What does each measure, what is the "good" threshold, and name one React-specific cause of a poor score for each.
+
+Q2
+
+Open a real website in Chrome DevTools, run a Lighthouse audit. Identify 3 issues. For each: what is the issue, what score does it affect, and how would you fix it in a React app?
+
+Q3
+
+Use React DevTools Profiler on a component with 3 children. Record a click interaction. Identify which child re-rendered unnecessarily and what caused it.
+
+Q4
+
+What causes CLS in a React app? Give 3 specific React patterns that cause layout shift.
+
+Q5
+
+What is INP (Interaction to Next Paint)? How does a heavy React re-render cause poor INP?
+
+Q6
+
+A user complains the app "feels laggy". Walk through your diagnostic process step by step — what tools, what metrics, what you look for.
+
+Q7
+
+What is a "long task" in browser performance? How does React's concurrent mode help reduce long tasks?
+
+Q8
+
+How do you measure LCP in a production React app with real user data (not just Lighthouse)?
+
+Q9
+
+What is TTFB and how does SSR with Next.js affect it compared to a pure client-side React app?
+
+Q10
+
+What does "highlight updates when components render" in React DevTools show you? Run it on your portfolio app and find 3 unnecessary renders.
+
+
+
+DAY 16-17 — Rendering Optimization: memo, Virtual Lists, Code Splitting
+
+
+
+TOPIC 16.1 — Systematic Optimization Process
+
+Rule 1: MEASURE FIRST. Never optimize without profiler evidence. "I think this is slow" is wrong 80% of the time.
+
+Rule 2: Fix the most impactful problem first. Optimizing a component that renders in 0.3ms is wasted effort.
+
+Rule 3: Measure after each change. Confirm the optimization actually helped.
+
+Optimization priority order: 1) Fix architectural problems (wrong component structure), 2) Fix expensive calculations (useMemo), 3) Fix prop instability (useCallback, useMemo for objects), 4) Memoize components (React.memo), 5) Virtualize (only for large lists)
+
+
+
+TOPIC 16.2 — List Virtualization Deep Dive
+
+Problem: rendering 10,000 list items = 10,000 DOM nodes = huge memory and layout recalculation cost
+
+Solution: render only visible items (typically 10-30) + a buffer above and below viewport
+
+Technique: absolutely position items, translate them into view as user scrolls
+
+react-window: simpler, fixed-size and variable-size list/grid components
+
+TanStack Virtual (react-virtual): more flexible, handles variable heights, horizontal scrolling, grid
+
+Key challenge: variable height items require height estimation or measurement before virtualization
+
+Combining with infinite scroll: TanStack Virtual + TanStack Query useInfiniteQuery is the production pattern
+
+
+
+TOPIC 16.3 — Code Splitting Strategies
+
+Route-based splitting: lazy load each route — most impactful, easiest to implement
+
+Component-based splitting: lazy load large components (rich text editor, chart library, map)
+
+Interaction-based splitting: load code only when user performs specific action (click a button that opens a complex modal)
+
+Preloading: prefetch chunk when user hovers over link — balances initial load vs interaction speed
+
+Bundle analysis: run next build && next analyze, or webpack-bundle-analyzer — identify large chunks
+
+Third-party impact: moment.js = 67kb, date-fns = 2-12kb tree-shakeable. lodash = 71kb, lodash-es = tree-shakeable. Math: replace date-fns with date-fns/format for individual imports.
+
+Dynamic import(): const { default: Chart } = await import("recharts") — code splits automatically
+
+
+
+TOPIC 16.4 — Image & Font Optimization
+
+WebP: 30% smaller than JPEG with same quality. AVIF: 50% smaller but less browser support. Use srcset for progressive enhancement.
+
+loading="lazy": browser native lazy loading for images — add to all below-fold images
+
+Prevent CLS: always set width and height on img elements — browser reserves space before image loads
+
+Blur placeholder: generate blurred base64 thumbnail, show while full image loads — plaiceholder library or Next.js Image placeholder
+
+font-display: swap — FOUT (flash of unstyled text) is better than FOIT (invisible text). Use swap.
+
+Preload critical fonts: <link rel="preload" as="font"> for fonts used above the fold
+
+Self-host fonts: Google Fonts = extra DNS lookup + network request. Self-hosting = one fewer blocking resource.
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+You have a 10,000 item list. Implement it with TanStack Virtual. Show the container, the virtualizer setup, and the item rendering pattern.
+
+Q2
+
+Walk through the complete code splitting setup for a Next.js app with 8 routes. Include Suspense boundaries and loading fallbacks.
+
+Q3
+
+You have a recharts bundle that is 200kb. How do you code-split it so it only loads when the chart is visible? Show the React.lazy + Suspense implementation.
+
+Q4
+
+What is the systematic process to fix re-renders? A parent component re-renders and causes 5 children to unnecessarily re-render. Walk through fixing it step by step.
+
+Q5
+
+What causes layout thrashing? Why does reading DOM properties (offsetHeight) inside a loop before writing cause performance issues?
+
+Q6
+
+Explain font-display: swap vs block vs optional. Which do you use for body text vs icon fonts and why?
+
+Q7
+
+Your Lighthouse score shows LCP of 6 seconds. The LCP element is a hero image. What are 5 specific things you do to improve it?
+
+Q8
+
+What is the difference between React.lazy and dynamic import? Are they the same thing or different?
+
+Q9
+
+Implement a prefetch-on-hover strategy for navigation links in a Next.js app. Show the onMouseEnter handler.
+
+Q10
+
+You replace moment.js with date-fns. How do you verify tree shaking is actually working? What tools do you use?
+
+
+
+DAY 18 — React Concurrent Features: useTransition, useDeferredValue, Suspense
+
+
+
+TOPIC 18.1 — The Problem Concurrent Mode Solves
+
+Without Concurrent Mode: every state update renders synchronously, blocking main thread until done
+
+Symptom: typing in a search box causes expensive list to re-render on every keystroke → input feels laggy
+
+With Concurrent Mode: React can interrupt low-priority renders to process high-priority user input
+
+
+
+TOPIC 18.2 — useTransition
+
+const [isPending, startTransition] = useTransition()
+
+Wrapping a state update in startTransition marks it as "non-urgent" — React will defer it if needed
+
+isPending: true while transition is pending — use to show loading indicator without blocking input
+
+Use case: search — setQuery is urgent (input must feel instant), but the list filtering is non-urgent
+
+React may run the transition render multiple times, keeping the previous committed state visible until done
+
+Transition updates are interruptible: if user types again before transition finishes, React discards old transition and starts new one
+
+
+
+TOPIC 18.3 — useDeferredValue
+
+const deferredValue = useDeferredValue(value)
+
+Defers updating the deferred value — shows stale value while new value is being rendered
+
+Use case: expensive child component receives a prop that changes frequently
+
+With React.memo: memoize expensive component, pass deferredValue as prop — component only re-renders when React has spare time
+
+useDeferredValue vs useTransition: useDeferredValue is for when you receive a value from a parent and can't wrap the state setter in startTransition
+
+
+
+TOPIC 18.4 — Suspense for Data Fetching
+
+Suspense boundary: <Suspense fallback={<Loading/>}>children</Suspense>
+
+When a child suspends (throws a Promise), Suspense shows the fallback instead
+
+When the Promise resolves, Suspense shows the child
+
+useSuspenseQuery (TanStack Query): component suspends while query is loading — no loading state needed in component
+
+Nested Suspense: fine-grained loading states — each section has its own Suspense boundary
+
+ErrorBoundary + Suspense: combine for complete async handling (loading → data OR error)
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Build a search component with useTransition: input updates instantly, filtered list shows isPending indicator, list only re-renders when transition completes.
+
+Q2
+
+What is the difference between useTransition and useDeferredValue? Give a concrete example of when you'd be forced to use useDeferredValue.
+
+Q3
+
+How does Suspense work mechanically? What does a component need to do to "suspend"? (Hint: it involves throwing a Promise)
+
+Q4
+
+Build a component tree with 3 nested Suspense boundaries. What happens when each section loads independently?
+
+Q5
+
+You have an expensive filtered list component. Parent search state changes on every keystroke. Show the complete solution using useDeferredValue + React.memo.
+
+Q6
+
+What does isPending from useTransition tell you? When is it true vs false?
+
+Q7
+
+How do you combine Suspense with an ErrorBoundary? Show the component structure for a data-fetching page that handles loading, success, and error states.
+
+Q8
+
+startTransition is available outside of React components (not the hook). When would you use startTransition instead of useTransition?
+
+Q9
+
+What happens if you wrap a setState in startTransition but the state controls a user input (controlled input)? What goes wrong?
+
+Q10
+
+Explain why Concurrent Mode makes render phase purity critical. What breaks if a component has side effects in its render function when React might run it multiple times?
+
+
+
+DAY 19-20 — Frontend System Design (Your Biggest Gap — Close It Now)
+
+You have ZERO frontend system design demonstrated. Senior roles — especially Architect and Principal — will ask you to design frontend systems. This is the section that gets you from 12 LPA to 25+ LPA.
+
+
+
+TOPIC 19.1 — Frontend System Design Framework
+
+Step 1: Clarify requirements (2 min): What is the scale? How many users? Real-time? Offline? Mobile?
+
+Step 2: Component architecture — what are the major components and their hierarchy?
+
+Step 3: State architecture — where does each piece of state live and why?
+
+Step 4: Data flow — how does data move between components? Props down, events up? Context? State manager?
+
+Step 5: API design — what endpoints does the frontend need? What data shape?
+
+Step 6: Performance — what are the performance challenges and how do you solve them?
+
+Step 7: Real-time concerns — does anything need live updates? WebSocket or polling?
+
+Step 8: Error handling and edge cases
+
+
+
+TOPIC 19.2 — Design: Infinite Feed (Twitter/LinkedIn)
+
+Component hierarchy: Feed > FeedItem > MediaContent, UserCard, ActionBar
+
+Virtualization: TanStack Virtual for the feed — 10,000s of posts, only render visible
+
+Pagination: cursor-based for feeds (not offset — new posts shift offsets), useInfiniteQuery
+
+Real-time new posts: WebSocket event for new post count, "3 new posts" banner, user clicks to load them
+
+Optimistic updates: like, retweet, follow — instant UI feedback, background sync
+
+State: feed in TanStack Query cache, user auth in Zustand, UI state (expanded comments, active reply) in component
+
+Media: lazy load images with Intersection Observer, video only plays when in viewport
+
+
+
+TOPIC 19.3 — Design: Collaborative Document Editor (Google Docs lite)
+
+Operational Transformation (OT) or CRDT for conflict resolution — understand the concept, not full implementation
+
+Real-time sync: WebSocket, broadcast changes to all connected clients
+
+Optimistic local changes: apply user's edits immediately, sync in background
+
+Presence: show cursors and selections of other collaborators in real-time
+
+Offline support: queue changes when offline, sync when reconnected
+
+Rich text editor: ProseMirror or Slate.js as foundation
+
+Component state: editor state is complex — use editor's internal state manager, not React state
+
+
+
+TOPIC 19.4 — Design: Design System / Component Library
+
+Atomic design: atoms (Button, Input) → molecules (FormField) → organisms (LoginForm) → templates → pages
+
+API design for components: controlled vs uncontrolled variants, compound component pattern
+
+Theming: CSS variables for runtime theming, theme provider pattern
+
+Accessibility: every component must have correct ARIA roles, keyboard navigation, focus management
+
+Polymorphic components: <Button as="a"> — component renders as different element
+
+Documentation: Storybook for component documentation and visual testing
+
+Testing: visual regression tests with Chromatic, accessibility tests with axe
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Design a type-ahead autocomplete component. Cover: debouncing, keyboard navigation, accessibility (ARIA roles), loading state, no results state, and caching of previous searches.
+
+Q2
+
+Design an infinite Twitter-like feed. What specific challenges does infinite scroll have? How do you maintain scroll position when new items load at top? What state goes where?
+
+Q3
+
+Design a real-time notification system. How does the frontend know a new notification arrived? How do you manage the notification list? What happens if user is offline?
+
+Q4
+
+Design a file upload component that supports: multiple files, drag-and-drop, progress bar per file, pause/resume, cancellation, retry on failure. Component API and state design.
+
+Q5
+
+Design a data table component for 1 million rows. What techniques make this feasible? Design the component API.
+
+Q6
+
+Design a modal system. How do you handle: nested modals, focus trapping, ESC to close, click outside to close, stacking z-index, animations, and accessibility?
+
+Q7
+
+Design a toast/notification system. Requirements: max 3 visible, auto-dismiss, manual dismiss, undo support (5 second window). State architecture and component design.
+
+Q8
+
+Design a rich text editor feature in a React app. What library do you use as foundation? What state management? How do you sync with backend?
+
+Q9
+
+Design a dashboard with 10 real-time charts. What are the performance considerations? How do you manage WebSocket connections for 10 different data streams?
+
+Q10
+
+Design a multi-step checkout form (cart → shipping → payment → confirmation). State management, validation, back button behavior, and what happens if payment fails.
+
+
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon
+
+Performance Measurement
+
+Run Lighthouse on 3 live sites — document issues and fixes
+
+Set up React DevTools Profiler on demo app — find 5 re-renders
+
+Chrome Performance tab: identify 2 long tasks in a demo app
+
+Install web-vitals library — log LCP, INP, CLS in console
+
+Read: web.dev performance guide — all sections
+
+8h
+
+Tue
+
+Rendering Optimization
+
+Build: 50,000 item list WITHOUT virtualization — measure FPS
+
+Add TanStack Virtual — measure improvement
+
+Add React.memo + useCallback chain — measure again
+
+Build: code split 5 routes with React.lazy + Suspense
+
+Run bundle analyzer — identify 3 large dependencies
+
+8h
+
+Wed
+
+Image + Code Optimization
+
+Replace moment.js with date-fns in a project — verify tree shaking
+
+Add WebP images with srcset fallback to a project
+
+Implement blur placeholder for all images
+
+Self-host Google Fonts — compare Lighthouse score before/after
+
+Implement interaction-based code splitting for a modal
+
+8h
+
+Thu
+
+Concurrent Features
+
+Build: search with useTransition — input never lags
+
+Build: expensive list with useDeferredValue + React.memo
+
+Build: data page with Suspense + ErrorBoundary
+
+Demonstrate: what happens when you miss adding isPending indicator
+
+Benchmark: concurrent vs non-concurrent search with 100,000 items
+
+8h
+
+Fri
+
+System Design Study
+
+Study: Typeahead design (FE system design interview.com)
+
+Study: Infinite scroll design
+
+Study: Real-time chat design
+
+Study: Design system architecture
+
+Write: 1-page design doc for each system you study
+
+8h
+
+Sat
+
+System Design Practice
+
+Practice: Design infinite feed out loud (45 min, timed)
+
+Practice: Design autocomplete out loud (45 min, timed)
+
+Practice: Design file upload component (45 min, timed)
+
+Write: your answers as technical documents
+
+Review: gaps and missing areas
+
+8h
+
+Sun
+
+Week 3 Review
+
+Build: "Performance Optimized App" — showcase all techniques
+
+Profile: before and after comparison with screenshots
+
+Review: all knowledge checks Week 3
+
+Mock: Perform technical design for "Design a notification system" (45 min recorded)
+
+Write: comprehensive guide "React Performance Engineering"
+
+8h
+
+
+
+📅 WEEK 4 — Advanced Patterns, Accessibility, Design Systems
+
+
+
+WEEK 4 — Topic Breakdown
+
+TOPIC: Advanced Component Patterns
+
+Compound Component Pattern: <Select><Select.Option/><Select.Trigger/></Select> — components share implicit state via Context
+
+Render Props: controlled inversion — component receives function as children: <Mouse>{({x,y}) => <Cursor x={x} y={y}/>}</Mouse>
+
+Headless Components: provide behavior/state only, no UI — Radix UI is built on this. You control the styling.
+
+Polymorphic components: <Button as="a" href="/"> — renders as anchor but has Button styles/behavior. Typed with TypeScript generics.
+
+Controlled vs Uncontrolled API: let component manage its own state OR accept value + onChange for external control
+
+Slots pattern (children composition): instead of props for everything, compose with children sub-components
+
+Higher Order Components (HOC): rarely used in modern React but you must understand legacy codebases
+
+
+
+TOPIC: Accessibility (a11y) — Non-Negotiable for Senior Roles
+
+WCAG 2.1 AA compliance: the standard for accessibility. Know: perceivable, operable, understandable, robust.
+
+Semantic HTML: use <button> not <div onClick>. Use <nav>, <main>, <aside>, <header>, <footer>.
+
+ARIA roles: when HTML semantics are not enough — role="dialog", role="listbox", role="combobox"
+
+ARIA properties: aria-label, aria-labelledby, aria-describedby, aria-expanded, aria-selected, aria-hidden
+
+Keyboard navigation: Tab (focus), Shift+Tab (back), Enter/Space (activate), Escape (close), Arrow keys (navigate within component)
+
+Focus management: when modal opens, focus must move inside modal. When modal closes, focus returns to trigger.
+
+Focus trap: while modal is open, Tab cycles only within modal — use focus-trap-react or Radix UI
+
+Color contrast: text must have 4.5:1 contrast ratio (AA). Use browser DevTools accessibility panel to check.
+
+Screen reader testing: VoiceOver (Mac), NVDA (Windows) — test at least one
+
+axe-core: automated a11y testing in Jest/Cypress — catches ~30% of a11y issues automatically
+
+
+
+TOPIC: Design System Architecture
+
+Design tokens: CSS variables or JS objects for colors, spacing, typography — single source of truth
+
+Component API design: consistent naming, minimal required props, sensible defaults, full TypeScript types
+
+Theming architecture: CSS variables for runtime switching, dark mode without JavaScript flash
+
+Storybook: document components with stories, visual testing, interaction testing
+
+Variant patterns: cva (class-variance-authority) for managing component variants with TypeScript safety
+
+Radix UI as base: unstyled, accessible primitives — add your styling on top
+
+shadcn/ui: pre-built components using Radix + Tailwind — understand the architecture, not just copy-paste
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Implement a compound component <Tabs>: <Tabs><Tabs.List><Tabs.Tab value="a">A</Tabs.Tab></Tabs.List><Tabs.Panel value="a">Content</Tabs.Panel></Tabs>. Use Context for shared state.
+
+Q2
+
+What is a headless component? Build a headless useAccordion hook that provides state and ARIA attributes but no HTML output.
+
+Q3
+
+Build a fully accessible modal dialog: focus trap, ESC to close, aria-modal, aria-labelledby, focus returns to trigger on close.
+
+Q4
+
+What keyboard interactions are required for a dropdown menu by WCAG? Implement them.
+
+Q5
+
+Build a polymorphic Button component: <Button as="a" href="/"> and <Button as="button" type="submit">. TypeScript must narrow props based on the "as" prop.
+
+Q6
+
+What is WCAG 2.1 AA? What are the 4 POUR principles? Give a React-specific example of failing each principle.
+
+Q7
+
+Build a design token system with CSS variables. Implement light and dark themes without a JavaScript flash of incorrect theme.
+
+Q8
+
+What is cva (class-variance-authority)? Build a Button with 3 variants (primary, secondary, danger) and 3 sizes using cva.
+
+Q9
+
+Add axe-core accessibility testing to a Jest test suite. Write a test that fails because a form input has no label.
+
+Q10
+
+What is the difference between aria-label and aria-labelledby? When do you use each?
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon
+
+Advanced Patterns
+
+Build: Compound Tabs component with Context
+
+Build: Headless useAccordion hook
+
+Build: Polymorphic Button with TypeScript narrowing
+
+Study: Radix UI source code — how they implement Dialog
+
+Build: Controlled + uncontrolled API for a Select component
+
+8h
+
+Tue
+
+Accessibility
+
+Study: WCAG 2.1 AA — all 4 POUR principles with examples
+
+Build: Accessible modal with focus trap and ARIA attributes
+
+Build: Accessible dropdown menu with keyboard navigation
+
+Test: VoiceOver on your modal component
+
+Add: axe-core to 3 existing component tests
+
+8h
+
+Wed
+
+Design System Setup
+
+Set up Storybook in project — write stories for 5 components
+
+Create design token system with CSS variables + TypeScript types
+
+Build Button with cva: 3 variants, 3 sizes, full TypeScript types
+
+Build: theme switching without JS flash (CSS variables + prefers-color-scheme)
+
+Document: component API decisions in Storybook docs
+
+8h
+
+Thu
+
+Component Library Build
+
+Build: Input, Textarea, Select, Checkbox, Radio with full a11y
+
+Build: Alert/Toast notification component
+
+Build: Badge, Avatar, Spinner loading components
+
+All components: Storybook stories + a11y test
+
+All components: TypeScript props with JSDoc comments
+
+8h
+
+Fri
+
+Pattern Deep Dives
+
+Study: React Aria library — comprehensive a11y hook library
+
+Build: Combobox (autocomplete) with useCombobox-style implementation
+
+Study: TanStack Form — compare architecture with RHF
+
+Read: Linear app source code patterns (they open-sourced insights)
+
+Build: Data table with sorting, filtering, pagination, column resize
+
+8h
+
+Sat
+
+Integration Day
+
+Build portfolio piece: complete design system with 15+ components
+
+All with: TypeScript, Storybook, a11y, theming
+
+Add to GitHub with README and live Storybook deploy
+
+Record: demo video walking through the design system
+
+8h
+
+Sun
+
+Month 1 Review
+
+Review: ALL knowledge checks from all 4 weeks
+
+Mock interview: 45-min technical questions (record yourself)
+
+Mock: Frontend system design — "Design a notification system" (45 min)
+
+Write: Month 1 skills summary — what you know vs 4 weeks ago
+
+Plan: Month 2 schedule + identify Month 1 gaps to fill
+
+8h
+
+
+
+🗓 MONTH 2 — NEXT.JS MASTERY + REAL-TIME UI + PRODUCTION SYSTEMS
+
+MONTH 2 OBJECTIVE
+
+Month 1 made you a React expert. Month 2 makes you a production-ready Next.js specialist and real-time UI engineer. By end of Month 2, you can lead the frontend of any product from architecture to deployment. You'll have 3 portfolio projects that prove it.
+
+
+
+📅 WEEK 5 — Next.js App Router: Deep Architecture
+
+You used Next.js in PharmaSync. But you used it as a fancy React router. It's not. Next.js App Router is a completely different paradigm. Learn it properly.
+
+
+
+DAY 29 — App Router Architecture, RSC, Server vs Client Components
+
+
+
+TOPIC 29.1 — The Fundamental Shift: Server Components
+
+React Server Components (RSC): components that render ONLY on the server. Never hydrated. Never shipped to client.
+
+Server components can: access databases directly, read files, access env variables, be async
+
+Server components CANNOT: use useState, useEffect, event handlers, or any browser APIs
+
+"use client" directive: marks a module boundary — everything in this file and its imports becomes client JS
+
+Default in App Router: ALL components are server components by default. Add "use client" only when needed.
+
+The boundary: server components can import client components but NOT the reverse (client components cannot import server components)
+
+Children as props: pass server components as children to client components — they remain server components
+
+Why RSC: dramatically reduces JavaScript sent to client (server components add ZERO JS to bundle)
+
+
+
+TOPIC 29.2 — App Router File System Conventions
+
+app/layout.tsx: shared layout wrapping children. Does NOT re-render on navigation.
+
+app/page.tsx: route page component. Rendered for that specific URL.
+
+app/loading.tsx: automatic Suspense boundary for the page. Shows while page fetches data.
+
+app/error.tsx: error boundary for the route segment. Must be a "use client" component.
+
+app/not-found.tsx: rendered when notFound() is called or 404 occurs.
+
+app/template.tsx: like layout but re-renders on navigation (for route-specific animations).
+
+Route groups: (groupName)/page.tsx — group without affecting URL. Used for different layouts.
+
+Parallel routes: @slot/page.tsx — render multiple pages in same layout simultaneously.
+
+Intercepting routes: (.)route — intercept navigation and show in modal while URL changes.
+
+Dynamic segments: [id]/page.tsx, [...slug]/page.tsx (catch-all), [[...slug]]/page.tsx (optional catch-all)
+
+
+
+TOPIC 29.3 — Data Fetching in App Router
+
+Fetch in server components: next/fetch with built-in caching — fetch(url, { cache: "force-cache" | "no-store" })
+
+cache: "force-cache" (default): cached indefinitely, like SSG
+
+cache: "no-store": fetches fresh data on every request, like SSR
+
+revalidate: fetch(url, { next: { revalidate: 60 } }) — cached for 60 seconds, like ISR
+
+React cache(): memoize data fetches within a single request — prevents duplicate fetches across components
+
+Parallel data fetching: const [user, posts] = await Promise.all([getUser(), getPosts()]) — faster than sequential
+
+Sequential fetching: when one fetch depends on the result of another — unavoidable but minimize
+
+generateStaticParams: for dynamic routes — tell Next.js which params to pre-render at build time
+
+
+
+TOPIC 29.4 — Server Actions
+
+"use server" directive: marks a function that runs on the server. Can be called from client components.
+
+Form actions: <form action={serverAction}> — works without JavaScript (progressive enhancement)
+
+useFormState: hook that wraps a server action to get form state and previous result
+
+useFormStatus: get pending state of nearest form submission — shows loading without useState
+
+After mutation: call revalidatePath() or revalidateTag() to invalidate cached data
+
+Security: server actions are POST requests under the hood — Next.js adds CSRF protection automatically
+
+Error handling: throw errors in server actions, catch with error.tsx boundary
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+What is a React Server Component? List 5 things it CAN do and 5 things it CANNOT do compared to a client component.
+
+Q2
+
+You have a component that needs: fetch data from DB, render UI, AND handle a button click. How do you architect this with RSC and client components?
+
+Q3
+
+What does the "use client" directive actually do? Does it make the entire component run on the client? Explain the module boundary concept.
+
+Q4
+
+Explain the 3 Next.js data fetching patterns using fetch options: equivalent of old SSG, SSR, and ISR in App Router.
+
+Q5
+
+What is React cache()? Why would you use it in Server Components? How is it different from TanStack Query cache?
+
+Q6
+
+What is the difference between layout.tsx and template.tsx? When would you use template over layout?
+
+Q7
+
+Write a Server Action for creating a new post. Include: validation, DB write, revalidatePath, and error handling.
+
+Q8
+
+What are parallel routes in Next.js App Router? Give a real UI example where you would use them.
+
+Q9
+
+How do you pass a server component as children to a client component? Why does this work even though client components "can't import server components"?
+
+Q10
+
+generateStaticParams is called at build time for dynamic routes. What does it return? What happens for params that are NOT in the returned array?
+
+
+
+DAY 30-31 — SSG, SSR, ISR, Edge Runtime, Caching
+
+
+
+TOPIC 30.1 — Rendering Strategies Deep Dive
+
+Static Site Generation (SSG): HTML generated at BUILD TIME. Fastest for users. Served from CDN. Stale for dynamic content.
+
+Server-Side Rendering (SSR): HTML generated on SERVER on each REQUEST. Always fresh. Slower TTFB. Good for authenticated, personalized content.
+
+Incremental Static Regeneration (ISR): Static HTML + revalidation interval. Best of both worlds for semi-static content.
+
+Streaming SSR: HTML streams from server as each Suspense boundary resolves. User sees content progressively — no waiting for ALL data.
+
+Partial Pre-rendering (PPR): experimental Next.js feature — static shell served instantly from CDN, dynamic holes filled via streaming.
+
+
+
+TOPIC 30.2 — Next.js Caching Architecture (4 Layers)
+
+Request Memoization: React cache() — within a SINGLE SERVER RENDER, same URL fetch is deduplicated
+
+Data Cache: persistent across requests and deployments — fetch() responses cached on server. Invalidated by revalidatePath/revalidateTag.
+
+Full Route Cache: entire rendered HTML cached on server for static routes — like CDN cache on the server
+
+Router Cache (Client): client-side cache of route segments — prefetched pages and recently visited pages cached in browser
+
+When to opt out: dynamic routes, authenticated content, frequently changing data — use cache: "no-store" or dynamic = "force-dynamic"
+
+
+
+TOPIC 30.3 — Edge Runtime
+
+Edge Runtime: runs on CDN nodes globally — not Node.js, it's a V8 Isolate (like Cloudflare Workers)
+
+Ultra-low latency: code runs at the CDN edge closest to the user
+
+Limitations: no Node.js APIs, no file system, limited npm packages, no native modules
+
+Use for: middleware (auth redirects, A/B testing, header modification), edge API routes
+
+export const runtime = "edge" in layout/page to opt a route into edge runtime
+
+Middleware: middleware.ts at root — runs on EVERY request before routing. Use for auth, redirects, internationalization.
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Explain the 4 caching layers in Next.js. For each: what is cached, where, for how long, and how do you invalidate it?
+
+Q2
+
+When should you use SSG vs SSR vs ISR? Give a real-world example for each (e.g., a specific page in an e-commerce app).
+
+Q3
+
+What is streaming SSR? How does it improve perceived performance? How do you implement it with Suspense in Next.js?
+
+Q4
+
+What are the limitations of Edge Runtime? You have a Next.js middleware that connects to PostgreSQL. Will it work in Edge Runtime? Why not? What do you use instead?
+
+Q5
+
+revalidatePath vs revalidateTag: what is the difference? When would you use tags over paths?
+
+Q6
+
+You have a product detail page. Product data changes occasionally. Reviews change frequently. Comments change in real-time. How do you design the caching strategy for this page?
+
+Q7
+
+What is Partial Pre-rendering (PPR)? How does it differ from ISR? What problem does it solve?
+
+Q8
+
+Your Next.js app has a middleware that checks auth for every request. The middleware reads a JWT from a cookie. Should this middleware use Node.js or Edge Runtime? Why?
+
+Q9
+
+What is the Router Cache (client-side cache)? How long does it last? How do you invalidate it programmatically?
+
+Q10
+
+You have a marketing landing page (totally static), a user dashboard (fully personalized), and a product listing (changes daily). Specify the exact Next.js configuration for each.
+
+
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon
+
+RSC + App Router
+
+Migrate PharmaSync from Pages Router to App Router
+
+Identify: which components can be server, which must be client
+
+Implement: async server components fetching from DB directly
+
+Add: loading.tsx and error.tsx to every route segment
+
+Study: Next.js App Router docs — all pages
+
+8h
+
+Tue
+
+Data Fetching Patterns
+
+Build: SSG page with generateStaticParams
+
+Build: SSR page with cache: "no-store"
+
+Build: ISR page with revalidate: 60
+
+Build: Streaming page with multiple Suspense boundaries
+
+Measure: TTFB difference between each strategy in DevTools
+
+8h
+
+Wed
+
+Server Actions
+
+Build: complete CRUD with Server Actions — create, update, delete
+
+Add: useFormState and useFormStatus to all forms
+
+Add: optimistic updates with useOptimistic (Next.js 14+)
+
+Implement: revalidatePath after every mutation
+
+Handle: errors from server actions in the UI
+
+8h
+
+Thu
+
+Caching Deep Dive
+
+Study: all 4 caching layers — draw the diagram
+
+Demonstrate: cache invalidation with revalidateTag
+
+Build: tagging system for data cache
+
+Implement: on-demand ISR with revalidatePath in API route
+
+Measure: response times with/without caching
+
+8h
+
+Fri
+
+Middleware + Edge
+
+Build: auth middleware that protects routes
+
+Add: role-based route protection in middleware
+
+Implement: internationalization routing in middleware
+
+Study: Edge Runtime limitations — test what fails
+
+Build: A/B testing with middleware + cookies
+
+8h
+
+Sat
+
+Next.js Portfolio Project Start
+
+Start: Full portfolio project (e.g., Job Board, SaaS Dashboard, or Content Platform)
+
+Architecture: design component tree, decide server vs client
+
+Set up: authentication with NextAuth/Clerk
+
+Set up: DB connection (Prisma + PostgreSQL or Supabase)
+
+Commit: working foundation with auth, DB, basic routes
+
+8h
+
+Sun
+
+Portfolio Build + Review
+
+Continue: portfolio project — core features
+
+Review: all knowledge checks from Week 5
+
+Mock: "Explain Next.js App Router vs Pages Router" (15 min timed)
+
+Mock: "Design the architecture for this Next.js app" (30 min timed)
+
+Write: Next.js architecture decision document for your project
+
+8h
+
+
+
+📅 WEEK 6 — Real-Time UI Engineering (Your Current Weak Spot)
+
+You listed WebSockets on your resume. You used webhooks and server-sent events. That's not real-time UI engineering. Real-time UI is about managing live state in the browser.
+
+
+
+DAY 36 — WebSocket State Management, Reconnection, Connection Lifecycle
+
+
+
+TOPIC 36.1 — WebSocket Connection Lifecycle
+
+States: CONNECTING (0), OPEN (1), CLOSING (2), CLOSED (3)
+
+Handshake: HTTP Upgrade request → 101 Switching Protocols → bidirectional TCP connection
+
+Events: onopen, onmessage, onerror, onclose
+
+onclose: has code and reason — codes 1000 (normal), 1001 (going away), 1006 (abnormal), 1011 (server error)
+
+React integration: create WebSocket in useEffect, close in cleanup, store instance in useRef (not state — you don't want re-renders from WS object)
+
+
+
+TOPIC 36.2 — Reconnection Strategy (Production Must-Have)
+
+Networks are unreliable. You must implement reconnection for ANY production WebSocket.
+
+Exponential backoff: 1s → 2s → 4s → 8s → 16s → 30s (cap) — prevents overwhelming server on mass reconnect
+
+Jitter: add random offset to backoff — prevents "thundering herd" (all clients reconnecting simultaneously after outage)
+
+Max attempts: after N failed attempts, stop reconnecting and show user a message to refresh
+
+Reconnect on: abnormal closure (code 1006), network error. Do NOT reconnect on: intentional close (code 1000), auth error.
+
+Reconnect state in React: { status: "connected" | "connecting" | "disconnected" | "error", retryCount }
+
+On reconnect: re-subscribe to rooms/channels, request any missed events (server-side with lastEventId or timestamp)
+
+
+
+TOPIC 36.3 — Message Protocol & State Synchronization
+
+Protocol design: {type: "message_type", payload: {...}, id: "uuid", timestamp: number}
+
+Optimistic UI: apply changes locally immediately, server confirms → keep. Server rejects → rollback.
+
+Event sourcing pattern: server sends events (ITEM_ADDED, ITEM_UPDATED, ITEM_DELETED), client applies to local state
+
+Handling missed messages: reconnect → send lastSeenEventId → server sends all events since that ID
+
+Message deduplication: server assigns IDs to events, client ignores already-processed IDs
+
+State divergence: periodic "sync" poll as safety net — if WebSocket state diverges from server, poll overwrites
+
+
+
+TOPIC 36.4 — useWebSocket Custom Hook Architecture
+
+Connection management: create, reconnect, cleanup in one hook
+
+Message subscription: callback pattern — onMessage handler per message type
+
+Send API: send(message) queues if not connected, sends when connection restored
+
+Status exposure: { status, lastMessage, send, reconnect, disconnect }
+
+Singleton pattern: one WebSocket connection shared across components using Context or Zustand
+
+Room/channel concept: single WS connection, multiple logical channels via message routing
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Implement useWebSocket hook with: connection lifecycle, exponential backoff reconnection with jitter, message queue for offline messages, and typed message protocol.
+
+Q2
+
+What is the "thundering herd" problem in WebSocket reconnection? How does jitter solve it? Write the backoff algorithm.
+
+Q3
+
+You have a collaborative document. User A and User B edit at the same time. How do you handle the conflict? Explain Optimistic Transformation concept at a high level.
+
+Q4
+
+How do you implement "missed messages" recovery when a WebSocket reconnects? What does the server need to store and what does the client need to send?
+
+Q5
+
+Design a single WebSocket connection shared across all components in an app. Should you use Context, Zustand, or something else? Why?
+
+Q6
+
+What WebSocket close codes indicate a permanent failure (don't retry) vs a temporary failure (retry)?
+
+Q7
+
+Implement optimistic UI for sending a chat message: show message immediately, confirm from server, handle server rejection with rollback.
+
+Q8
+
+What is the difference between WebSocket and Server-Sent Events (SSE)? When would you use SSE instead of WebSocket?
+
+Q9
+
+You are building a real-time collaborative cursor (like Figma — showing where each user's cursor is). What are the specific engineering challenges? How do you throttle cursor events?
+
+Q10
+
+How do you test WebSocket functionality? Mock the WebSocket server in Jest tests. Show the test for reconnection behavior.
+
+
+
+DAY 37-38 — Real-Time UI Patterns: Chat, Live Collaboration, Presence
+
+
+
+TOPIC 37.1 — Real-Time Chat System Architecture
+
+Message list: virtualized (react-virtual), reverse chronological, maintains scroll position
+
+Scroll behavior: stay at bottom when new message arrives IF user is already at bottom. Don't scroll if user has scrolled up to read history.
+
+"Scroll to bottom" button: appears when user scrolls up, disappears when at bottom
+
+Message states: sending → sent → delivered → read (with timestamps)
+
+Typing indicators: debounced "user is typing" events (500ms debounce to prevent spam)
+
+Message grouping: consecutive messages from same user within 2 minutes = one group, fewer timestamps/avatars
+
+Optimistic send: show message immediately, gray/italic until server confirms
+
+Failed messages: show retry option for failed sends — keep in local state until confirmed
+
+Pagination: load last 50 messages on open. Load older messages when user scrolls to top (prepend, maintain scroll position)
+
+
+
+TOPIC 37.2 — Presence System (Who's Online)
+
+Presence: real-time list of who is currently viewing or active
+
+Heartbeat: client sends "ping" every 30s. Server marks user offline after 90s with no heartbeat.
+
+Join/leave events: broadcast to room when user connects or disconnects
+
+React state: Map<userId, PresenceData> — fast lookup by userId
+
+Cursor presence (Figma-style): throttle cursor events to 30fps (every 33ms), broadcast position
+
+Idle detection: user inactive for 5min → mark as "away"
+
+Scale: for large rooms, use server-aggregated presence instead of broadcasting every join/leave
+
+
+
+TOPIC 37.3 — Optimistic UI — Production Patterns
+
+useOptimistic (React 19/Next.js 14): optimistically update state while action is pending
+
+Rollback strategy: keep original state, on error → restore original. Show error toast.
+
+ID generation: optimistic items need a temporary client-side ID — use crypto.randomUUID() or nanoid
+
+Replace temp ID: when server confirms, replace temporary ID with server-assigned ID
+
+Conflict detection: if server rejects because item was deleted by another user, show specific error
+
+Offline queue: queue mutations while offline, replay when reconnected, handle conflicts
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Build a real-time chat: message list (virtualized), typing indicator, optimistic send, scroll-to-bottom button, message grouping.
+
+Q2
+
+Implement a presence system: show "3 users online" that updates in real-time when users join and leave.
+
+Q3
+
+How do you implement "user is typing" indicator? Show the complete client-side implementation with debounce.
+
+Q4
+
+Implement load more older messages when user scrolls to top of chat, while maintaining scroll position. This is harder than it sounds — what technique do you use?
+
+Q5
+
+What is useOptimistic in React? Build a "like" counter with optimistic update and rollback on failure.
+
+Q6
+
+Design the cursor presence system for a collaborative whiteboard. What data do you broadcast? At what frequency? How do you render 50 other users' cursors without performance issues?
+
+Q7
+
+How do you handle the case where a user sends a message while offline? Show the queue implementation and replay logic.
+
+Q8
+
+A user has 2 browser tabs open. They make a change in tab 1. How does tab 2 update in real-time? Is there one WebSocket per tab or shared?
+
+Q9
+
+Build a "read receipts" system: show when each message was read by each participant. What events does the server need to send?
+
+Q10
+
+How do you prevent a WebSocket event storm when 1000 users connect simultaneously after a server restart? Show rate limiting and backpressure strategies.
+
+
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon
+
+WebSocket Foundation
+
+Implement useWebSocket hook with full reconnection logic
+
+Build: reconnection demo — disconnect server, watch client reconnect
+
+Implement: message queue for offline sends
+
+Build: typed message protocol with TypeScript discriminated union
+
+Test: reconnection behavior in Jest with WebSocket mock
+
+8h
+
+Tue
+
+Real-Time Chat Build
+
+Build: complete real-time chat with virtualized message list
+
+Implement: typing indicator with debounce
+
+Implement: optimistic message send with rollback
+
+Implement: scroll-to-bottom button with smart behavior
+
+Add: message read receipts
+
+8h
+
+Wed
+
+Presence + Collaboration
+
+Build: presence system — online users list with join/leave events
+
+Implement: cursor presence (show other users' mouse positions)
+
+Add heartbeat: client ping every 30s, server-side timeout
+
+Build: idle detection and "away" status
+
+Combine: chat + presence into one app
+
+8h
+
+Thu
+
+Optimistic UI Patterns
+
+Build: optimistic like/unlike with rollback
+
+Build: optimistic comment add with temp ID → real ID replacement
+
+Implement: offline queue with localStorage persistence
+
+Study: useOptimistic hook in React — build a demo
+
+Build: conflict resolution UI — show when server rejects a change
+
+8h
+
+Fri
+
+SSE + Polling + Alternatives
+
+Build: Server-Sent Events stream in Next.js API route
+
+Build: client consuming SSE with EventSource
+
+Compare: WebSocket vs SSE — when to use each
+
+Study: long polling — implement it, understand limitations
+
+Study: Pusher, Ably, Liveblocks as managed alternatives
+
+8h
+
+Sat
+
+Portfolio Project Real-Time Feature
+
+Add real-time feature to portfolio project
+
+Could be: live chat, real-time notifications, collaborative editing, live dashboard
+
+Implement: full reconnection, optimistic UI, presence if applicable
+
+Deploy: to Vercel — test WebSocket in production (use wss://)
+
+8h
+
+Sun
+
+Review + System Design
+
+Review: all knowledge checks from Week 6
+
+Mock: "Design a real-time collaborative document editor" — 45 min
+
+Mock: "Design a real-time notification system" — 30 min
+
+Write: "Real-Time UI Engineering" technical guide in Notion
+
+Identify: gaps and plan for Week 7
+
+8h
+
+
+
+📅 WEEK 7 — Authentication, Security, Deployment & Production Engineering
+
+
+
+WEEK 7 — Topic Breakdown
+
+TOPIC: Authentication in Next.js (Production Patterns)
+
+NextAuth.js / Auth.js v5: adapter pattern, OAuth providers, credentials, JWT vs database sessions
+
+Clerk: managed auth — faster to ship, less control. Know when to use managed vs custom.
+
+Session management: JWT stored in httpOnly cookie (XSS safe). Server components read session without API call.
+
+Route protection: middleware.ts — check session cookie, redirect to /login if missing. Don't rely on client-side auth guards alone.
+
+Role-based access control (RBAC): encode roles in JWT, check in middleware AND server components AND UI
+
+Refresh token rotation: short-lived access token (15min), long-lived refresh token (7 days), automatic rotation
+
+OAuth flow: redirect to provider → callback URL → exchange code for tokens → create session
+
+PKCE (Proof Key for Code Exchange): prevents auth code interception attacks in OAuth
+
+
+
+TOPIC: Frontend Security
+
+XSS (Cross-Site Scripting): injecting malicious scripts. React's JSX escapes by default — dangerouslySetInnerHTML is the escape hatch, sanitize all inputs with DOMPurify.
+
+CSRF (Cross-Site Request Forgery): forged requests from another origin. Next.js Server Actions have CSRF protection built in. For REST APIs: use SameSite=Strict cookies or CSRF tokens.
+
+CORS: server controls which origins can make requests. Not a client-side security measure — it's a browser enforcement of server policy.
+
+Content Security Policy (CSP): HTTP header that restricts which resources can load. Prevents XSS damage even if attack gets through.
+
+Sensitive data in client: NEVER put secrets, API keys, or sensitive data in client-side code or localStorage.
+
+Dependency security: npm audit regularly, Dependabot alerts, lock file for reproducible builds.
+
+
+
+TOPIC: Next.js Deployment & Production
+
+Vercel: zero-config deployment for Next.js. Automatic CDN, edge functions, preview deployments.
+
+Self-hosted: next start (Node.js server), docker container, or standalone output mode
+
+Environment variables: server-only (.env), client-exposed (NEXT_PUBLIC_ prefix) — never expose secrets with NEXT_PUBLIC_
+
+CI/CD: GitHub Actions → lint → test → build → deploy. Must fail on TypeScript errors and failing tests.
+
+Error monitoring: Sentry — capture and track production errors with stack traces, user context, release tracking.
+
+Analytics: Vercel Analytics or PostHog — track Core Web Vitals from real users (RUM)
+
+Feature flags: LaunchDarkly or simple env var strategy — release features without redeploys
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+What is the difference between JWT and database sessions in NextAuth? When would you choose each?
+
+Q2
+
+How do you implement route protection in Next.js? Why is middleware better than client-side auth guards?
+
+Q3
+
+What is CSRF? Does React protect against it automatically? What does Next.js Server Actions do to prevent CSRF?
+
+Q4
+
+What is dangerouslySetInnerHTML? When might you need it and how do you use it safely?
+
+Q5
+
+What environment variables are exposed to the client in Next.js? How do you prevent accidental secret exposure?
+
+Q6
+
+Implement RBAC in Next.js: admin can access /admin, users cannot. Cover middleware AND server component level.
+
+Q7
+
+What is refresh token rotation? Why is it more secure than long-lived access tokens?
+
+Q8
+
+Set up a CI/CD pipeline with GitHub Actions for a Next.js app. What jobs do you run and in what order?
+
+Q9
+
+How do you add Sentry to a Next.js App Router project? What configuration do you need for both server and client errors?
+
+Q10
+
+What is Content Security Policy? Write a basic CSP header for a Next.js app that uses external fonts and Stripe.
+
+
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon
+
+Auth Deep Dive
+
+Implement NextAuth.js v5 with GitHub OAuth + credentials provider
+
+Add: JWT session with role encoded in token
+
+Build: protected routes via middleware for /dashboard, /admin
+
+Implement: RBAC — admin vs user permissions in middleware + UI
+
+Study: refresh token rotation — implement manually to understand the flow
+
+8h
+
+Tue
+
+Security
+
+Build: XSS demo — show unsafe vs safe rendering
+
+Implement: DOMPurify for user-generated content
+
+Audit: your portfolio project for common vulnerabilities
+
+Add: CSP header to Next.js app
+
+Study: OWASP Top 10 — frontend-relevant ones (XSS, CSRF, insecure deserialization)
+
+8h
+
+Wed
+
+Production Setup
+
+Set up: Sentry in Next.js (client + server + edge)
+
+Set up: GitHub Actions CI — lint, type-check, test, build on every PR
+
+Configure: branch protection — PRs require CI to pass
+
+Add: Vercel Analytics to track real CWV data
+
+Set up: feature flags with env vars + runtime config
+
+8h
+
+Thu
+
+Portfolio Project Core Features
+
+Build: 3-4 core features of your portfolio project
+
+Each with: proper auth, server components, server actions, error handling
+
+Add: real-time feature (WebSocket or SSE)
+
+Add: proper loading and error states throughout
+
+8h
+
+Fri
+
+Portfolio Project Polish
+
+Add: full TypeScript coverage — no any, no unknown
+
+Add: test suite — RTL tests for all major user flows
+
+Performance: Lighthouse score > 90 on all metrics
+
+Accessibility: axe scan with zero critical violations
+
+Write: README with architecture decisions, tech stack, setup instructions
+
+8h
+
+Sat
+
+Portfolio Deploy + Optimize
+
+Deploy: to Vercel — check all features in production
+
+Performance audit: Lighthouse in production
+
+Fix: any production-only issues (WebSocket wss://, env vars, CORS)
+
+Set up: custom domain if possible
+
+Record: 3-min demo video for portfolio
+
+8h
+
+Sun
+
+Week 7 Review
+
+Review: all knowledge checks Week 7
+
+Mock: security audit of your app — find and fix 2 issues
+
+Mock: "How do you secure a Next.js application?" — 20 min answer
+
+Write: deployment and production engineering guide
+
+Start preparing: interview story for this portfolio project
+
+8h
+
+
+
+📅 WEEK 8 — Interview Preparation, Portfolio Polish, Mock Interviews
+
+You've done the work. Now you need to be able to PERFORM under interview pressure. Week 8 is about converting your knowledge into offers.
+
+
+
+DAY 50-51 — Interview Strategy + Resume Rewrite
+
+
+
+TOPIC: Resume Upgrade for Senior Frontend Roles
+
+Current gap: your resume reads like a mid-level backend developer who sometimes touches React. Rewrite it as a frontend specialist.
+
+Headline: "Frontend Engineer | React · Next.js · TypeScript · Real-Time UI" — right at the top, not buried in skills
+
+Skills reorder: Frontend (React, Next.js, TypeScript, TanStack Query, Zustand, RHF, WebSocket) FIRST. Then backend. Then tools.
+
+Bullet formula: Verb + What + How + Result. "Architected" is better than "Built". Quantify everything.
+
+PharmaSync: rewrite to highlight React architecture, TypeScript, performance patterns — not just features
+
+New entries: add your 60-day portfolio projects with GitHub links and live URLs
+
+Remove or downplay: n8n automation (not frontend), Python (not frontend), generic "Built features" bullets
+
+
+
+TOPIC: Technical Interview Patterns
+
+React internals questions: Fiber, reconciliation, hooks linked list — you know these cold now
+
+Performance questions: always start with "measure first" then walk through systematic optimization
+
+TypeScript questions: generics, discriminated unions, conditional types — practice on TypeHero
+
+System design: use the framework — requirements, component tree, state architecture, data flow, performance, real-time
+
+Take-home projects: treat them as production code — TypeScript, tests, README, performance, a11y
+
+Code review rounds: show you understand the existing code, suggest improvements with reasoning
+
+Behavioral: STAR format. For you: the startup shutdown story must become "I used this opportunity to level up" narrative — not a sad story, a transformation story.
+
+
+
+TOPIC: Interview Questions You Will Be Asked
+
+"Explain how React renders" → Fiber, work loop, render phase, commit phase — 5-minute answer
+
+"Why does React have hooks instead of classes?" → Function components + hooks are simpler, composable, no this binding issues
+
+"How do you optimize a slow React app?" → Profile first, identify cause, systematic fixes
+
+"What is the difference between SSR and SSG and ISR in Next.js?" → nail all 3 with use cases
+
+"How does Next.js App Router differ from Pages Router?" → RSC, server actions, layout system
+
+"Design a real-time chat system" → your Week 6 knowledge
+
+"Explain your biggest technical challenge and how you solved it" → ready 3 stories
+
+
+
+✅  KNOWLEDGE CHECK — Answer all 10 before moving on
+
+Q1
+
+Answer out loud for 5 minutes: "How does React render? Walk me through everything from a state change to DOM update."
+
+Q2
+
+Answer out loud: "What is the difference between SSR, SSG, and ISR in Next.js? Give a real example of when to use each."
+
+Q3
+
+Answer out loud: "How would you optimize a React app that is feeling slow?"
+
+Q4
+
+Answer out loud: "Design a real-time notification system." (45 min, timed)
+
+Q5
+
+Answer out loud: "What is TypeScript and why should a team use it?" — answer for a non-technical CTO.
+
+Q6
+
+Answer out loud: "Tell me about a time you had to make a difficult technical decision."
+
+Q7
+
+Rewrite your resume with the new bullet formula. Every bullet must have: what + how + result.
+
+Q8
+
+Write your "startup shutdown story" as a transformation narrative for behavioral interviews.
+
+Q9
+
+What questions do YOU ask the interviewer? Prepare 5 questions that show you think at a senior level.
+
+Q10
+
+Do a full mock interview (record yourself): 10 min intro + 20 min technical questions + 15 min system design + 5 min your questions. Watch it back. Fix what was weak.
+
+
+
+Day
+
+ Focus Area
+
+Daily Tasks (do every single one)
+
+Hrs
+
+Mon-Tue
+
+Resume + LinkedIn
+
+Rewrite resume — every bullet with verb + what + how + result
+
+Add portfolio projects with live URLs and GitHub
+
+Update LinkedIn: headline, about, featured projects
+
+Add 5 new skills to LinkedIn with endorsements strategy
+
+Get: resume reviewed (post on Blind or ask a senior dev)
+
+16h
+
+Wed
+
+Mock Technical Interviews
+
+Mock round 1: React internals (45 min, recorded)
+
+Mock round 2: TypeScript advanced types (30 min, recorded)
+
+Mock round 3: Performance optimization (30 min, recorded)
+
+Watch recordings — brutal self-critique
+
+Fix all weak areas — re-study, re-practice
+
+8h
+
+Thu
+
+System Design Mock
+
+Mock: Design infinite social feed — 45 min timed
+
+Mock: Design real-time collaborative text editor — 45 min timed
+
+Mock: Design a design system component library — 30 min
+
+Record and review every session
+
+Write: gap analysis — what topics were weak?
+
+8h
+
+Fri
+
+Portfolio Final Polish
+
+All portfolio projects: make sure they are live and linked
+
+Add: architecture diagrams to READMEs (use Mermaid or Excalidraw)
+
+Record: 3-min walkthrough video for each project
+
+Create: personal portfolio website with project showcases
+
+Make: GitHub profile README with skills, projects, and links
+
+8h
+
+Sat
+
+Application Strategy
+
+Research: 30 companies at your target package (20-35 LPA)
+
+List: companies with strong frontend engineering culture
+
+Prepare: personalized cover approach for top 10 companies
+
+Apply: to 10 companies — each with customized message
+
+Reach out: to 5 people on LinkedIn at target companies
+
+8h
+
+Sun
+
+Final Review + Day 60
+
+Review: ALL knowledge checks from entire 60-day plan
+
+Write: "What I learned in 60 days" reflection — this is your compass
+
+Record: final mock interview. Compare to your first one. Feel the difference.
+
+Prepare: 3 stories (challenges, successes, failures) in STAR format
+
+CELEBRATE: You went from laid off to a beast-level frontend engineer. Now go get that job.
+
+8h
+
+
+
+🏆 END GOAL — WHAT 60 DAYS BUILDS
+
+
+
+React Internals
+
+Explain Fiber, reconciliation, hooks linked list, rendering model to any panel
+
+TypeScript
+
+Write production TypeScript with generics, conditional types, discriminated unions
+
+Performance
+
+Profile any app, identify bottlenecks, systematically optimize — measure before and after
+
+Next.js
+
+Architect App Router applications with correct SSG/SSR/ISR, RSC, server actions, caching
+
+Real-Time UI
+
+Build WebSocket systems with reconnection, optimistic UI, presence, and conflict handling
+
+State Architecture
+
+Design state systems for any complexity — know exactly what goes where and why
+
+Testing
+
+Write RTL tests, hook tests, integration tests — confident TDD capability
+
+a11y
+
+Build accessible components — keyboard nav, ARIA, focus management, WCAG AA
+
+Security
+
+Auth, RBAC, XSS, CSRF, environment security — handle production security requirements
+
+System Design
+
+Architect any frontend system in an interview setting with confidence
+
+Portfolio
+
+2-3 live projects that demonstrate everything above — not tutorial clones
+
+Story
+
+Turn the startup shutdown into a compelling narrative of leveling up under pressure
+
+
+
+THE ONLY THING THAT MATTERS NOW
+
+Raghav, you have one job. Execute. Do not overthink. Do not switch plans. Do not skip days.
+
+Every day: 8 hours. Every knowledge check: answer every question. Every project: ship it live with a link.
+
+The startup shutting down is not your story. It's just context. Your story is what you do starting today.
+
+You have the foundation. You have the discipline (9.0 CGPA proves it). You have the real experience.
+
+Now go build the version of yourself that companies fight to hire. Let's go. 🔥
+
+

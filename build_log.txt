@@ -1,0 +1,19 @@
+  Γû▓ Next.js 14.2.15
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+ Γ¿» ESLint must be installed in order to run during builds: npm install --save-dev eslint
+Failed to compile.
+
+./src/components/emails/MorningDigest.tsx:31:29
+Type error: Type 'number' is not assignable to type 'ReactNode & string'.
+
+  29 |     <Html>
+  30 |         <Head />
+> 31 |         <Preview>FORGE: Day {dayNumber} - The Grind Continues</Preview>
+     |                             ^
+  32 |         <Body style={main}>
+  33 |             <Container style={container}>
+  34 |                 <Section style={headerSection}>

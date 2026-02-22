@@ -1,0 +1,6 @@
+No config path provided, using default 'drizzle.config.ts'
+Reading config file 'D:\Project-2026\forge\drizzle.config.ts'
+Cannot find module 'dotenv'
+Require stack:
+- D:\Project-2026\forge\drizzle.config.ts
+- D:\Project-2026\forge\node_modules\drizzle-kit\bin.cjs

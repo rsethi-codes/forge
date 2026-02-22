@@ -1,0 +1,21 @@
+{
+    "name": "FORGE",
+    "short_name": "FORGE",
+    "description": "60-Day Senior React Engineer Roadmap & Dev Blog",
+    "start_url": "/dashboard",
+    "display": "standalone",
+    "background_color": "#0a0a0a",
+    "theme_color": "#ff3131",
+    "icons": [
+        {
+            "src": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=192&h=192",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=512&h=512",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
