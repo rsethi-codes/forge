@@ -536,7 +536,7 @@ export default function QnADrawer({ isOpen, onClose, dayId, dayTitle, dayNumber,
                                             <MessageCircleQuestion className="w-5 h-5 text-violet-400/50" />
                                         </div>
                                         <p className="text-sm text-text-secondary/40 italic">No questions yet for this topic.</p>
-                                        <p className="text-xs text-text-secondary/30">Every "why?" is worth capturing.</p>
+                                        <p className="text-xs text-text-secondary/30">Every &quot;why?&quot; is worth capturing.</p>
                                     </div>
                                 )}
                             </div>

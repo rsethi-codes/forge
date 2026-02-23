@@ -101,7 +101,7 @@ export default function EndOfDayModal({ isOpen, onClose, summary }: EndOfDayModa
                             <div className="p-8 bg-primary rounded-[2.5rem] relative overflow-hidden group shadow-2xl shadow-primary/20">
                                 <ShieldCheck className="absolute -bottom-8 -right-8 w-40 h-40 text-black/10 transition-transform group-hover:scale-110" />
                                 <div className="relative z-10 space-y-6">
-                                    <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">Tomorrow's Mandate</h4>
+                                    <h4 className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em]">Tomorrow&apos;s Mandate</h4>
                                     <div className="space-y-2">
                                         <p className="text-[10px] font-bold text-white/80 uppercase">Primary Objective</p>
                                         <p className="text-xl font-syne font-bold text-white leading-tight">{summary.tomorrowPlan.focus}</p>

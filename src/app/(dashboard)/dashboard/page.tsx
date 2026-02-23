@@ -33,6 +33,11 @@ import { startSession, endSession } from '@/lib/actions/behavior'
 import { toast } from 'react-hot-toast'
 
 export default function DashboardPage() {
+    const queryClient = useQueryClient()
+    const [activeSession, setActiveSession] = React.useState<{ id: string, title: string } | null>(null)
+    const [showEndOfDay, setShowEndOfDay] = React.useState(false)
+    const [isManualMomentum, setIsManualMomentum] = React.useState(false)
+
     const { data: stats, isLoading: loading } = useQuery({
         queryKey: ['dashboard-data'],
         queryFn: async () => {
@@ -68,11 +73,6 @@ export default function DashboardPage() {
             </PageWrapper>
         )
     }
-
-    const queryClient = useQueryClient()
-    const [activeSession, setActiveSession] = React.useState<{ id: string, title: string } | null>(null)
-    const [showEndOfDay, setShowEndOfDay] = React.useState(false)
-    const [isManualMomentum, setIsManualMomentum] = React.useState(false)
 
     // Derived stats for the Hero card
     const heroStats = isManualMomentum ? {

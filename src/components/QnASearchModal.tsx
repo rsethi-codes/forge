@@ -76,6 +76,13 @@ export default function QnASearchModal({ isOpen, onClose, onSelect }: QnASearchM
         return () => clearTimeout(debounceRef.current)
     }, [query])
 
+    const handleSelect = useCallback((result: SearchResult) => {
+        if (onSelect) {
+            onSelect(result)
+            onClose()
+        }
+    }, [onSelect, onClose])
+
     // Keyboard navigation
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
@@ -90,14 +97,7 @@ export default function QnASearchModal({ isOpen, onClose, onSelect }: QnASearchM
         }
         window.addEventListener('keydown', handler)
         return () => window.removeEventListener('keydown', handler)
-    }, [isOpen, results, selectedIndex])
-
-    const handleSelect = (result: SearchResult) => {
-        if (onSelect) {
-            onSelect(result)
-            onClose()
-        }
-    }
+    }, [isOpen, results, selectedIndex, handleSelect, onClose])
 
     const groupedByDay: Record<string, SearchResult[]> = {}
     for (const r of results) {

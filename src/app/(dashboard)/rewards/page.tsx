@@ -202,7 +202,7 @@ export default function RewardsArmory() {
                     <div className="space-y-4">
                         <h2 className="text-3xl font-syne font-black uppercase tracking-tighter leading-none">The Burn Rate</h2>
                         <p className="text-text-secondary font-medium italic max-w-2xl leading-relaxed">
-                            "Every coin is a testament to your discipline. Spend them wisely to fortify your cognitive environment. The armory updates as you achieve higher tiers of focus."
+                            &quot;Every coin is a testament to your discipline. Spend them wisely to fortify your cognitive environment. The armory updates as you achieve higher tiers of focus.&quot;
                         </p>
                     </div>
                 </div>
