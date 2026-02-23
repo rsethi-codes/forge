@@ -1,0 +1,22 @@
+
+> forge@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.15
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/lib/db.ts:20:5
+Type error: Type 'boolean' is not assignable to type 'number'.
+
+  18 |     connect_timeout: 10,
+  19 |     // Add aggressive keep-alive
+> 20 |     keep_alive: true,
+     |     ^
+  21 | })
+  22 |
+  23 | export const db = drizzle(client, { schema })

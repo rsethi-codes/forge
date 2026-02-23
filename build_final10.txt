@@ -1,0 +1,52 @@
+
+> forge@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.15
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/21) ...
+   Generating static pages (5/21) 
+   Generating static pages (10/21) 
+   Generating static pages (15/21) 
+ Γ£ô Generating static pages (21/21)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Γöî ╞Æ /                                    2.55 kB         133 kB
+Γö£ ╞Æ /_not-found                          876 B          88.3 kB
+Γö£ ╞Æ /analytics                           114 kB          252 kB
+Γö£ ╞Æ /api/auth/logout                     0 B                0 B
+Γö£ ╞Æ /api/chat                            0 B                0 B
+Γö£ ╞Æ /api/milestones/new                  0 B                0 B
+Γö£ ╞Æ /api/parse-roadmap                   0 B                0 B
+Γö£ ╞Æ /auth/callback                       0 B                0 B
+Γö£ ╞Æ /blog                                191 B          99.5 kB
+Γö£ ╞Æ /blog/[slug]                         191 B          99.5 kB
+Γö£ ╞Æ /blog/manage                         4.29 kB         147 kB
+Γö£ ╞Æ /blog/manage/new                     126 kB          282 kB
+Γö£ ╞Æ /dashboard                           3.64 kB         134 kB
+Γö£ ╞Æ /jane                                3.32 kB         132 kB
+Γö£ ╞Æ /login                               3.6 kB          152 kB
+Γö£ ╞Æ /milestones                          2.11 kB         132 kB
+Γö£ ╞Æ /profile                             4.36 kB         152 kB
+Γö£ ╞Æ /settings                            4.06 kB         140 kB
+Γö£ ╞Æ /setup                               6.16 kB         143 kB
+Γö£ ╞Æ /share                               14.2 kB         157 kB
+Γö£ ╞Æ /tracker                             2.42 kB         140 kB
+Γöö ╞Æ /tracker/day/[dayNumber]             4.16 kB         141 kB
++ First Load JS shared by all            87.4 kB
+  Γö£ chunks/117-594304f8231c278a.js       31.8 kB
+  Γö£ chunks/fd9d1056-fb1fdde61787cffc.js  53.6 kB
+  Γöö other shared chunks (total)          2.04 kB
+
+
+╞Æ Middleware                             74.2 kB
+
+╞Æ  (Dynamic)  server-rendered on demand
+

@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, sql } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { requireUser } from '../auth-utils'
 
@@ -70,9 +70,8 @@ export async function getTodaysPomodoros() {
             startedAt: schema.pomodoroSessions.startedAt,
         })
         .from(schema.pomodoroSessions)
-        .leftJoin(schema.dailyProgress, eq(schema.pomodoroSessions.dailyProgressId, schema.dailyProgress.id))
         .where(and(
-            eq(schema.dailyProgress.date, today),
+            eq(sql`CAST(${schema.pomodoroSessions.startedAt} AS DATE)`, today),
             eq(schema.pomodoroSessions.userId, user.id)
         ))
         .orderBy(desc(schema.pomodoroSessions.startedAt))

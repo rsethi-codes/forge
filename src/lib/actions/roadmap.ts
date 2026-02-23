@@ -12,14 +12,26 @@ export async function getDashboardData() {
     const today = format(new Date(), 'yyyy-MM-dd')
 
     // 1. Get current (active) program
-    let [program] = await db
-        .select()
-        .from(schema.roadmapPrograms)
-        .where(and(
-            eq(schema.roadmapPrograms.isActive, true),
-            eq(schema.roadmapPrograms.userId, user.id)
-        ))
-        .limit(1)
+    let program;
+    try {
+        const programs = await db
+            .select()
+            .from(schema.roadmapPrograms)
+            .where(and(
+                eq(schema.roadmapPrograms.isActive, true),
+                eq(schema.roadmapPrograms.userId, user.id)
+            ))
+            .limit(1)
+        program = programs[0]
+    } catch (e: any) {
+        console.error('[getDashboardData] Database query failed:', {
+            message: e.message,
+            code: e.code,
+            detail: e.detail,
+            hint: e.hint
+        })
+        throw e
+    }
 
     if (!program) {
         [program] = await db

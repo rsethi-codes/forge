@@ -4,11 +4,11 @@ import DayDetailClient from './DayDetailClient'
 import { notFound } from 'next/navigation'
 
 interface PageProps {
-    params: Promise<{ dayNumber: string }>;
+    params: { dayNumber: string };
 }
 
 export default async function DayDetailPage({ params }: PageProps) {
-    const { dayNumber } = await params;
+    const { dayNumber } = params;
 
     const data = await getDayDetail(dayNumber);
 

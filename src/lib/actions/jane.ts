@@ -2,20 +2,30 @@
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, sql } from 'drizzle-orm'
 import { requireUser } from '@/lib/auth-utils'
 import { revalidatePath } from 'next/cache'
 
 export async function getJaneApplications() {
     const user = await requireUser()
 
-    return await db.query.janeApplications.findMany({
-        where: eq(schema.janeApplications.userId, user.id),
-        with: {
-            company: true
-        },
-        orderBy: desc(schema.janeApplications.createdAt)
-    })
+    try {
+        return await db.query.janeApplications.findMany({
+            where: eq(schema.janeApplications.userId, user.id),
+            with: {
+                company: true
+            },
+            orderBy: desc(schema.janeApplications.createdAt)
+        })
+    } catch (error: any) {
+        console.error('[getJaneApplications] Query failed:', error.message)
+        // Check physical column existence if it fails with 'column does not exist'
+        if (error.message.includes('column "user_id" does not exist')) {
+            const cols = await db.execute(sql`SELECT column_name FROM information_schema.columns WHERE table_name = 'jane_applications'`)
+            console.log('[getJaneApplications] Diagnostic - Columns found in DB:', cols)
+        }
+        throw error
+    }
 }
 
 export async function getJaneCompanies() {

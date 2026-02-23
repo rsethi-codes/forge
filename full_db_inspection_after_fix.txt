@@ -1,0 +1,260 @@
+--- Full Database Audit ---
+
+Table: analytics_events
+  - id (uuid) NOT NULL
+  - user_id (uuid) NULL
+  - event (text) NOT NULL
+  - data (jsonb) NOT NULL
+  - timestamp (timestamp without time zone) NOT NULL
+
+Table: blog_post_series
+  - post_id (uuid) NOT NULL
+  - series_id (uuid) NOT NULL
+  - position (integer) NOT NULL
+
+Table: blog_post_tags
+  - post_id (uuid) NOT NULL
+  - tag_id (uuid) NOT NULL
+
+Table: blog_posts
+  - id (uuid) NOT NULL
+  - title (text) NOT NULL
+  - slug (text) NOT NULL
+  - content (jsonb) NOT NULL
+  - content_html (text) NULL
+  - excerpt (text) NULL
+  - cover_image_url (text) NULL
+  - visibility (USER-DEFINED) NOT NULL
+  - published_at (timestamp without time zone) NULL
+  - created_at (timestamp without time zone) NOT NULL
+  - updated_at (timestamp without time zone) NOT NULL
+  - reading_time_minutes (integer) NULL
+  - view_count (integer) NOT NULL
+  - technologies (jsonb) NULL
+  - resources (jsonb) NULL
+  - user_id (uuid) NULL
+
+Table: blog_series
+  - id (uuid) NOT NULL
+  - title (text) NOT NULL
+  - slug (text) NOT NULL
+  - description (text) NULL
+  - cover_image_url (text) NULL
+  - sort_order (integer) NULL
+
+Table: blog_tags
+  - id (uuid) NOT NULL
+  - name (text) NOT NULL
+  - slug (text) NOT NULL
+  - color (text) NULL
+
+Table: daily_progress
+  - id (uuid) NOT NULL
+  - day_id (uuid) NOT NULL
+  - date (date) NOT NULL
+  - status (USER-DEFINED) NOT NULL
+  - hours_logged (numeric) NOT NULL
+  - session_notes (text) NULL
+  - started_at (timestamp without time zone) NULL
+  - completed_at (timestamp without time zone) NULL
+  - user_id (uuid) NULL
+
+Table: discipline_scores
+  - id (uuid) NOT NULL
+  - date (date) NOT NULL
+  - streak_days (integer) NOT NULL
+  - tasks_completion_rate (numeric) NOT NULL
+  - hours_logged (numeric) NOT NULL
+  - hours_target (numeric) NOT NULL
+  - kc_pass_rate (numeric) NOT NULL
+  - discipline_score (numeric) NOT NULL
+  - motivation_message (text) NULL
+  - user_id (uuid) NULL
+
+Table: end_goals
+  - id (uuid) NOT NULL
+  - metadata_id (uuid) NOT NULL
+  - skill (text) NOT NULL
+  - outcome (text) NOT NULL
+
+Table: execution_blocks
+  - id (uuid) NOT NULL
+  - metadata_id (uuid) NOT NULL
+  - block (text) NOT NULL
+  - focus (text) NOT NULL
+
+Table: jane_applications
+  - id (uuid) NOT NULL
+  - user_id (uuid) NOT NULL
+  - company_id (uuid) NOT NULL
+  - role_title (text) NOT NULL
+  - job_url (text) NULL
+  - salary_range (text) NULL
+  - status (USER-DEFINED) NOT NULL
+  - applied_at (timestamp with time zone) NULL
+  - notes (text) NULL
+  - created_at (timestamp with time zone) NOT NULL
+
+Table: jane_companies
+  - id (uuid) NOT NULL
+  - user_id (uuid) NOT NULL
+  - name (text) NOT NULL
+  - website (text) NULL
+  - logo_url (text) NULL
+  - industry (text) NULL
+  - notes (text) NULL
+  - created_at (timestamp with time zone) NOT NULL
+
+Table: jane_interviews
+  - id (uuid) NOT NULL
+  - application_id (uuid) NOT NULL
+  - round_name (text) NOT NULL
+  - scheduled_at (timestamp with time zone) NOT NULL
+  - feedback (text) NULL
+  - prep_material (text) NULL
+  - linked_roadmap_day (uuid) NULL
+  - status (text) NOT NULL
+  - created_at (timestamp with time zone) NOT NULL
+
+Table: knowledge_check_results
+  - id (uuid) NOT NULL
+  - knowledge_check_id (uuid) NOT NULL
+  - daily_progress_id (uuid) NOT NULL
+  - attempted (boolean) NOT NULL
+  - passed (boolean) NOT NULL
+  - notes (text) NULL
+  - answer (text) NULL
+
+Table: knowledge_checks
+  - id (uuid) NOT NULL
+  - day_id (uuid) NOT NULL
+  - question_number (integer) NOT NULL
+  - question_text (text) NOT NULL
+  - sort_order (integer) NOT NULL
+
+Table: milestones
+  - id (uuid) NOT NULL
+  - title (text) NOT NULL
+  - description (text) NULL
+  - icon (text) NULL
+  - achieved_at (timestamp without time zone) NULL
+  - criteria_type (USER-DEFINED) NOT NULL
+  - criteria_value (integer) NOT NULL
+  - user_id (uuid) NULL
+
+Table: pomodoro_sessions
+  - id (uuid) NOT NULL
+  - user_id (uuid) NOT NULL
+  - type (text) NOT NULL
+  - duration_minutes (integer) NOT NULL
+  - started_at (timestamp with time zone) NOT NULL
+  - completed (boolean) NOT NULL
+
+Table: profiles
+  - id (uuid) NOT NULL
+  - email (text) NOT NULL
+  - full_name (text) NULL
+  - bio (text) NULL
+  - avatar_url (text) NULL
+  - email_notifications (boolean) NOT NULL
+  - morning_digest_time (text) NOT NULL
+  - updated_at (timestamp without time zone) NOT NULL
+
+Table: resume_gaps
+  - id (uuid) NOT NULL
+  - metadata_id (uuid) NOT NULL
+  - area (text) NOT NULL
+  - what_resume_shows (text) NULL
+  - brutal_gap (text) NULL
+
+Table: resume_strengths
+  - id (uuid) NOT NULL
+  - metadata_id (uuid) NOT NULL
+  - content (text) NOT NULL
+
+Table: roadmap_days
+  - id (uuid) NOT NULL
+  - week_id (uuid) NOT NULL
+  - day_number (text) NOT NULL
+  - day_of_week (integer) NOT NULL
+  - title (text) NOT NULL
+  - focus (text) NULL
+  - estimated_hours (numeric) NOT NULL
+  - sort_order (integer) NOT NULL
+
+Table: roadmap_metadata
+  - id (uuid) NOT NULL
+  - program_id (uuid) NOT NULL
+  - subtitle (text) NULL
+  - target_package (text) NULL
+  - daily_commitment (text) NULL
+  - total_days (integer) NULL
+  - blunt_truth (text) NULL
+
+Table: roadmap_months
+  - id (uuid) NOT NULL
+  - program_id (uuid) NOT NULL
+  - month_number (integer) NOT NULL
+  - title (text) NOT NULL
+  - objective (text) NULL
+  - outcome (text) NULL
+  - sort_order (integer) NOT NULL
+
+Table: roadmap_programs
+  - id (uuid) NOT NULL
+  - title (text) NOT NULL
+  - description (text) NULL
+  - total_days (integer) NOT NULL
+  - start_date (date) NOT NULL
+  - created_at (timestamp without time zone) NOT NULL
+  - raw_content (text) NULL
+  - file_url (text) NULL
+  - is_active (boolean) NOT NULL
+  - user_id (uuid) NULL
+
+Table: roadmap_subtopics
+  - id (uuid) NOT NULL
+  - topic_id (uuid) NOT NULL
+  - content (text) NOT NULL
+  - sort_order (integer) NOT NULL
+
+Table: roadmap_tasks
+  - id (uuid) NOT NULL
+  - day_id (uuid) NOT NULL
+  - title (text) NOT NULL
+  - description (text) NULL
+  - sort_order (integer) NOT NULL
+  - task_type (USER-DEFINED) NOT NULL
+
+Table: roadmap_topics
+  - id (uuid) NOT NULL
+  - day_id (uuid) NOT NULL
+  - topic_number (text) NOT NULL
+  - title (text) NOT NULL
+  - sort_order (integer) NOT NULL
+
+Table: roadmap_weeks
+  - id (uuid) NOT NULL
+  - month_id (uuid) NOT NULL
+  - week_number (integer) NOT NULL
+  - title (text) NOT NULL
+  - goal (text) NULL
+  - sort_order (integer) NOT NULL
+
+Table: task_completions
+  - id (uuid) NOT NULL
+  - task_id (uuid) NOT NULL
+  - daily_progress_id (uuid) NOT NULL
+  - completed (boolean) NOT NULL
+  - completed_at (timestamp without time zone) NULL
+  - time_spent (integer) NULL
+  - notes (text) NULL
+
+Table: topic_completions
+  - id (uuid) NOT NULL
+  - topic_id (uuid) NOT NULL
+  - daily_progress_id (uuid) NOT NULL
+  - completed (boolean) NOT NULL
+  - completed_at (timestamp without time zone) NULL
+  - time_spent (integer) NULL
+  - notes (text) NULL

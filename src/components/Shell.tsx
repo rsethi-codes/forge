@@ -60,9 +60,16 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
     React.useEffect(() => {
         const fetchStats = async () => {
-            const { getSidebarStats } = await import('@/lib/actions/sidebar')
-            const res = await getSidebarStats()
-            setStats(res)
+            try {
+                const { getSidebarStats } = await import('@/lib/actions/sidebar')
+                const res = await getSidebarStats()
+                setStats(res)
+            } catch (error: any) {
+                console.error('[Shell] Failed to fetch stats:', error)
+                if (error.message === 'Unauthorized') {
+                    window.location.href = '/login'
+                }
+            }
         }
         fetchStats()
     }, [pathname])
