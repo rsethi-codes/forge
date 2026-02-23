@@ -6,7 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:pull": "drizzle-kit pull",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:drop": "drizzle-kit drop",
+    "db:migrate:qna": "tsx scripts/migrate-qna.ts",
+    "seed": "tsx scripts/seed-milestones.ts",
+    "setup:buckets": "tsx scripts/setup-buckets.ts",
+    "clean": "rimraf .next",
+    "clean:build": "rimraf .next && next build"
   },
   "dependencies": {
     "@ai-sdk/groq": "^3.0.24",

@@ -6,6 +6,7 @@ export const taskTypeEnum = pgEnum('task_type', ['study', 'build', 'review', 'mo
 export const statusEnum = pgEnum('status', ['not_started', 'in_progress', 'complete', 'skipped'])
 export const visibilityEnum = pgEnum('visibility', ['private', 'public'])
 export const criteriaTypeEnum = pgEnum('criteria_type', ['streak', 'days_complete', 'blog_posts', 'kc_score', 'manual'])
+export const qnaSourceTypeEnum = pgEnum('qna_source_type', ['gpt', 'blog', 'youtube', 'other'])
 
 // --- Roadmap Module ---
 
@@ -76,6 +77,21 @@ export const roadmapSubtopics = pgTable('roadmap_subtopics', {
     topicId: uuid('topic_id').references(() => roadmapTopics.id, { onDelete: 'cascade' }).notNull(),
     content: text('content').notNull(),
     sortOrder: integer('sort_order').notNull(),
+})
+
+export const topicQnA = pgTable('topic_qna', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    dayId: uuid('day_id').references(() => roadmapDays.id, { onDelete: 'cascade' }).notNull(),
+    topicId: uuid('topic_id').references(() => roadmapTopics.id, { onDelete: 'cascade' }),
+    subtopicId: uuid('subtopic_id').references(() => roadmapSubtopics.id, { onDelete: 'cascade' }),
+    question: text('question').notNull(),
+    answerText: text('answer_text'),
+    sourceType: qnaSourceTypeEnum('source_type').default('gpt').notNull(),
+    sourceUrl: text('source_url'),
+    tags: jsonb('tags').default([]),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
 export const knowledgeChecks = pgTable('knowledge_checks', {
@@ -383,10 +399,17 @@ export const roadmapDaysRelations = relations(roadmapDays, ({ one, many }) => ({
     tasks: many(roadmapTasks),
     topics: many(roadmapTopics),
     knowledgeChecks: many(knowledgeChecks),
+    qnas: many(topicQnA),
 }))
 
 export const roadmapTasksRelations = relations(roadmapTasks, ({ one }) => ({
     day: one(roadmapDays, { fields: [roadmapTasks.dayId], references: [roadmapDays.id] }),
+}))
+
+export const topicQnARelations = relations(topicQnA, ({ one }) => ({
+    day: one(roadmapDays, { fields: [topicQnA.dayId], references: [roadmapDays.id] }),
+    topic: one(roadmapTopics, { fields: [topicQnA.topicId], references: [roadmapTopics.id] }),
+    subtopic: one(roadmapSubtopics, { fields: [topicQnA.subtopicId], references: [roadmapSubtopics.id] }),
 }))
 
 export const janeApplicationsRelations = relations(janeApplications, ({ one, many }) => ({
