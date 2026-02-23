@@ -31,12 +31,51 @@ const navItems = [
     { name: 'Share', href: '/share', icon: Share2 },
 ]
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 export default function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
     const supabase = createClient()
+    const queryClient = useQueryClient()
+
+    // 1. Proactive Global Prefetching (Background Warmup)
+    React.useEffect(() => {
+        const prefetchCoreData = async () => {
+            // Dashboard
+            queryClient.prefetchQuery({
+                queryKey: ['dashboard-data'],
+                queryFn: () => fetch('/api/stats/dashboard').then(res => res.json()),
+                staleTime: 60 * 1000
+            })
+            // Analytics
+            queryClient.prefetchQuery({
+                queryKey: ['analytics-data'],
+                queryFn: () => fetch('/api/stats/analytics').then(res => res.json()),
+                staleTime: 60 * 1000
+            })
+            // Milestones
+            queryClient.prefetchQuery({
+                queryKey: ['milestones-list'],
+                queryFn: () => fetch('/api/milestones/list').then(res => res.json()),
+                staleTime: 5 * 60 * 1000
+            })
+            // Roadmap Essentials
+            queryClient.prefetchQuery({
+                queryKey: ['roadmaps-list'],
+                queryFn: () => fetch('/api/roadmap/list').then(res => res.json())
+            })
+            queryClient.prefetchQuery({
+                queryKey: ['tracker', 1],
+                queryFn: () => fetch('/api/roadmap/tracker?month=1').then(res => res.json()),
+                staleTime: 5 * 60 * 1000
+            })
+        }
+
+        // Delay slightly to prioritize initial shell render
+        const timer = setTimeout(prefetchCoreData, 1000)
+        return () => clearTimeout(timer)
+    }, [queryClient])
 
     const { data: stats } = useQuery({
         queryKey: ['sidebar-stats'],
@@ -49,10 +88,18 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             if (!response.ok) throw new Error('Failed to fetch stats')
             return response.json()
         },
-        staleTime: 5 * 60 * 1000, // 5 minutes because it doesn't change frequently
+        staleTime: 5 * 60 * 1000,
     })
 
     const displayStats = stats || { day: 1, streak: 0 }
+
+    // Hover-intent prefetching for specific tabs
+    const prefetchTab = (href: string) => {
+        if (href === '/dashboard') queryClient.prefetchQuery({ queryKey: ['dashboard-data'], queryFn: () => fetch('/api/stats/dashboard').then(res => res.json()) })
+        if (href === '/analytics') queryClient.prefetchQuery({ queryKey: ['analytics-data'], queryFn: () => fetch('/api/stats/analytics').then(res => res.json()) })
+        if (href === '/milestones') queryClient.prefetchQuery({ queryKey: ['milestones-list'], queryFn: () => fetch('/api/milestones/list').then(res => res.json()) })
+        if (href === '/tracker') queryClient.prefetchQuery({ queryKey: ['tracker', 1], queryFn: () => fetch('/api/roadmap/tracker?month=1').then(res => res.json()) })
+    }
 
     const handleSignOut = async () => {
         try {
@@ -84,6 +131,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                onMouseEnter={() => prefetchTab(item.href)}
                                 className={cn(
                                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
                                     isActive
