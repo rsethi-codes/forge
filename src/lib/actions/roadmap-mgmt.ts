@@ -19,14 +19,19 @@ export async function listRoadmaps() {
 export async function setActiveRoadmap(id: string) {
     const user = await requireUser()
     return await db.transaction(async (tx: any) => {
+        const today = new Date().toISOString().split('T')[0]
+
         // Set all to false for THIS user
         await tx.update(schema.roadmapPrograms)
             .set({ isActive: false })
             .where(eq(schema.roadmapPrograms.userId, user.id))
 
-        // Set target to true for THIS user
+        // Set target to true for THIS user and reset start date to today (Ignition)
         await tx.update(schema.roadmapPrograms)
-            .set({ isActive: true })
+            .set({
+                isActive: true,
+                startDate: today
+            })
             .where(and(
                 eq(schema.roadmapPrograms.id, id),
                 eq(schema.roadmapPrograms.userId, user.id)

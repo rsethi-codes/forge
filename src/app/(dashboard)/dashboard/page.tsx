@@ -37,6 +37,7 @@ export default function DashboardPage() {
     const [activeSession, setActiveSession] = React.useState<{ id: string, title: string } | null>(null)
     const [showEndOfDay, setShowEndOfDay] = React.useState(false)
     const [isManualMomentum, setIsManualMomentum] = React.useState(false)
+    const [isDismissedMomentum, setIsDismissedMomentum] = React.useState(false)
 
     const { data: stats, isLoading: loading } = useQuery({
         queryKey: ['dashboard-data'],
@@ -75,18 +76,27 @@ export default function DashboardPage() {
     }
 
     // Derived stats for the Hero card
-    const heroStats = isManualMomentum ? {
+    const heroStats = (isManualMomentum || (stats?.recommendedAction === 'Momentum' && !isDismissedMomentum)) ? {
         ...stats,
         recommendedAction: 'Momentum',
-        shortDiagnostic: "Manual bypass engaged. Initializing 120-second 'micro-start' to override resistance.",
-        topTask: `Starter: ${stats.tasks?.find((t: any) => !t.completed)?.title || "Review Logic"} (Just 2 mins)`
-    } : stats
+        shortDiagnostic: isManualMomentum
+            ? "Manual bypass engaged. Initializing 120-second 'micro-start' to override resistance."
+            : stats.shortDiagnostic,
+        topTask: isManualMomentum
+            ? `Starter: ${stats.tasks?.find((t: any) => !t.completed)?.title || "Review Logic"} (Just 2 mins)`
+            : stats.topTask
+    } : {
+        ...stats,
+        // If it was Momentum but we dismissed it, show DeepWork (or whatever the fallback would be)
+        recommendedAction: stats?.recommendedAction === 'Momentum' ? 'DeepWork' : stats?.recommendedAction
+    }
 
     const handleStartSession = async () => {
         try {
             const sessionId = await startSession(undefined)
             setActiveSession({ id: sessionId, title: heroStats.topTask })
             setIsManualMomentum(false) // Reset after starting
+            setIsDismissedMomentum(false)
             toast.success("Protocol Engaged. Focus Mode Active.")
         } catch (error) {
             toast.error("Failed to ignite forge.")
@@ -137,16 +147,22 @@ export default function DashboardPage() {
                             shortDiagnostic={heroStats.shortDiagnostic}
                             coinsBalance={heroStats.coinsBalance}
                             onStart={handleStartSession}
-                            onForceMomentum={() => setIsManualMomentum(true)}
+                            onForceMomentum={() => {
+                                setIsManualMomentum(true)
+                                setIsDismissedMomentum(false)
+                            }}
                         />
-                        {isManualMomentum && (
+                        {(isManualMomentum || (stats?.recommendedAction === 'Momentum' && !isDismissedMomentum)) && (
                             <motion.button
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                onClick={() => setIsManualMomentum(false)}
+                                onClick={() => {
+                                    setIsManualMomentum(false)
+                                    setIsDismissedMomentum(true)
+                                }}
                                 className="absolute -top-4 -right-4 bg-white/10 hover:bg-white/20 border border-white/20 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full backdrop-blur-md z-[60]"
                             >
-                                Cancel Bypass
+                                {isManualMomentum ? "Cancel Bypass" : "Strategic View"}
                             </motion.button>
                         )}
                     </motion.div>

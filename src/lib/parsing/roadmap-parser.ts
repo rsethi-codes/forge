@@ -381,7 +381,7 @@ export async function saveParsedRoadmapToDb(userId: string, roadmap: ParsedRoadm
                 title: roadmap.title,
                 description: roadmap.description,
                 totalDays: jsonMetadata?.total_days || 60,
-                startDate: new Date().toISOString(),
+                startDate: new Date().toISOString().split('T')[0],
                 rawContent: rawText,
                 fileUrl: fileUrl,
                 isActive: true

@@ -2,10 +2,10 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-import { ArrowLeft, Save, Globe, Lock, Eye, Settings, Image as ImageIcon, Loader2, Trash2, Plus, X, Zap } from 'lucide-react'
+import { ArrowLeft, Save, Globe, Lock, Eye, Settings, Image as ImageIcon, Loader2, Trash2, Plus, X, Zap, Upload, FileText, CheckCircle2, AlertCircle, Shield, Calendar, ArrowRight, Check, Info } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { useRouter, useSearchParams } from 'next/navigation'
 import TiptapEditor from '@/components/editor/TiptapEditor'
 import { cn } from '@/lib/utils'
 import { upsertBlogPost } from '@/lib/actions/blog'
@@ -291,7 +291,13 @@ export default function ComposePostPage() {
                                     <div className="relative aspect-video rounded-3xl overflow-hidden bg-black/40 border border-white/10 group">
                                         {coverUrl ? (
                                             <div className="relative w-full h-full">
-                                                <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                                                <Image
+                                                    src={coverUrl}
+                                                    alt="Cover"
+                                                    fill
+                                                    className="object-cover"
+                                                    unoptimized
+                                                />
                                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
                                                     <button onClick={() => setCoverUrl('')} className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transform hover:scale-110 transition-all"><Trash2 className="w-5 h-5" /></button>
                                                 </div>
