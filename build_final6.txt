@@ -32,10 +32,10 @@ Route (app)                              Size     First Load JS
 Γö£ ╞Æ /blog/manage/new                     126 kB          282 kB
 Γö£ ╞Æ /dashboard                           3.64 kB         134 kB
 Γö£ ╞Æ /jane                                3.32 kB         132 kB
-Γö£ ╞Æ /login                               3.68 kB         152 kB
+Γö£ ╞Æ /login                               3.6 kB          152 kB
 Γö£ ╞Æ /milestones                          2.11 kB         132 kB
 Γö£ ╞Æ /profile                             4.36 kB         152 kB
-Γö£ ╞Æ /settings                            4.32 kB         194 kB
+Γö£ ╞Æ /settings                            4.06 kB         140 kB
 Γö£ ╞Æ /setup                               6.16 kB         143 kB
 Γö£ ╞Æ /share                               14.2 kB         157 kB
 Γö£ ╞Æ /tracker                             2.42 kB         140 kB

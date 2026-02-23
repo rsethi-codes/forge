@@ -23,6 +23,7 @@ import {
 import { cn } from '@/lib/utils'
 import { getProfile, updateProfile } from '@/lib/actions/settings'
 import { createClient } from '@/lib/supabase/client'
+import { getAuthStatus } from '@/lib/actions/auth-status'
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState<'profile' | 'app' | 'security'>('profile')
@@ -36,8 +37,7 @@ export default function SettingsPage() {
 
     const loadProfile = async () => {
         setLoading(true)
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { user } = await getAuthStatus()
 
         if (user?.email) {
             const data = await getProfile(user.email)

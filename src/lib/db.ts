@@ -1,36 +1,40 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import * as schema from './supabase/schema'
+import * as schema from '@/lib/supabase/schema'
 
-const connectionString = process.env.DATABASE_URL
+const connectionString = process.env.DATABASE_URL!
 
-if (!connectionString) {
-    throw new Error(
-        'DATABASE_URL environment variable is not set. ' +
-        'Please set it in your Vercel project settings or .env.local.'
-    )
+// Use a lazy initialization pattern.
+// This prevents the "Cannot read properties of undefined (reading 'workers')" error
+// because the 'postgres' client is not created during the module evaluation phase
+// (cold start), but only when the first database query is actually made.
+
+let queryClient: postgres.Sql | null = null;
+let dbInstance: ReturnType<typeof drizzle<typeof schema>> | null = null;
+
+export function getClient() {
+    if (!queryClient) {
+        // ... (rest of the logic remains same)
+        queryClient = postgres(connectionString, {
+            prepare: false,
+            max: process.env.NODE_ENV === 'production' ? 5 : 1,
+            idle_timeout: 20,
+            connect_timeout: 10,
+            connection: {
+                application_name: 'forge-app',
+            },
+        });
+    }
+    return queryClient;
 }
 
-// In production (Vercel), Node.js module cache persists between warm invocations.
-// We create ONE client per module load — this is safe and correct for serverless.
-// Do NOT use the globalForDb pattern: it causes "Cannot read properties of undefined
-// (reading 'workers')" errors when the global is partially initialized on cold starts.
+export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
+    get(target, prop, receiver) {
+        if (!dbInstance) {
+            dbInstance = drizzle(getClient(), { schema });
+        }
+        return Reflect.get(dbInstance, prop, receiver);
+    }
+});
 
-const isProduction = process.env.NODE_ENV === 'production'
-
-const client = postgres(connectionString, {
-    prepare: false,
-    // In production, allow more connections for concurrency. Vercel scales functions
-    // horizontally, so each function instance has its own pool — keep it small to
-    // avoid exhausting Supabase connection limits.
-    max: isProduction ? 3 : 1,
-    idle_timeout: isProduction ? 30 : 5,
-    connect_timeout: 10,
-    // Required for Supabase pooler (Transaction mode)
-    connection: {
-        application_name: 'forge-app',
-    },
-})
-
-export const db = drizzle(client, { schema })
-export { client }
+export { queryClient as client };

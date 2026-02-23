@@ -57,8 +57,8 @@ export async function POST(req: NextRequest) {
             : parseRoadmapText(rawText)
 
         // 4. Save to DB
-        const supabase = createClient()
-        const { data: { user } } = await supabase.auth.getUser()
+        const { getCurrentUser } = await import('@/lib/auth-utils')
+        const user = await getCurrentUser()
 
         if (!user) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
