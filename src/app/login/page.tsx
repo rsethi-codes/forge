@@ -9,6 +9,7 @@ import { loginAdmin } from '@/lib/actions/auth'
 
 function LoginContent() {
     const [email, setEmail] = React.useState('')
+    const [adminId, setAdminId] = React.useState('root')
     const [password, setPassword] = React.useState('')
     const [isAdminMode, setIsAdminMode] = React.useState(false)
     const [isLoading, setIsLoading] = React.useState(false)
@@ -114,9 +115,10 @@ function LoginContent() {
                                     <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
                                     <input
                                         type="text"
-                                        value=""
+                                        value={adminId}
+                                        onChange={(e) => setAdminId(e.target.value)}
                                         autoComplete="off"
-                                        className="w-full bg-[#0c0c0c]/50 border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-secondary font-mono"
+                                        className="w-full bg-[#0c0c0c] border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-primary font-mono outline-none focus:border-primary transition-all"
                                     />
                                 </div>
                             </div>

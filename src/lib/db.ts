@@ -2,28 +2,35 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from './supabase/schema'
 
-const connectionString = process.env.DATABASE_URL!
+const connectionString = process.env.DATABASE_URL
 
-// Use a global variable to store the database instance across hot-reloads in development
-const globalForDb = global as unknown as {
-    client: postgres.Sql | undefined
-    db: any | undefined
+if (!connectionString) {
+    throw new Error(
+        'DATABASE_URL environment variable is not set. ' +
+        'Please set it in your Vercel project settings or .env.local.'
+    )
 }
 
-if (!globalForDb.client) {
-    // We use a very strict limit of 1 connection in development 
-    // because Next.js HMR and multiple processes can easily exhaust Supabase Free tier slots.
-    globalForDb.client = postgres(connectionString, {
-        prepare: false,
-        max: 1,
-        idle_timeout: 5,   // Close idle connections almost immediately
-        connect_timeout: 10,
-    })
-}
+// In production (Vercel), Node.js module cache persists between warm invocations.
+// We create ONE client per module load — this is safe and correct for serverless.
+// Do NOT use the globalForDb pattern: it causes "Cannot read properties of undefined
+// (reading 'workers')" errors when the global is partially initialized on cold starts.
 
-if (!globalForDb.db) {
-    globalForDb.db = drizzle(globalForDb.client, { schema })
-}
+const isProduction = process.env.NODE_ENV === 'production'
 
-export const db = globalForDb.db
-export const client = globalForDb.client
+const client = postgres(connectionString, {
+    prepare: false,
+    // In production, allow more connections for concurrency. Vercel scales functions
+    // horizontally, so each function instance has its own pool — keep it small to
+    // avoid exhausting Supabase connection limits.
+    max: isProduction ? 3 : 1,
+    idle_timeout: isProduction ? 30 : 5,
+    connect_timeout: 10,
+    // Required for Supabase pooler (Transaction mode)
+    connection: {
+        application_name: 'forge-app',
+    },
+})
+
+export const db = drizzle(client, { schema })
+export { client }

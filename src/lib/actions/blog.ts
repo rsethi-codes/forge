@@ -3,6 +3,7 @@
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
 import { eq, sql, desc } from 'drizzle-orm'
+import { requireUser } from '@/lib/auth-utils'
 
 export async function getBlogPost(slug: string) {
     const [post] = await db
@@ -42,7 +43,10 @@ export async function upsertBlogPost(data: {
     technologies?: string[]
     resources?: { title: string, url: string }[]
 }) {
+    const user = await requireUser()
+
     const postData = {
+        userId: user.id,
         title: data.title,
         slug: data.slug,
         content: data.content,

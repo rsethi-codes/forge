@@ -39,9 +39,22 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     const [stats, setStats] = React.useState({ day: 1, streak: 0 })
 
     const handleSignOut = async () => {
-        const { logoutAdmin } = await import('@/lib/actions/auth')
-        await logoutAdmin()
-        await supabase.auth.signOut()
+        try {
+            // Sign out of Supabase (primary auth)
+            await supabase.auth.signOut()
+        } catch (e) {
+            console.error('Supabase sign-out error:', e)
+        }
+
+        // Clear the admin cookie by calling a simple API route
+        // This avoids dependency on Server Actions which can fail with stale deployment IDs
+        try {
+            await fetch('/api/auth/logout', { method: 'POST' })
+        } catch {
+            // Best-effort: even if this fails, redirect to login
+            // The cookie will expire naturally or be invalidated on next auth check
+        }
+
         window.location.href = '/login'
     }
 

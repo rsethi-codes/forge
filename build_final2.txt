@@ -1,0 +1,27 @@
+
+> forge@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.15
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/lib/actions/blog.ts:68:14
+Type error: No overload matches this call.
+  Overload 1 of 2, '(value: { title: string | SQL<unknown> | Placeholder<string, any>; userId: string | SQL<unknown> | Placeholder<string, any>; content: unknown; slug: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; resources?: unknown; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ createdAt: Date; viewCount: number; publishedAt?: Date | undefined; title: string; slug: string; content: any; contentHtml: string; excerpt: string | undefined; coverImageUrl: string | undefined; visibility: "public" | "private"; technologies: string[]; resources: { ...; }[]; updatedAt: Date; }' is not assignable to parameter of type '{ title: string | SQL<unknown> | Placeholder<string, any>; userId: string | SQL<unknown> | Placeholder<string, any>; content: unknown; slug: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; resources?: unknown; }'.
+      Property 'userId' is missing in type '{ createdAt: Date; viewCount: number; publishedAt?: Date | undefined; title: string; slug: string; content: any; contentHtml: string; excerpt: string | undefined; coverImageUrl: string | undefined; visibility: "public" | "private"; technologies: string[]; resources: { ...; }[]; updatedAt: Date; }' but required in type '{ title: string | SQL<unknown> | Placeholder<string, any>; userId: string | SQL<unknown> | Placeholder<string, any>; content: unknown; slug: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; resources?: unknown; }'.
+  Overload 2 of 2, '(values: { title: string | SQL<unknown> | Placeholder<string, any>; userId: string | SQL<unknown> | Placeholder<string, any>; content: unknown; slug: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; resources?: unknown; }[]): PgInsertBase<...>', gave the following error.
+    Object literal may only specify known properties, and 'createdAt' does not exist in type '{ title: string | SQL<unknown> | Placeholder<string, any>; userId: string | SQL<unknown> | Placeholder<string, any>; content: unknown; slug: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; resources?: unknown; }[]'.
+
+  66 |         return (await db
+  67 |             .insert(schema.blogPosts)
+> 68 |             .values({
+     |              ^
+  69 |                 ...postData,
+  70 |                 createdAt: new Date(),
+  71 |                 viewCount: 0

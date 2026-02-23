@@ -57,7 +57,14 @@ export async function POST(req: NextRequest) {
             : parseRoadmapText(rawText)
 
         // 4. Save to DB
-        const program = await saveParsedRoadmapToDb(roadmap, rawText, publicUrl, jsonMetadata)
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+        }
+
+        const program = await saveParsedRoadmapToDb(user.id, roadmap, rawText, publicUrl, jsonMetadata)
 
         return NextResponse.json({
             message: 'Roadmap parsed and saved successfully',

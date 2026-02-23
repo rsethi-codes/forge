@@ -370,13 +370,14 @@ export function parseRoadmapJson(json: ParsedRoadmapJson): ParsedRoadmap {
     return roadmap;
 }
 
-export async function saveParsedRoadmapToDb(roadmap: ParsedRoadmap, rawText: string, fileUrl: string, jsonMetadata?: ParsedRoadmapJson) {
+export async function saveParsedRoadmapToDb(userId: string, roadmap: ParsedRoadmap, rawText: string, fileUrl: string, jsonMetadata?: ParsedRoadmapJson) {
     try {
         return await db.transaction(async (tx: any) => {
             // 1. Create Program (Set all existing to inactive)
             await tx.update(schema.roadmapPrograms).set({ isActive: false });
 
             const [program] = await tx.insert(schema.roadmapPrograms).values({
+                userId,
                 title: roadmap.title,
                 description: roadmap.description,
                 totalDays: jsonMetadata?.total_days || 60,

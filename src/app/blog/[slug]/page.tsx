@@ -113,8 +113,7 @@ export default async function BlogPostDetail({
                         dangerouslySetInnerHTML={{ __html: post.contentHtml || '' }}
                     />
 
-                    {/* Resources Section */}
-                    {post.resources && (post.resources as any[]).length > 0 && (
+                    {Array.isArray(post.resources) && (post.resources as any[]).length > 0 && (
                         <div className="pt-12 space-y-6">
                             <h3 className="text-xl font-syne font-bold border-l-4 border-primary pl-4 uppercase tracking-wider">Useful Resources</h3>
                             <div className="grid grid-cols-1 gap-4">
