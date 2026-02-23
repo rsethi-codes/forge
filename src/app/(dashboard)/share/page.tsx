@@ -20,8 +20,6 @@ import {
 import QRCode from 'qrcode'
 import { cn } from '@/lib/utils'
 
-export const dynamic = 'force-dynamic'
-
 export default function SharePage() {
     const [qrCode, setQrCode] = useState('')
     const [copied, setCopied] = useState(false)

@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export const dynamic = 'force-dynamic'
 import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Shield, Trash2, Zap, Calendar, ArrowRight, Edit2, Check, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'

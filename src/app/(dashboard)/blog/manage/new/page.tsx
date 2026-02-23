@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export const dynamic = 'force-dynamic'
 import { ArrowLeft, Save, Globe, Lock, Eye, Settings, Image as ImageIcon, Loader2, Trash2, Plus, X, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'

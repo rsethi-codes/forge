@@ -26,6 +26,9 @@ const config: Config = {
         fraunces: ["var(--font-fraunces)"],
         lora: ["var(--font-lora)"],
       },
+      gridTemplateColumns: {
+        '15': 'repeat(15, minmax(0, 1fr))',
+      },
     },
   },
   plugins: [],

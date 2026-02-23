@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
-export const dynamic = 'force-dynamic'
+// Data freshness is handled by React Query (staleTime 60s).
 import {
     BarChart,
     Bar,
@@ -72,8 +72,8 @@ export default function AnalyticsPage() {
                         <p className="text-2xl font-syne font-bold text-secondary">{data.blogCount}</p>
                     </div>
                     <div className="bg-surface border border-border-subtle px-6 py-4 rounded-2xl text-center">
-                        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Global Rank</p>
-                        <p className="text-2xl font-syne font-bold text-success">TOP 5%</p>
+                        <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Days Active</p>
+                        <p className="text-2xl font-syne font-bold text-success">{data.streak ?? 0}</p>
                     </div>
                 </div>
             </header>
@@ -253,14 +253,20 @@ export default function AnalyticsPage() {
                 <section className="bg-primary/5 border-2 border-primary/20 p-8 rounded-[2.5rem] flex flex-col justify-between">
                     <div className="space-y-4">
                         <h3 className="font-syne font-bold text-sm uppercase tracking-widest">Velocity Grade</h3>
-                        <p className="text-5xl font-syne font-bold tracking-tighter text-primary">A+</p>
+                        <p className="text-5xl font-syne font-bold tracking-tighter text-primary"
+                            style={{ color: data.currentTier?.color }}>
+                            {data.currentTier?.tier ?? 'B'}
+                        </p>
                     </div>
                     <div className="pt-8 space-y-4">
                         <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest italic">
-                            &quot;You are outpacing 94% of users in the Senior React Engineering track. Professional maturity is imminent.&quot;
+                            &quot;Avg discipline {data.avgDiscipline}%. Tier {data.currentTier?.tier ?? 'B'}. Streak: {data.streak ?? 0} days.&quot;
                         </p>
-                        <button className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-primary/20">
-                            Simulate Interview
+                        <button
+                            onClick={() => window.dispatchEvent(new CustomEvent('forge-hud-open', { detail: { mode: 'mentor' } }))}
+                            className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
+                        >
+                            Ask Forge Mentor
                         </button>
                     </div>
                 </section>
@@ -361,7 +367,7 @@ export default function AnalyticsPage() {
                             <TrendingUp className="w-4 h-4" /> Momentum Engine
                         </div>
                         <p className="text-sm font-medium leading-relaxed italic font-lora">
-                            &quot;Current streak of {data.streak} days has increased your average discipline score by {Math.round(data.streak * 1.5)}%. Momentum is your greatest asset.&quot;
+                            &quot;Current streak of <span className="text-success not-italic font-bold">{data.streak ?? 0}</span> days has increased your avg discipline score by <span className="text-success not-italic font-bold">{Math.round((data.streak ?? 0) * 1.5)}%</span>. Momentum is your greatest asset.&quot;
                         </p>
                     </div>
                 </div>

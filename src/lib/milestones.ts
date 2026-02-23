@@ -24,23 +24,25 @@ export async function checkAndUnlockMilestones(userId?: string) {
     if (locked.length === 0) return []
 
     // 2. Fetch required stats for check
-    const streak = await calculateCurrentStreak(targetUserId)
-    const [totalCompletedDays] = await db
-        .select({ count: sql`count(*)` })
-        .from(schema.dailyProgress)
-        .where(and(
-            eq(schema.dailyProgress.status, 'complete'),
-            eq(schema.dailyProgress.userId, targetUserId)
-        ))
+    const [streak, totalCompletedDays, blogsResult, scores] = await Promise.all([
+        calculateCurrentStreak(targetUserId),
+        db.select({ count: sql`count(*)` })
+            .from(schema.dailyProgress)
+            .where(and(
+                eq(schema.dailyProgress.status, 'complete'),
+                eq(schema.dailyProgress.userId, targetUserId)
+            )),
+        db.select({ count: sql<number>`count(*)::int` })
+            .from(schema.blogPosts)
+            .where(eq(schema.blogPosts.userId, targetUserId)),
+        db.select({ maxScore: sql`max(cast(${schema.disciplineScores.disciplineScore} as float))` })
+            .from(schema.disciplineScores)
+            .where(eq(schema.disciplineScores.userId, targetUserId))
+    ])
 
-    const completedCount = parseInt((totalCompletedDays as any).count || '0')
-
-    const [scores] = await db
-        .select({ maxScore: sql`max(cast(${schema.disciplineScores.disciplineScore} as float))` })
-        .from(schema.disciplineScores)
-        .where(eq(schema.disciplineScores.userId, targetUserId))
-
-    const maxScore = parseFloat((scores as any).maxScore || '0')
+    const completedCount = parseInt((totalCompletedDays[0] as any).count || '0')
+    const blogCount = blogsResult[0]?.count || 0
+    const maxScore = parseFloat((scores[0] as any).maxScore || '0')
 
     // 3. Evaluate each locked milestone
     for (const m of locked) {
@@ -54,10 +56,11 @@ export async function checkAndUnlockMilestones(userId?: string) {
                 if (completedCount >= m.criteriaValue) achieved = true
                 break
             case 'kc_score':
-                // If we have a milestone for high discipline score
                 if (maxScore >= m.criteriaValue) achieved = true
                 break
-            // Add more cases as needed
+            case 'blog_posts':
+                if (blogCount >= m.criteriaValue) achieved = true
+                break
         }
 
         if (achieved) {

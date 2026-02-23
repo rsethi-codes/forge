@@ -10,6 +10,7 @@ import { revalidatePath } from 'next/cache'
 import { analytics } from '@/lib/analytics'
 import { requireUser } from '@/lib/auth-utils'
 import { postToLinkedIn, generateBuildCompletionPost } from '@/lib/integrations/linkedin'
+import { adjustCoins } from './rewards'
 
 export async function getDayDetail(dayNumber: number | string) {
     const user = await requireUser()
@@ -102,7 +103,10 @@ export async function getDayDetail(dayNumber: number | string) {
             return {
                 ...t,
                 completed: comp?.completed || false,
-                timeSpent: comp?.timeSpent || 0,
+                timeSpent: comp?.timeSpent || 0,       // gross seconds
+                timeSpentNet: comp?.timeSpentNet || 0, // net seconds
+                startedAt: comp?.startedAt || null,
+                timerSessions: comp?.timerSessions || [],
                 notes: comp?.notes || ''
             }
         }),
@@ -115,7 +119,10 @@ export async function getDayDetail(dayNumber: number | string) {
             return {
                 ...t,
                 completed: comp?.completed || false,
-                timeSpent: comp?.timeSpent || 0,
+                timeSpent: comp?.timeSpent || 0,       // gross seconds
+                timeSpentNet: comp?.timeSpentNet || 0, // net seconds
+                startedAt: comp?.startedAt || null,
+                timerSessions: comp?.timerSessions || [],
                 notes: comp?.notes || '',
                 subtopics: subtopics.filter((s: any) => s.topicId === t.id)
             }
@@ -124,6 +131,18 @@ export async function getDayDetail(dayNumber: number | string) {
 }
 
 export async function toggleTaskCompletion(taskId: string, progressId: string, completed: boolean) {
+    // Fetch existing completion to preserve startedAt if already set
+    const [existing] = await db
+        .select({ startedAt: schema.taskCompletions.startedAt })
+        .from(schema.taskCompletions)
+        .where(and(
+            eq(schema.taskCompletions.taskId, taskId),
+            eq(schema.taskCompletions.dailyProgressId, progressId)
+        ))
+        .limit(1)
+
+    const startedAt = existing?.startedAt ?? (completed ? new Date() : null)
+
     await db
         .insert(schema.taskCompletions)
         .values({
@@ -131,13 +150,16 @@ export async function toggleTaskCompletion(taskId: string, progressId: string, c
             dailyProgressId: progressId,
             completed,
             completedAt: completed ? new Date() : null,
+            startedAt,
             timeSpent: 0
         })
         .onConflictDoUpdate({
             target: [schema.taskCompletions.taskId, schema.taskCompletions.dailyProgressId],
             set: {
                 completed,
-                completedAt: completed ? new Date() : null
+                completedAt: completed ? new Date() : null,
+                // Only set startedAt if not already recorded
+                ...(existing?.startedAt == null && completed ? { startedAt: new Date() } : {})
             }
         })
 
@@ -147,12 +169,14 @@ export async function toggleTaskCompletion(taskId: string, progressId: string, c
         .where(eq(schema.dailyProgress.id, progressId))
         .limit(1)
 
+    let unlockedMilestones: any[] = []
     if (prog) {
         await calculateDailyDiscipline(prog.date, prog.userId)
-        await checkAndUnlockMilestones(prog.userId)
+        unlockedMilestones = await checkAndUnlockMilestones(prog.userId)
 
         if (completed) {
             analytics.trackTaskCompleted(taskId, progressId)
+            await adjustCoins(prog.userId, 'task_complete')
 
             // Check for build-type task to trigger social update
             const [task] = await db
@@ -168,30 +192,64 @@ export async function toggleTaskCompletion(taskId: string, progressId: string, c
         }
     }
 
+    // Revalidate only the specific day page and the tracker overview
+    const dayNum = await getDayNumberForProgress(progressId)
+    if (dayNum) revalidatePath(`/tracker/day/${dayNum}`)
     revalidatePath('/tracker')
+    revalidatePath('/dashboard')
+
+    return { success: true, unlockedMilestones }
 }
 
-export async function updateTaskDetail(taskId: string, progressId: string, data: { timeSpent: number, notes?: string }) {
+export async function updateTaskDetail(
+    taskId: string,
+    progressId: string,
+    data: {
+        timeSpent?: number        // gross seconds
+        timeSpentNet?: number     // net seconds
+        startedAt?: Date | null
+        timerSessions?: Array<{ start: string; end: string }>
+        notes?: string
+    }
+) {
     await db
         .insert(schema.taskCompletions)
         .values({
             taskId,
             dailyProgressId: progressId,
-            timeSpent: data.timeSpent,
+            timeSpent: data.timeSpent ?? 0,
+            timeSpentNet: data.timeSpentNet ?? 0,
+            startedAt: data.startedAt ?? null,
+            timerSessions: data.timerSessions ?? [],
             notes: data.notes || '',
             completed: false
         })
         .onConflictDoUpdate({
             target: [schema.taskCompletions.taskId, schema.taskCompletions.dailyProgressId],
             set: {
-                timeSpent: data.timeSpent,
-                notes: data.notes || ''
+                ...(data.timeSpent !== undefined && { timeSpent: data.timeSpent }),
+                ...(data.timeSpentNet !== undefined && { timeSpentNet: data.timeSpentNet }),
+                ...(data.startedAt !== undefined && { startedAt: data.startedAt }),
+                ...(data.timerSessions !== undefined && { timerSessions: data.timerSessions }),
+                ...(data.notes !== undefined && { notes: data.notes })
             }
         })
-    revalidatePath('/tracker')
+
+    // Auto-recalc hoursLogged from sum of all topic + task net times
+    await recalcDayHours(progressId)
+    // No revalidatePath here — client updates state optimistically via handleTimerStop
 }
 
 export async function toggleTopicCompletion(topicId: string, progressId: string, completed: boolean) {
+    const [existing] = await db
+        .select({ startedAt: schema.topicCompletions.startedAt })
+        .from(schema.topicCompletions)
+        .where(and(
+            eq(schema.topicCompletions.topicId, topicId),
+            eq(schema.topicCompletions.dailyProgressId, progressId)
+        ))
+        .limit(1)
+
     await db
         .insert(schema.topicCompletions)
         .values({
@@ -199,48 +257,120 @@ export async function toggleTopicCompletion(topicId: string, progressId: string,
             dailyProgressId: progressId,
             completed,
             completedAt: completed ? new Date() : null,
+            startedAt: existing?.startedAt ?? (completed ? new Date() : null),
             timeSpent: 0
         })
         .onConflictDoUpdate({
             target: [schema.topicCompletions.topicId, schema.topicCompletions.dailyProgressId],
             set: {
                 completed,
-                completedAt: completed ? new Date() : null
+                completedAt: completed ? new Date() : null,
+                ...(existing?.startedAt == null && completed ? { startedAt: new Date() } : {})
             }
         })
     if (completed) {
         analytics.trackTopicCompleted(topicId, progressId)
     }
+
+    const [prog] = await db
+        .select({ date: schema.dailyProgress.date, userId: schema.dailyProgress.userId })
+        .from(schema.dailyProgress)
+        .where(eq(schema.dailyProgress.id, progressId))
+        .limit(1)
+
+    let unlockedMilestones: any[] = []
+    if (prog) {
+        await calculateDailyDiscipline(prog.date, prog.userId)
+        unlockedMilestones = await checkAndUnlockMilestones(prog.userId)
+    }
+
+    const dayNum = await getDayNumberForProgress(progressId)
+    if (dayNum) revalidatePath(`/tracker/day/${dayNum}`)
     revalidatePath('/tracker')
+    revalidatePath('/dashboard')
+
+    return { success: true, unlockedMilestones }
 }
 
-export async function updateTopicDetail(topicId: string, progressId: string, data: { timeSpent: number, notes?: string }) {
+export async function updateTopicDetail(
+    topicId: string,
+    progressId: string,
+    data: {
+        timeSpent?: number
+        timeSpentNet?: number
+        startedAt?: Date | null
+        timerSessions?: Array<{ start: string; end: string }>
+        notes?: string
+    }
+) {
     await db
         .insert(schema.topicCompletions)
         .values({
             topicId,
             dailyProgressId: progressId,
-            timeSpent: data.timeSpent,
+            timeSpent: data.timeSpent ?? 0,
+            timeSpentNet: data.timeSpentNet ?? 0,
+            startedAt: data.startedAt ?? null,
+            timerSessions: data.timerSessions ?? [],
             notes: data.notes || '',
             completed: false
         })
         .onConflictDoUpdate({
             target: [schema.topicCompletions.topicId, schema.topicCompletions.dailyProgressId],
             set: {
-                timeSpent: data.timeSpent,
-                notes: data.notes || ''
+                ...(data.timeSpent !== undefined && { timeSpent: data.timeSpent }),
+                ...(data.timeSpentNet !== undefined && { timeSpentNet: data.timeSpentNet }),
+                ...(data.startedAt !== undefined && { startedAt: data.startedAt }),
+                ...(data.timerSessions !== undefined && { timerSessions: data.timerSessions }),
+                ...(data.notes !== undefined && { notes: data.notes })
             }
         })
-    revalidatePath('/tracker')
+
+    await recalcDayHours(progressId)
+    // No revalidatePath here — client updates state optimistically via handleTimerStop
+}
+
+/** Look up the dayNumber for a given progressId to build a targeted revalidatePath */
+async function getDayNumberForProgress(progressId: string): Promise<string | null> {
+    const [row] = await db
+        .select({ dayNumber: schema.roadmapDays.dayNumber })
+        .from(schema.dailyProgress)
+        .innerJoin(schema.roadmapDays, eq(schema.dailyProgress.dayId, schema.roadmapDays.id))
+        .where(eq(schema.dailyProgress.id, progressId))
+        .limit(1)
+    return row?.dayNumber ?? null
+}
+
+/** Sum all net seconds from topic + task completions and write hoursLogged automatically */
+async function recalcDayHours(progressId: string) {
+    const [taskTimes, topicTimes] = await Promise.all([
+        db.select({ net: schema.taskCompletions.timeSpentNet })
+            .from(schema.taskCompletions)
+            .where(eq(schema.taskCompletions.dailyProgressId, progressId)),
+        db.select({ net: schema.topicCompletions.timeSpentNet })
+            .from(schema.topicCompletions)
+            .where(eq(schema.topicCompletions.dailyProgressId, progressId)),
+    ])
+    const totalNetSeconds = [
+        ...taskTimes.map((r: any) => r.net ?? 0),
+        ...topicTimes.map((r: any) => r.net ?? 0)
+    ].reduce((a: number, b: number) => a + b, 0)
+    const hoursLogged = (totalNetSeconds / 3600).toFixed(2)
+    await db
+        .update(schema.dailyProgress)
+        .set({ hoursLogged })
+        .where(eq(schema.dailyProgress.id, progressId))
 }
 
 export async function updateDayProgress(progressId: string, data: { status?: any, hours?: string, notes?: string }) {
     await db
         .update(schema.dailyProgress)
         .set({
-            ...(data.status && { status: data.status }),
-            ...(data.hours && { hoursLogged: data.hours }),
-            ...(data.notes && { sessionNotes: data.notes }),
+            ...(data.status !== undefined && { status: data.status }),
+            // hours is auto-managed by recalcDayHours; only override if explicitly passed
+            ...(data.hours !== undefined && { hoursLogged: data.hours }),
+            // Use !== undefined so clearing notes (empty string) actually saves
+            ...(data.notes !== undefined && { sessionNotes: data.notes }),
             ...(data.status === 'complete' && { completedAt: new Date() })
         })
         .where(eq(schema.dailyProgress.id, progressId))
@@ -251,13 +381,19 @@ export async function updateDayProgress(progressId: string, data: { status?: any
         .where(eq(schema.dailyProgress.id, progressId))
         .limit(1)
 
+    let unlockedMilestones: any[] = []
     if (prog) {
         await calculateDailyDiscipline(prog.date, prog.userId)
-        await checkAndUnlockMilestones(prog.userId)
+        unlockedMilestones = await checkAndUnlockMilestones(prog.userId)
     }
 
+    // Status/notes changes affect both the day view and the dashboard overview
+    const dayNum = await getDayNumberForProgress(progressId)
+    if (dayNum) revalidatePath(`/tracker/day/${dayNum}`)
     revalidatePath('/tracker')
     revalidatePath('/dashboard')
+
+    return { success: true, unlockedMilestones }
 }
 
 export async function updateKCResult(kcId: string, progressId: string, passed: boolean, notes: string) {
@@ -281,9 +417,15 @@ export async function updateKCResult(kcId: string, progressId: string, passed: b
         .where(eq(schema.dailyProgress.id, progressId))
         .limit(1)
 
+    let unlockedMilestones: any[] = []
     if (prog) {
         await calculateDailyDiscipline(prog.date, prog.userId)
-        await checkAndUnlockMilestones(prog.userId)
+        unlockedMilestones = await checkAndUnlockMilestones(prog.userId)
         analytics.trackKCAttempted(kcId, passed)
+        if (passed) {
+            await adjustCoins(prog.userId, 'kc_pass')
+        }
     }
+
+    return { success: true, unlockedMilestones }
 }

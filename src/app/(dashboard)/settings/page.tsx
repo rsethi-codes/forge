@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 
-export const dynamic = 'force-dynamic'
+// Client-rendered page — no force-dynamic needed.
 import {
     User,
     Shield,
@@ -19,7 +19,8 @@ import {
     AlertTriangle,
     Loader2,
     Clock,
-    Zap
+    Zap,
+    CheckCircle2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getProfile, updateProfile } from '@/lib/actions/settings'
@@ -27,9 +28,10 @@ import { createClient } from '@/lib/supabase/client'
 import { getAuthStatus } from '@/lib/actions/auth-status'
 
 export default function SettingsPage() {
-    const [activeTab, setActiveTab] = useState<'profile' | 'app' | 'security'>('profile')
+    const [activeTab, setActiveTab] = useState<'profile' | 'prefs' | 'app'>('profile')
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [saved, setSaved] = useState(false)
     const [profile, setProfile] = useState<any>(null)
     const [zenFullscreen, setZenFullscreen] = useState(false)
 
@@ -41,7 +43,6 @@ export default function SettingsPage() {
     const loadProfile = async () => {
         setLoading(true)
         const { user } = await getAuthStatus()
-
         if (user?.email) {
             const data = await getProfile(user.email)
             setProfile(data)
@@ -49,16 +50,31 @@ export default function SettingsPage() {
         setLoading(false)
     }
 
-    const handleSave = async () => {
+    const showSaved = () => {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+    }
+
+    const handleSaveProfile = async () => {
         if (!profile) return
         setSaving(true)
         await updateProfile(profile.email, {
             fullName: profile.fullName,
             bio: profile.bio,
-            emailNotifications: profile.emailNotifications,
-            morningDigestTime: profile.morningDigestTime
         })
         setSaving(false)
+        showSaved()
+    }
+
+    const handleSavePreferences = async () => {
+        if (!profile) return
+        setSaving(true)
+        await updateProfile(profile.email, {
+            emailNotifications: profile.emailNotifications,
+            morningDigestTime: profile.morningDigestTime,
+        })
+        setSaving(false)
+        showSaved()
     }
 
     if (loading) {
@@ -81,8 +97,8 @@ export default function SettingsPage() {
                 <aside className="lg:w-64 space-y-2">
                     {[
                         { id: 'profile', icon: User, label: 'Owner Profile' },
-                        { id: 'security', icon: Shield, label: 'Access Control' },
-                        { id: 'app', icon: Database, label: 'System & Data' },
+                        { id: 'prefs', icon: Bell, label: 'Preferences' },
+                        { id: 'app', icon: Database, label: 'Danger Zone' },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -158,22 +174,22 @@ export default function SettingsPage() {
                             </div>
 
                             <button
-                                onClick={handleSave}
+                                onClick={handleSaveProfile}
                                 disabled={saving}
                                 className="bg-primary hover:bg-red-600 text-white font-bold px-8 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
                             >
-                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                Save Profile
+                                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                                {saved ? 'Saved!' : 'Save Profile'}
                             </button>
                         </motion.div>
                     )}
 
-                    {activeTab === 'security' && profile && (
+                    {activeTab === 'prefs' && profile && (
                         <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} className="space-y-8">
                             <div className="bg-surface border border-border-subtle p-8 rounded-3xl space-y-6">
                                 <div className="flex items-center gap-3 text-primary">
-                                    <Shield className="w-6 h-6" />
-                                    <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">Access Control</h3>
+                                    <Bell className="w-6 h-6" />
+                                    <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">Notifications</h3>
                                 </div>
 
                                 <div className="space-y-4 pt-4 text-sm">
@@ -192,8 +208,21 @@ export default function SettingsPage() {
 
                                     <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
                                         <div className="flex items-center gap-3">
+                                            <Clock className="w-4 h-4 text-text-secondary" />
+                                            <span>Morning Digest Time</span>
+                                        </div>
+                                        <input
+                                            type="time"
+                                            value={profile.morningDigestTime}
+                                            onChange={e => setProfile({ ...profile, morningDigestTime: e.target.value })}
+                                            className="bg-surface-elevated border border-border-subtle rounded-lg px-2 py-1 text-xs outline-none focus:border-primary"
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
+                                        <div className="flex items-center gap-3">
                                             <Mail className="w-4 h-4 text-text-secondary" />
-                                            <span>Test Integration</span>
+                                            <span>Test Email Integration</span>
                                         </div>
                                         <button
                                             onClick={async () => {
@@ -207,27 +236,13 @@ export default function SettingsPage() {
                                             Send Test
                                         </button>
                                     </div>
-
-                                    <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
-                                        <div className="flex items-center gap-3">
-                                            <Clock className="w-4 h-4 text-text-secondary" />
-                                            <span>Morning Digest Time</span>
-                                        </div>
-                                        <input
-                                            type="time"
-                                            value={profile.morningDigestTime}
-                                            onChange={e => setProfile({ ...profile, morningDigestTime: e.target.value })}
-                                            className="bg-surface-elevated border border-border-subtle rounded-lg px-2 py-1 text-xs outline-none focus:border-primary"
-                                        />
-                                    </div>
                                 </div>
 
                                 <div className="space-y-6 pt-6">
                                     <div className="flex items-center gap-3 text-primary">
                                         <Smartphone className="w-6 h-6" />
-                                        <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">User Experience</h3>
+                                        <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">Focus Mode</h3>
                                     </div>
-
                                     <div className="space-y-4 text-sm">
                                         <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
                                             <div className="flex items-center gap-3">
@@ -253,12 +268,12 @@ export default function SettingsPage() {
                                 </div>
 
                                 <button
-                                    onClick={handleSave}
+                                    onClick={handleSavePreferences}
                                     disabled={saving}
                                     className="bg-primary hover:bg-red-600 text-white font-bold px-8 py-3 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-primary/20 disabled:opacity-50"
                                 >
-                                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                    Update Preferences
+                                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+                                    {saved ? 'Saved!' : 'Save Preferences'}
                                 </button>
                             </div>
                         </motion.div>

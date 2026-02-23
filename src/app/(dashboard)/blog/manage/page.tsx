@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export const dynamic = 'force-dynamic'
 import { Plus, Search, Filter, MoreVertical, Eye, Edit2, Trash2, Globe, Lock, Clock, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'

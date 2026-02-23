@@ -115,7 +115,7 @@ export const dailyProgress = pgTable('daily_progress', {
     completedAt: timestamp('completed_at'),
     userId: uuid('user_id').notNull(),
 }, (t) => ({
-    unq: sql`unique(${t.userId}, ${t.dayId}, ${t.date})`
+    unq: unique().on(t.userId, t.dayId, t.date)
 }))
 
 export const taskCompletions = pgTable('task_completions', {
@@ -124,10 +124,13 @@ export const taskCompletions = pgTable('task_completions', {
     dailyProgressId: uuid('daily_progress_id').references(() => dailyProgress.id, { onDelete: 'cascade' }).notNull(),
     completed: boolean('completed').default(false).notNull(),
     completedAt: timestamp('completed_at'),
-    timeSpent: integer('time_spent').default(0), // in minutes
+    timeSpent: integer('time_spent').default(0),        // gross time in seconds (including pauses)
+    timeSpentNet: integer('time_spent_net').default(0), // net active time in seconds (pauses excluded)
+    startedAt: timestamp('started_at'),
+    timerSessions: jsonb('timer_sessions').default([]), // [{start: ISO, end: ISO}, ...]
     notes: text('notes'),
 }, (t) => ({
-    unq: sql`unique(${t.taskId}, ${t.dailyProgressId})`
+    unq: unique().on(t.taskId, t.dailyProgressId)
 }))
 
 export const topicCompletions = pgTable('topic_completions', {
@@ -136,10 +139,13 @@ export const topicCompletions = pgTable('topic_completions', {
     dailyProgressId: uuid('daily_progress_id').references(() => dailyProgress.id, { onDelete: 'cascade' }).notNull(),
     completed: boolean('completed').default(false).notNull(),
     completedAt: timestamp('completed_at'),
-    timeSpent: integer('time_spent').default(0),
+    timeSpent: integer('time_spent').default(0),        // gross time in seconds
+    timeSpentNet: integer('time_spent_net').default(0), // net active time in seconds
+    startedAt: timestamp('started_at'),
+    timerSessions: jsonb('timer_sessions').default([]), // [{start: ISO, end: ISO}, ...]
     notes: text('notes'),
 }, (t) => ({
-    unq: sql`unique(${t.topicId}, ${t.dailyProgressId})`
+    unq: unique().on(t.topicId, t.dailyProgressId)
 }))
 
 export const roadmapMetadata = pgTable('roadmap_metadata', {
@@ -189,7 +195,7 @@ export const knowledgeCheckResults = pgTable('knowledge_check_results', {
     notes: text('notes'),
     answer: text('answer'), // user response
 }, (t) => ({
-    unq: sql`unique(${t.knowledgeCheckId}, ${t.dailyProgressId})`
+    unq: unique().on(t.knowledgeCheckId, t.dailyProgressId)
 }))
 
 export const analyticsEvents = pgTable('analytics_events', {
@@ -212,7 +218,7 @@ export const disciplineScores = pgTable('discipline_scores', {
     disciplineScore: numeric('discipline_score').notNull(),
     motivationMessage: text('motivation_message'),
 }, (t) => ({
-    unq: sql`unique(${t.userId}, ${t.date})`
+    unq: unique().on(t.userId, t.date)
 }))
 
 // --- Blog Module ---
@@ -274,6 +280,7 @@ export const milestones = pgTable('milestones', {
     title: text('title').notNull(),
     description: text('description'),
     icon: text('icon'),
+    reward: text('reward'),
     achievedAt: timestamp('achieved_at'),
     criteriaType: criteriaTypeEnum('criteria_type').notNull(),
     criteriaValue: integer('criteria_value').notNull(),
@@ -301,6 +308,61 @@ export const pomodoroSessions = pgTable('pomodoro_sessions', {
     completedAt: timestamp('completed_at'),
     taskId: uuid('task_id').references(() => roadmapTasks.id, { onDelete: 'cascade' }),
     userId: uuid('user_id').notNull(),
+})
+
+// --- FORGE Behavioral Tracking & Reward Engine ---
+
+export const timeSessions = pgTable('time_sessions', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    dayId: uuid('day_id').references(() => roadmapDays.id, { onDelete: 'cascade' }),
+    startedAt: timestamp('started_at').defaultNow().notNull(),
+    endedAt: timestamp('ended_at'),
+    totalActiveMinutes: integer('total_active_minutes').default(0).notNull(),
+    interruptionsCount: integer('interruptions_count').default(0).notNull(),
+    distractionsCount: integer('distractions_count').default(0).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const appEvents = pgTable('app_events', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    sessionId: uuid('session_id').references(() => timeSessions.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id').notNull(),
+    eventType: text('event_type').notNull(), // 'page_view', 'tab_switch', 'idle_start', 'idle_end', 'click'
+    eventMeta: jsonb('event_meta').default({}).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const nudges = pgTable('nudges', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    sessionId: uuid('session_id').references(() => timeSessions.id, { onDelete: 'cascade' }),
+    nudgeType: text('nudge_type').notNull(), // 'start_reminder', 'focus_alert', 'procrastination_check'
+    nudgeText: text('nudge_text').notNull(),
+    sentAt: timestamp('sent_at').defaultNow().notNull(),
+    respondedAt: timestamp('responded_at'),
+    response: text('response'),
+    meta: jsonb('meta').default({}),
+})
+
+export const behaviorProfile = pgTable('behavior_profile', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    date: date('date').notNull(),
+    focusScore: integer('focus_score').notNull(),
+    procrastinationScore: integer('procrastination_score').notNull(),
+    switchRate: numeric('switch_rate').notNull(), // tab switches per hour
+    pomodoroSuccessRate: numeric('pomodoro_success_rate').notNull(),
+    productiveMinutes: integer('productive_minutes').notNull(),
+    peakProductivityWindow: text('peak_productivity_window'), // e.g., '09:00-11:00'
+}, (t) => ({
+    unq: unique().on(t.userId, t.date)
+}))
+
+export const rewardsWallet = pgTable('rewards_wallet', {
+    userId: uuid('user_id').primaryKey().notNull(),
+    coinsBalance: integer('coins_balance').default(0).notNull(),
+    lastEarnedAt: timestamp('last_earned_at'),
 })
 
 // --- JANE (Job Application Network Engine) ---

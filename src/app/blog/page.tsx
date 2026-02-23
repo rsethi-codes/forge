@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import { getPublicBlogPosts } from '@/lib/actions/blog'
 
-export const dynamic = 'force-dynamic'
+// ISR: Regenerate the public blog listing every 60 seconds
+export const revalidate = 60
 
 export default async function PublicBlogPage() {
     const posts = await getPublicBlogPosts()

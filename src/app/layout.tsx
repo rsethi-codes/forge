@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+// REMOVED: export const dynamic = "force-dynamic"
+// This was forcing every page to re-render on every navigation.
+// Individual pages/routes that need dynamic rendering should opt-in themselves.
 import { Syne, DM_Sans, JetBrains_Mono, Fraunces, Lora } from "next/font/google";
 import "./globals.css";
 
@@ -50,6 +52,8 @@ export const metadata: Metadata = {
 import ForgeHUD from "@/components/ForgeHUD";
 import QueryProvider from "@/components/providers/QueryProvider";
 
+import { Toaster } from 'react-hot-toast'
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -61,8 +65,20 @@ export default function RootLayout({
                 <QueryProvider>
                     {children}
                     <ForgeHUD />
+                    <Toaster
+                        position="top-right"
+                        toastOptions={{
+                            style: {
+                                background: '#111',
+                                color: '#fff',
+                                border: '1px solid #333',
+                                borderRadius: '12px',
+                                fontFamily: 'var(--font-dm-sans)',
+                            },
+                        }}
+                    />
                 </QueryProvider>
             </body>
         </html>
-    );
+    )
 }

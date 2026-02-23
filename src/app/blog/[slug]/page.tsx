@@ -19,7 +19,8 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 import { getBlogPost } from '@/lib/actions/blog'
 
-export const dynamic = 'force-dynamic'
+// ISR: Regenerate individual blog posts every 60 seconds
+export const revalidate = 60
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const [post] = await db

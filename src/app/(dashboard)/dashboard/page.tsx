@@ -1,8 +1,9 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 
-export const dynamic = 'force-dynamic'
+// Data freshness is handled by React Query (staleTime 60s). No need to force-dynamic.
 import { motion } from 'framer-motion'
 import {
     Activity,
@@ -15,15 +16,21 @@ import {
     ArrowRight,
     CheckCircle2,
     Calendar,
-    Trophy
+    Trophy,
+    Database,
+    Coins
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import Link from 'next/link'
 
 import { getDashboardData, logHours } from '@/lib/actions/roadmap'
 import PageWrapper from '@/components/PageWrapper'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import WhatToStartCard from '@/components/behavior/WhatToStartCard'
+import SessionHUD from '@/components/behavior/SessionHUD'
+import EndOfDayModal from '@/components/behavior/EndOfDayModal'
+import { startSession, endSession } from '@/lib/actions/behavior'
+import { toast } from 'react-hot-toast'
 
 export default function DashboardPage() {
     const { data: stats, isLoading: loading } = useQuery({
@@ -62,6 +69,47 @@ export default function DashboardPage() {
         )
     }
 
+    const queryClient = useQueryClient()
+    const [activeSession, setActiveSession] = React.useState<{ id: string, title: string } | null>(null)
+    const [showEndOfDay, setShowEndOfDay] = React.useState(false)
+    const [isManualMomentum, setIsManualMomentum] = React.useState(false)
+
+    // Derived stats for the Hero card
+    const heroStats = isManualMomentum ? {
+        ...stats,
+        recommendedAction: 'Momentum',
+        shortDiagnostic: "Manual bypass engaged. Initializing 120-second 'micro-start' to override resistance.",
+        topTask: `Starter: ${stats.tasks?.find((t: any) => !t.completed)?.title || "Review Logic"} (Just 2 mins)`
+    } : stats
+
+    const handleStartSession = async () => {
+        try {
+            const sessionId = await startSession(undefined)
+            setActiveSession({ id: sessionId, title: heroStats.topTask })
+            setIsManualMomentum(false) // Reset after starting
+            toast.success("Protocol Engaged. Focus Mode Active.")
+        } catch (error) {
+            toast.error("Failed to ignite forge.")
+        }
+    }
+
+    const handleEndSession = async (sessionStats: { interruptions: number, distractions: number }) => {
+        if (!activeSession) return
+        try {
+            await endSession(activeSession.id, sessionStats)
+            setActiveSession(null)
+            queryClient.invalidateQueries({ queryKey: ['dashboard-data'] })
+            toast.success("Session finalized. Data persisted.")
+
+            // If all tasks done, maybe show end of day
+            if (stats.tasksDone + 1 >= stats.tasksTotal) {
+                setShowEndOfDay(true)
+            }
+        } catch (error) {
+            toast.error("Failed to finalize session.")
+        }
+    }
+
     const getScoreColor = (score: number) => {
         if (score >= 90) return 'text-primary'
         if (score >= 70) return 'text-success'
@@ -72,9 +120,45 @@ export default function DashboardPage() {
     return (
         <PageWrapper>
             <div className="p-6 md:p-10 space-y-10 max-w-7xl mx-auto">
+                {/* Hero Behavior Section */}
+                {!activeSession && (
+                    <motion.div
+                        layout
+                        className={cn(
+                            "relative transition-all duration-700",
+                            isManualMomentum ? "scale-[1.02] z-50" : ""
+                        )}
+                    >
+                        <WhatToStartCard
+                            dayNumber={heroStats.day}
+                            dayTitle={heroStats.dayTitle}
+                            recommendedAction={heroStats.recommendedAction}
+                            topTask={heroStats.topTask}
+                            shortDiagnostic={heroStats.shortDiagnostic}
+                            coinsBalance={heroStats.coinsBalance}
+                            onStart={handleStartSession}
+                            onForceMomentum={() => setIsManualMomentum(true)}
+                        />
+                        {isManualMomentum && (
+                            <motion.button
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                onClick={() => setIsManualMomentum(false)}
+                                className="absolute -top-4 -right-4 bg-white/10 hover:bg-white/20 border border-white/20 text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full backdrop-blur-md z-[60]"
+                            >
+                                Cancel Bypass
+                            </motion.button>
+                        )}
+                    </motion.div>
+                )}
+
                 {/* Header Section */}
                 <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div>
+                    <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">War Room Statistics</span>
+                        </div>
                         <h1 className="text-4xl md:text-5xl font-syne font-bold tracking-tighter mb-2">
                             The Grind: <span className="text-primary">Day {stats.day}</span>
                         </h1>
@@ -84,26 +168,91 @@ export default function DashboardPage() {
                         </p>
                     </div>
 
-                    <div className="flex gap-4">
-                        <div className="bg-surface border border-border-subtle p-4 rounded-2xl flex flex-col items-center w-28">
-                            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] mb-1">Streak</span>
-                            <div className="flex items-center gap-1.5 text-orange-500">
-                                <Flame className="w-4 h-4 fill-current" />
-                                <span className="text-2xl font-syne font-bold">{stats.streak}</span>
-                            </div>
-                        </div>
-                        <div className="bg-surface border border-border-subtle p-4 rounded-2xl flex flex-col items-center w-28">
-                            <span className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.2em] mb-1">Unlocked</span>
-                            <div className="flex items-center gap-1.5 text-primary">
-                                <Trophy className="w-4 h-4" />
-                                <span className="text-2xl font-syne font-bold">{stats.unlockedCount}</span>
-                            </div>
-                        </div>
+                    <div className="flex flex-col sm:flex-row gap-4">
+                        {stats.coinsBalance !== undefined && (
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                className="bg-[#111111] border border-success/30 px-6 py-4 rounded-2xl flex items-center gap-4 shadow-xl shadow-success/10 group hover:border-success transition-all cursor-default"
+                            >
+                                <div className="w-12 h-12 bg-success/20 rounded-xl flex items-center justify-center text-success group-hover:scale-110 transition-transform">
+                                    <Coins className="w-6 h-6 fill-current" />
+                                </div>
+                                <div>
+                                    <span className="text-[10px] font-bold text-success uppercase tracking-widest block mb-0.5">Forge Wallet</span>
+                                    <p className="text-2xl font-syne font-bold text-text-primary italic">
+                                        {stats.coinsBalance} <span className="text-xs text-text-secondary not-italic ml-1 tracking-widest uppercase">Coins</span>
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {stats.nextMilestone && (
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.1 }}
+                                className="bg-primary/5 border border-primary/20 p-4 rounded-2xl flex items-center gap-4 group hover:bg-primary/10 transition-all cursor-default"
+                            >
+                                <div className="w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                    <Trophy className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-0.5">Next Evolution</span>
+                                    <h4 className="text-sm font-bold text-text-primary mb-0.5">{stats.nextMilestone.title}</h4>
+                                    <p className="text-[11px] text-text-secondary font-medium leading-tight">
+                                        Reward: <span className="text-success font-bold text-[12px]">{stats.nextMilestone.reward}</span>
+                                    </p>
+                                </div>
+                            </motion.div>
+                        )}
                     </div>
                 </section>
 
                 {/* Primary Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                    {/* Streak Card */}
+                    <motion.div
+                        whileHover={{ y: -5 }}
+                        className={cn(
+                            "bg-surface border border-border-subtle p-8 rounded-[2.5rem] space-y-6 group cursor-default shadow-xl",
+                            stats.streak >= 3 ? "shadow-orange-500/10 border-orange-500/20" : "shadow-black/20"
+                        )}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className={cn(
+                                "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                                stats.streak >= 3 ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30" : "bg-orange-500/10 text-orange-500"
+                            )}>
+                                <Flame className={cn("w-6 h-6", stats.streak >= 3 && "fill-current animate-pulse")} />
+                            </div>
+                            <div className={cn(
+                                "text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest border",
+                                stats.streak >= 7 ? "text-primary bg-primary/10 border-primary/20" : "text-orange-500 bg-orange-500/10 border-orange-500/20"
+                            )}>
+                                {stats.streak >= 7 ? 'Elite Streak' : stats.streak >= 3 ? 'On Fire' : 'Dormant'}
+                            </div>
+                        </div>
+                        <div>
+                            <p className="text-5xl font-syne font-bold tracking-tighter mb-2 italic text-orange-500">
+                                {stats.streak}
+                                <span className="text-lg text-text-secondary not-italic ml-1">Days</span>
+                            </p>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-text-secondary">Current Momentum</h3>
+                        </div>
+                        <div className="flex gap-1.5">
+                            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                                <div
+                                    key={i}
+                                    className={cn(
+                                        "h-1 flex-1 rounded-full bg-border-subtle overflow-hidden",
+                                        i <= stats.streak % 7 && "bg-orange-500"
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    </motion.div>
+
                     {/* Discipline Card */}
                     <motion.div whileHover={{ y: -5 }} className="bg-surface border border-border-subtle p-8 rounded-[2.5rem] space-y-6 group cursor-default shadow-xl shadow-black/20">
                         <div className="flex items-center justify-between">
@@ -124,23 +273,27 @@ export default function DashboardPage() {
                         </div>
                     </motion.div>
 
-                    {/* Hours Logged Card */}
+                    {/* Strategic Progress Card */}
                     <motion.div whileHover={{ y: -5 }} className="bg-surface border border-border-subtle p-8 rounded-[2.5rem] space-y-6 group cursor-default shadow-xl shadow-black/20">
                         <div className="flex items-center justify-between">
                             <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500">
-                                <Clock className="w-6 h-6" />
+                                <Database className="w-6 h-6" />
                             </div>
-                            <div className="text-[10px] font-bold text-blue-500 bg-blue-500/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-blue-500/20">Engine Run Time</div>
+                            <div className="text-[10px] font-bold text-blue-500 bg-blue-500/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-blue-500/20">Strategic Stack</div>
                         </div>
                         <div>
                             <p className="text-5xl font-syne font-bold tracking-tighter mb-2 italic text-blue-500">
-                                {stats.hoursLogged}
-                                <span className="text-lg text-text-secondary not-italic ml-1">/ {stats.hoursTarget}H</span>
+                                {stats.totalTasksDone}
+                                <span className="text-lg text-text-secondary not-italic ml-1">TOTAL</span>
                             </p>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-text-secondary">Hours Diverted</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-text-secondary">Career Built tasks</h3>
                         </div>
                         <div className="h-1.5 w-full bg-border-subtle rounded-full overflow-hidden">
-                            <motion.div initial={{ width: 0 }} animate={{ width: `${(stats.hoursLogged / stats.hoursTarget) * 100}%` }} className="h-full bg-blue-500" />
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${Math.min((stats.totalTasksDone / 300) * 100, 100)}%` }}
+                                className="h-full bg-blue-500"
+                            />
                         </div>
                     </motion.div>
 
@@ -150,14 +303,14 @@ export default function DashboardPage() {
                             <div className="w-12 h-12 bg-success/10 rounded-2xl flex items-center justify-center text-success">
                                 <CheckCircle2 className="w-6 h-6" />
                             </div>
-                            <div className="text-[10px] font-bold text-success bg-success/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-success/20">Milestone Sync</div>
+                            <div className="text-[10px] font-bold text-success bg-success/10 px-3 py-1.5 rounded-full uppercase tracking-widest border border-success/20">Flash Points</div>
                         </div>
                         <div>
                             <p className="text-5xl font-syne font-bold tracking-tighter mb-2 italic text-success">
                                 {stats.tasksDone}
-                                <span className="text-lg text-text-secondary not-italic ml-1">/ {stats.tasksTotal} DONE</span>
+                                <span className="text-lg text-text-secondary not-italic ml-1">TODAY</span>
                             </p>
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-text-secondary">Daily Execution</h3>
+                            <h3 className="text-sm font-bold uppercase tracking-widest text-text-secondary">Execution Burst</h3>
                         </div>
                         <div className="h-1.5 w-full bg-border-subtle rounded-full overflow-hidden">
                             <motion.div initial={{ width: 0 }} animate={{ width: `${(stats.tasksDone / (stats.tasksTotal || 1)) * 100}%` }} className="h-full bg-success" />
@@ -185,7 +338,7 @@ export default function DashboardPage() {
                                 <Activity className="w-6 h-6 text-primary" />
                                 Mission Parameters
                             </h2>
-                            <button className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View Roadmap</button>
+                            <Link href="/tracker" className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View Roadmap →</Link>
                         </div>
 
                         <div className="bg-surface border border-border-subtle rounded-[2rem] overflow-hidden">
@@ -275,6 +428,33 @@ export default function DashboardPage() {
                     </section>
                 </div>
             </div>
+
+            {activeSession && (
+                <SessionHUD
+                    sessionId={activeSession.id}
+                    title={activeSession.title}
+                    onEnd={handleEndSession}
+                />
+            )}
+
+            {showEndOfDay && (
+                <EndOfDayModal
+                    isOpen={showEndOfDay}
+                    onClose={() => setShowEndOfDay(false)}
+                    summary={{
+                        disciplineScore: stats.disciplineScore,
+                        hoursLogged: stats.hoursLogged,
+                        hoursTarget: stats.hoursTarget,
+                        tasksCompleted: stats.tasksDone,
+                        tasksTotal: stats.tasksTotal,
+                        weaknesses: ["Context switching", "Distraction spikes"],
+                        tomorrowPlan: {
+                            focus: stats.focus,
+                            topTask: stats.topTask
+                        }
+                    }}
+                />
+            )}
         </PageWrapper>
     )
 }

@@ -20,7 +20,7 @@ import { getTrackerData } from '@/lib/actions/roadmap'
 import { listRoadmaps, setActiveRoadmap } from '@/lib/actions/roadmap-mgmt'
 import PageWrapper from '@/components/PageWrapper'
 
-export const dynamic = 'force-dynamic'
+// Data freshness is managed by React Query.
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -92,39 +92,55 @@ export default function RoadmapOverview() {
 
     return (
         <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-4xl font-syne font-bold tracking-tighter mb-4">Training Timeline</h1>
-                    <div className="flex gap-2 p-1 bg-surface rounded-xl w-fit">
-                        <button
-                            onClick={() => setActiveMonth(1)}
-                            className={cn(
-                                "px-6 py-2 rounded-lg font-bold transition-all",
-                                activeMonth === 1 ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-text-secondary hover:text-text-primary"
-                            )}
-                        >
-                            Month 1
-                        </button>
-                        <button
-                            onClick={() => setActiveMonth(2)}
-                            className={cn(
-                                "px-6 py-2 rounded-lg font-bold transition-all",
-                                activeMonth === 2 ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-text-secondary hover:text-text-primary"
-                            )}
-                        >
-                            Month 2
-                        </button>
+            <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+                <div className="space-y-6">
+                    <div>
+                        <h1 className="text-4xl md:text-6xl font-syne font-black tracking-tighter uppercase mb-4 leading-none">Campaign Map</h1>
+                        <p className="text-text-secondary text-lg font-medium opacity-60">Strategic oversight of your 60-day neural transformation.</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-4 items-center">
+                        <div className="flex gap-2 p-1.5 bg-[#0c0c0c] border border-white/5 rounded-[1.5rem] w-fit">
+                            {[1, 2].map((m) => (
+                                <button
+                                    key={m}
+                                    onClick={() => setActiveMonth(m)}
+                                    className={cn(
+                                        "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                                        activeMonth === m
+                                            ? "bg-primary text-white shadow-xl shadow-primary/20"
+                                            : "text-text-secondary hover:text-white"
+                                    )}
+                                >
+                                    Phase 0{m}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div className="bg-primary/5 border border-primary/20 px-6 py-3 rounded-[1.5rem] flex items-center gap-4">
+                            <div className="flex flex-col">
+                                <span className="text-[8px] font-black text-primary uppercase tracking-widest">Global Progress</span>
+                                <span className="text-sm font-black text-text-primary">{((data?.month?.daysComplete || 0) / 60 * 100).toFixed(0)}% Curated</span>
+                            </div>
+                            <div className="w-24 h-1.5 bg-black/40 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${((data?.month?.daysComplete || 0) / 60 * 100)}%` }}
+                                    className="h-full bg-primary"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
-                    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mr-2">Active Program</span>
-                    <div className="relative group">
+                <div className="flex flex-col lg:items-end gap-3 min-w-[280px]">
+                    <span className="text-[10px] font-black text-text-secondary uppercase tracking-[0.2em] mb-1">Active Neural Program</span>
+                    <div className="relative w-full">
                         <select
                             value={activeRoadmapId || ''}
                             disabled={switching}
                             onChange={(e) => handleSwitchRoadmap(e.target.value)}
-                            className="bg-surface border border-border-subtle hover:border-primary px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest outline-none transition-all appearance-none cursor-pointer pr-12 min-w-[240px]"
+                            className="w-full bg-[#0c0c0c] border-2 border-white/5 group-hover:border-primary/40 px-6 py-4 rounded-[2rem] font-black text-[10px] uppercase tracking-widest outline-none transition-all appearance-none cursor-pointer pr-12"
                         >
                             {roadmaps.length === 0 && <option value="">No Programs Found</option>}
                             {roadmaps.map((rm: any) => (
@@ -133,7 +149,7 @@ export default function RoadmapOverview() {
                                 </option>
                             ))}
                         </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
                             {switching ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronDown className="w-4 h-4" />}
                         </div>
                     </div>
@@ -199,7 +215,9 @@ export default function RoadmapOverview() {
                                             {day.isComplete ? (
                                                 <CheckCircle2 className="w-5 h-5 text-success" />
                                             ) : day.isCurrent ? (
-                                                <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                                                <div className="flex items-center justify-center w-5 h-5">
+                                                    <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+                                                </div>
                                             ) : (
                                                 <Circle className="w-5 h-5 text-border-subtle" />
                                             )}

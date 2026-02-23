@@ -14,21 +14,24 @@ import {
     Shield,
     Menu,
     X,
-    Target
+    Wrench,
+    Zap,
+    Terminal,
+    Sparkles
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 
 const navItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: Home },
-    { name: 'My Roadmap', href: '/tracker', icon: Map },
-    // { name: 'JANE', href: '/jane', icon: Target },
-    { name: 'Analytics', href: '/analytics', icon: BarChart2 },
-    { name: 'Milestones', href: '/milestones', icon: Shield },
-    { name: 'Blog', href: '/blog/manage', icon: PenTool },
-    { name: 'Setup', href: '/setup', icon: Shield }, // Added for easy access
-    { name: 'Share', href: '/share', icon: Share2 },
+    { name: 'Command Center', href: '/dashboard', icon: Home, badge: 'Active' },
+    { name: 'Mission Roadmap', href: '/tracker', icon: Map },
+    { name: 'Strategic Intel', href: '/analytics', icon: BarChart2 },
+    { name: 'Rewards Armory', href: '/rewards', icon: Zap },
+    { name: 'Honor Milestones', href: '/milestones', icon: Shield },
+    { name: 'War Logs', href: '/blog/manage', icon: PenTool },
+    { name: 'Setup', href: '/setup', icon: Wrench },
+    { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -133,14 +136,32 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                 href={item.href}
                                 onMouseEnter={() => prefetchTab(item.href)}
                                 className={cn(
-                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
+                                    "flex items-center justify-between px-4 py-3 rounded-xl transition-all group relative overflow-hidden",
                                     isActive
-                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
-                                        : "text-text-secondary hover:bg-surface-elevated hover:text-text-primary"
+                                        ? "bg-primary/10 text-primary border border-primary/20"
+                                        : "text-text-secondary hover:bg-white/5 hover:text-text-primary border border-transparent"
                                 )}
                             >
-                                <item.icon className={cn("w-5 h-5", isActive ? "text-white" : "group-hover:text-primary")} />
-                                <span className="font-medium">{item.name}</span>
+                                <div className="flex items-center gap-3 relative z-10">
+                                    <item.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", isActive ? "text-primary" : "group-hover:text-primary")} />
+                                    <span className="font-bold text-xs uppercase tracking-widest">{item.name}</span>
+                                </div>
+
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="nav-pulse"
+                                        className="absolute inset-0 bg-primary/5 z-0"
+                                        initial={false}
+                                        animate={{ opacity: [0.3, 1, 0.3] }}
+                                        transition={{ duration: 3, repeat: Infinity }}
+                                    />
+                                )}
+
+                                {(item as any).badge && (
+                                    <span className="text-[8px] font-black bg-primary text-white px-1.5 py-0.5 rounded leading-none relative z-10">
+                                        {(item as any).badge}
+                                    </span>
+                                )}
                             </Link>
                         )
                     })}
@@ -148,23 +169,56 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
                 <div className="p-4 space-y-4">
                     {/* Sidebar Meta */}
-                    <div className="bg-surface-elevated rounded-2xl p-4 border border-border-subtle">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs text-text-secondary uppercase tracking-wider">Progress</span>
-                            <span className="text-xs font-bold text-primary">Day {displayStats.day}/60</span>
+                    <div className="bg-[#0c0c0c] rounded-2xl p-5 border border-white/5 space-y-5">
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-text-secondary">
+                                <span>Day Progress</span>
+                                <span className="text-primary">{displayStats.day} / 60</span>
+                            </div>
+                            <div className="flex gap-1 h-1.5">
+                                {[...Array(10)].map((_, i) => (
+                                    <div
+                                        key={i}
+                                        className={cn(
+                                            "flex-1 rounded-full transition-colors",
+                                            (displayStats.day / 60) * 10 >= i + 1
+                                                ? "bg-primary shadow-[0_0_5px_#ff3131]"
+                                                : "bg-white/5"
+                                        )}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                        <div className="w-full bg-border-subtle rounded-full h-1.5 overflow-hidden">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${(displayStats.day / 60) * 100}%` }}
-                                className="bg-primary h-full"
-                            />
-                        </div>
-                        <div className="mt-4 flex items-center gap-2">
-                            <span className="text-lg">🔥</span>
-                            <span className="text-sm font-bold text-text-primary">{displayStats.streak} day streak</span>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 border border-orange-500/20">
+                                    <Zap className="w-5 h-5 fill-current" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <span className="block text-[8px] font-black text-text-secondary uppercase tracking-widest leading-none">Velocity</span>
+                                    <span className="block text-sm font-black text-text-primary leading-none">{displayStats.streak} Days</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {/* HUD Launcher */}
+                    <button
+                        onClick={() => window.dispatchEvent(new CustomEvent('forge-hud-open'))}
+                        className="group relative w-full bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-2xl p-4 transition-all overflow-hidden"
+                    >
+                        <div className="flex items-center gap-3 relative z-10">
+                            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                <Terminal className="w-4 h-4" />
+                            </div>
+                            <div className="text-left">
+                                <span className="block text-[9px] font-black text-primary uppercase tracking-widest leading-none mb-1">Engage Intelligence</span>
+                                <span className="block text-[10px] font-bold text-text-secondary group-hover:text-primary transition-colors">Forge HUD System</span>
+                            </div>
+                        </div>
+                        <Sparkles className="absolute -top-1 -right-1 w-12 h-12 text-primary opacity-10 group-hover:opacity-20 transition-opacity" />
+                    </button>
 
                     <button
                         onClick={handleSignOut}
@@ -173,17 +227,6 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         <LogOut className="w-5 h-5" />
                         Sign Out
                     </button>
-
-                    <Link
-                        href="/settings"
-                        className={cn(
-                            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all group",
-                            pathname === '/settings' ? "bg-surface-elevated text-text-primary" : "text-text-secondary hover:text-text-primary"
-                        )}
-                    >
-                        <Settings className="w-5 h-5" />
-                        <span>Settings</span>
-                    </Link>
                 </div>
             </aside>
 
@@ -206,12 +249,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] md:hidden"
+                        onClick={() => setIsMobileMenuOpen(false)}
                     >
                         <motion.div
                             initial={{ x: '100%' }}
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             className="absolute right-0 top-0 bottom-0 w-80 bg-[#111111] p-6 shadow-2xl"
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-12">
                                 <div className="flex items-center gap-2">
@@ -240,15 +285,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                         <span className="text-lg font-medium">{item.name}</span>
                                     </Link>
                                 ))}
-                                <div className="pt-8 border-t border-border-subtle space-y-4">
-                                    <Link
-                                        href="/settings"
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="flex items-center gap-4 py-4 px-4 text-text-secondary"
-                                    >
-                                        <Settings className="w-6 h-6" />
-                                        <span className="text-lg font-medium">Settings</span>
-                                    </Link>
+                                <div className="pt-8 border-t border-border-subtle">
                                     <button
                                         onClick={handleSignOut}
                                         className="flex items-center gap-4 py-4 px-4 text-primary w-full text-left"

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
-export const dynamic = 'force-dynamic'
+// Data freshness managed by React Query (staleTime 5min).
 import { Trophy, Lock, Calendar, Zap, Target, Loader2, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getAllMilestones } from '@/lib/milestones'
@@ -77,6 +77,11 @@ export default function MilestonesPage() {
                                         <p className="text-sm text-text-secondary font-lora italic leading-relaxed">
                                             &quot;{m.description}&quot;
                                         </p>
+                                        {m.reward && (
+                                            <div className="mt-4 py-1.5 px-3 bg-success/10 border border-success/20 rounded-xl inline-block">
+                                                <span className="text-[10px] font-bold text-success uppercase tracking-[0.2em]">Claimed Reward: {m.reward}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="pt-4 border-t border-border-subtle flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-text-secondary">
@@ -100,10 +105,7 @@ export default function MilestonesPage() {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {locked.map((m: any) => (
-                        <div
-                            key={m.id}
-                            className="bg-surface/40 border border-border-subtle p-6 rounded-3xl group grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all"
-                        >
+                        <div key={m.id} className="bg-surface/40 border border-border-subtle p-6 rounded-3xl group grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all">
                             <div className="space-y-4">
                                 <div className="inline-flex p-3 bg-surface-elevated border border-border-subtle rounded-xl text-2xl">
                                     {m.icon || '🎖️'}
@@ -111,12 +113,19 @@ export default function MilestonesPage() {
                                 <div>
                                     <h4 className="font-syne font-bold text-sm uppercase tracking-tighter">{m.title}</h4>
                                     <p className="text-[10px] text-text-secondary mt-1 line-clamp-2">{m.description}</p>
+                                    {m.reward && (
+                                        <div className="mt-2 py-1 px-2 bg-success/10 border border-success/20 rounded-lg inline-block">
+                                            <span className="text-[9px] font-bold text-success uppercase tracking-widest">Potential Reward: {m.reward}</span>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="pt-4 flex items-center gap-2">
                                     <div className="h-1 flex-1 bg-border-subtle rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary/20 w-1/3" />
+                                        <div className="h-full bg-primary/20" style={{ width: '0%' }} />
                                     </div>
-                                    <span className="text-[10px] font-bold text-text-secondary">LOCKED</span>
+                                    <span className="text-[10px] font-bold text-text-secondary">
+                                        {m.criteriaValue} {m.criteriaType?.replace('_', ' ')}
+                                    </span>
                                 </div>
                             </div>
                         </div>

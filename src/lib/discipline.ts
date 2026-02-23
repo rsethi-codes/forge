@@ -60,36 +60,100 @@ export async function calculateDailyDiscipline(dateStr: string, userId: string):
     )
 
     // 6. Motivation Message
-    let message = ""
-    if (finalScore >= 90) message = "Elite performance. You're operating at a Senior level. Keep the pressure."
-    else if (finalScore >= 75) message = "Acceptable. But 'acceptable' doesn't get you to 30LPA. Tighten up."
-    else if (finalScore >= 50) message = "Mediocrity is a choice. You're choosing it right now. Refocus."
-    else message = "Pathetic. If you give up now, you'll regret it for the next decade. Back to the grind."
+    const getMessage = (score: number) => {
+        if (score >= 95) {
+            const msgs = [
+                "Total dominance. You're not just moving, you're warping reality. Stay in this flow.",
+                "Elite output. This is the frequency of 50LPA+ engineers. Don't touch the brakes.",
+                "S-Tier performance achieved. You've transcended the grind. You are the Forge."
+            ]
+            return msgs[Math.floor(Math.random() * msgs.length)]
+        }
+        if (score >= 80) {
+            const msgs = [
+                "Strong momentum. You're clear of the pack, but the summit is still ahead.",
+                "Impressive velocity. This consistency is your competitive advantage. Keep pushing.",
+                "You're operating at a Senior level today. Maintain this and the rewards follow."
+            ]
+            return msgs[Math.floor(Math.random() * msgs.length)]
+        }
+        if (score >= 60) {
+            const msgs = [
+                "Acceptable. But 'acceptable' is a dangerous trap. Tighten the execution.",
+                "You're in the game, but not winning it yet. Increase the intensity.",
+                "Solid effort, but your potential is much higher. Find the next gear."
+            ]
+            return msgs[Math.floor(Math.random() * msgs.length)]
+        }
+        if (score >= 40) {
+            const msgs = [
+                "Mediocrity is a choice. You're dangerously close to choosing it. Refocus.",
+                "Sluggish performance. The engine is stalling. Ignite the spark before it dies.",
+                "Base level effort. This won't get you where you want to go. Snap out of it."
+            ]
+            return msgs[Math.floor(Math.random() * msgs.length)]
+        }
+        const msgs = [
+            "Pathetic. If you give up now, you'll regret it for the next decade. Back to the grind.",
+            "Zero momentum. The world is passing you by while you hesitate. Move.",
+            "System failure. Your discipline is in the red. Rescue the day or accept defeat."
+        ]
+        return msgs[Math.floor(Math.random() * msgs.length)]
+    }
 
-    // 7. Store / Update Discipline Score
-    await db
-        .insert(schema.disciplineScores)
-        .values({
-            userId,
-            date: dateStr,
-            streakDays: 0,
-            tasksCompletionRate: tasksRate.toString(),
-            hoursLogged: hoursLogged.toString(),
-            hoursTarget: hoursTarget.toString(),
-            kcPassRate: kcRate.toString(),
-            disciplineScore: finalScore.toString(),
-            motivationMessage: message
-        } as any)
-        .onConflictDoUpdate({
-            target: [schema.disciplineScores.userId, schema.disciplineScores.date],
-            set: {
+    const message = getMessage(finalScore)
+
+    // 7. Calculate Streak
+    const [prevScore] = await db
+        .select({ streakDays: schema.disciplineScores.streakDays })
+        .from(schema.disciplineScores)
+        .where(and(
+            eq(schema.disciplineScores.userId, userId),
+            sql`${schema.disciplineScores.date} < ${dateStr}`
+        ))
+        .orderBy(sql`${schema.disciplineScores.date} desc`)
+        .limit(1)
+
+    const prevStreak = prevScore?.streakDays ?? 0
+    // Lenient streak: any activity (score > 0) keeps streak alive, 
+    // but you need a "solid" day (score >= 20) to increment it.
+    let currentStreak = prevStreak
+    if (finalScore >= 20) {
+        currentStreak = prevStreak + 1
+    } else if (finalScore === 0) {
+        currentStreak = 0 // Only reset if absolutely zero work done
+    }
+
+    // 8. Store / Update Discipline Score
+    try {
+        await db
+            .insert(schema.disciplineScores)
+            .values({
+                userId,
+                date: dateStr,
+                streakDays: currentStreak,
                 tasksCompletionRate: tasksRate.toString(),
                 hoursLogged: hoursLogged.toString(),
+                hoursTarget: hoursTarget.toString(),
                 kcPassRate: kcRate.toString(),
                 disciplineScore: finalScore.toString(),
                 motivationMessage: message
-            }
-        })
+            } as any)
+            .onConflictDoUpdate({
+                target: [schema.disciplineScores.userId, schema.disciplineScores.date],
+                set: {
+                    streakDays: currentStreak,
+                    tasksCompletionRate: tasksRate.toString(),
+                    hoursLogged: hoursLogged.toString(),
+                    kcPassRate: kcRate.toString(),
+                    disciplineScore: finalScore.toString(),
+                    motivationMessage: message
+                }
+            })
+    } catch (err) {
+        console.error('Failed to update discipline score:', err)
+        // We don't throw here to avoid crashing the main UI flow
+    }
 
     return {
         score: finalScore,
@@ -118,7 +182,7 @@ export async function calculateCurrentStreak(userId: string): Promise<number> {
     // (Actual logic would be more robust, but this is a start)
 
     for (const s of scores) {
-        if (parseFloat(s.score) > 50) { // Only count "good" days for streak? Or any day?
+        if (parseFloat(s.score) > 0) {
             streak++
         } else {
             break

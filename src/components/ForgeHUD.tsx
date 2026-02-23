@@ -80,6 +80,17 @@ export default function ForgeHUD() {
         setCurrentInsight(insights[Math.floor(Math.random() * insights.length)])
     }, [])
 
+    // Allow external pages (e.g. Analytics) to open the HUD and switch mode
+    useEffect(() => {
+        const handler = (e: Event) => {
+            const detail = (e as CustomEvent).detail
+            setIsOpen(true)
+            if (detail?.mode) setMode(detail.mode as HUDMode)
+        }
+        window.addEventListener('forge-hud-open', handler)
+        return () => window.removeEventListener('forge-hud-open', handler)
+    }, [])
+
     if (isPublicPage) return null
 
     return (
@@ -95,13 +106,14 @@ export default function ForgeHUD() {
                         {/* Tabs */}
                         <div className="flex bg-black/40 p-1 rounded-2xl gap-1">
                             {[
-                                { id: 'timer', icon: Zap, label: 'Timer' },
-                                { id: 'mentor', icon: MessageSquare, label: 'Mentor' },
-                                { id: 'stats', icon: BarChart3, label: 'Pulse' },
-                                { id: 'insight', icon: Quote, label: 'Intel' }
+                                { id: 'timer', icon: Zap, label: 'Focus Timer' },
+                                { id: 'mentor', icon: MessageSquare, label: 'AI Mentor' },
+                                { id: 'stats', icon: BarChart3, label: 'Pulse Stats' },
+                                { id: 'insight', icon: Quote, label: 'Intel Quote' }
                             ].map((tab) => (
                                 <button
                                     key={tab.id}
+                                    title={tab.label}
                                     onClick={() => setMode(tab.id as HUDMode)}
                                     className={cn(
                                         "flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
