@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Terminal, Shield, BarChart3, Quote, Info, Settings, Zap, Target, Book, X } from 'lucide-react'
+import { Terminal, Shield, BarChart3, Quote, Info, Settings, Zap, Target, Book, X, MessageSquare, Send, Sparkles } from 'lucide-react'
 import PomodoroTimer from './PomodoroTimer'
 import { cn } from '@/lib/utils'
 import { getAnalyticsData } from '@/lib/actions/analytics'
 import { usePathname } from 'next/navigation'
+import { useChat, Message } from 'ai/react'
 
-type HUDMode = 'timer' | 'stats' | 'insight'
+type HUDMode = 'timer' | 'stats' | 'insight' | 'mentor'
 
-// Quick insights
 const insights = [
     "Seniority is measured by the complexity of problems you solve, not the years you've spent.",
     "Infrastructure is not a chore. It's the foundation of reliability.",
@@ -22,12 +22,29 @@ const insights = [
 export default function ForgeHUD() {
     const [mode, setMode] = useState<HUDMode>('timer')
     const [isOpen, setIsOpen] = useState(false)
-
     const [currentInsight, setCurrentInsight] = useState(insights[0])
     const [stats, setStats] = useState<any>(null)
     const pathname = usePathname()
 
     const isPublicPage = pathname === '/login' || pathname === '/profile' || pathname === '/'
+
+    const { messages, input, handleInputChange, handleSubmit, isLoading: isChatLoading } = useChat({
+        api: '/api/chat',
+        body: {
+            context: {
+                pathname,
+                timestamp: new Date().toISOString()
+            }
+        }
+    })
+
+    const chatEndRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (chatEndRef.current) {
+            chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        }
+    }, [messages])
 
     useEffect(() => {
         setCurrentInsight(insights[Math.floor(Math.random() * insights.length)])
@@ -50,6 +67,7 @@ export default function ForgeHUD() {
                         <div className="flex bg-black/40 p-1 rounded-2xl gap-1">
                             {[
                                 { id: 'timer', icon: Zap, label: 'Timer' },
+                                { id: 'mentor', icon: MessageSquare, label: 'Mentor' },
                                 { id: 'stats', icon: BarChart3, label: 'Pulse' },
                                 { id: 'insight', icon: Quote, label: 'Intel' }
                             ].map((tab) => (
@@ -64,7 +82,6 @@ export default function ForgeHUD() {
                                     )}
                                 >
                                     <tab.icon className="w-3.5 h-3.5" />
-                                    <span className="hidden sm:inline">{tab.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -74,10 +91,52 @@ export default function ForgeHUD() {
                             {mode === 'timer' && (
                                 <div className="p-2">
                                     <PomodoroTimer />
-                                    {/* Inline display since we want it inside HUD */}
                                     <p className="text-[10px] text-center text-text-secondary font-bold uppercase tracking-[0.2em] mt-8">
                                         Focus Session Active
                                     </p>
+                                </div>
+                            )}
+
+                            {mode === 'mentor' && (
+                                <div className="flex flex-col h-[350px]">
+                                    <div className="flex-1 overflow-y-auto p-2 space-y-4 custom-scrollbar">
+                                        {messages.length === 0 ? (
+                                            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
+                                                <Sparkles className="w-8 h-8 text-primary" />
+                                                <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed">
+                                                    Ask about today's build,<br />code reviews, or roadmap topics.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            messages.map((m: Message) => (
+                                                <div key={m.id} className={cn("flex flex-col space-y-1", m.role === 'user' ? "items-end" : "items-start")}>
+                                                    <span className="text-[8px] font-bold uppercase tracking-widest text-text-secondary">
+                                                        {m.role === 'user' ? 'Operator' : 'Forge Intelligence'}
+                                                    </span>
+                                                    <div className={cn(
+                                                        "max-w-[90%] px-3 py-2 rounded-2xl text-[11px] leading-relaxed",
+                                                        m.role === 'user' ? "bg-primary text-white rounded-tr-none" : "bg-surface border border-border-subtle rounded-tl-none font-mono"
+                                                    )}>
+                                                        {m.content}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
+                                        <div ref={chatEndRef} />
+                                    </div>
+                                    <form onSubmit={handleSubmit} className="pt-4">
+                                        <div className="relative">
+                                            <input
+                                                value={input}
+                                                onChange={handleInputChange}
+                                                placeholder="Ask Forge..."
+                                                className="w-full bg-black/40 border border-border-subtle rounded-xl py-3 pl-4 pr-10 text-[11px] outline-none focus:border-primary transition-all"
+                                            />
+                                            <button type="submit" disabled={isChatLoading || !input.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:text-primary transition-colors disabled:opacity-30">
+                                                <Send className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             )}
 
@@ -92,7 +151,6 @@ export default function ForgeHUD() {
                                             <motion.div initial={{ width: 0 }} animate={{ width: `${stats?.avgDiscipline || 0}%` }} className="h-full bg-primary" />
                                         </div>
                                     </div>
-
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="bg-black/20 p-4 rounded-3xl border border-white/5">
                                             <p className="text-[8px] font-bold text-text-secondary uppercase tracking-widest mb-1">Hours Logged</p>
@@ -103,11 +161,10 @@ export default function ForgeHUD() {
                                             <p className="text-xl font-syne font-bold font-mono">{stats?.streak || 0}D</p>
                                         </div>
                                     </div>
-
                                     <div className="flex items-center gap-3 p-4 bg-primary/5 border border-primary/20 rounded-2xl">
                                         <Target className="w-5 h-5 text-primary" />
-                                        <p className="text-[10px] font-bold text-primary leading-tight uppercase tracking-wider">
-                                            Next Milestone: S-Tier Streak (3 Days Left)
+                                        <p className="text-[10px] font-bold text-primary leading-tight uppercase tracking-wider text-xs">
+                                            Continue the build. Milestone ahead.
                                         </p>
                                     </div>
                                 </div>
@@ -115,29 +172,29 @@ export default function ForgeHUD() {
 
                             {mode === 'insight' && (
                                 <div className="p-8 text-center space-y-6">
-                                    <div className="w-12 h-12 bg-secondary/10 rounded-2xl flex items-center justify-center mx-auto">
-                                        <Quote className="w-6 h-6 text-secondary" />
+                                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
+                                        <Quote className="w-6 h-6 text-primary" />
                                     </div>
-                                    <p className="text-sm font-medium italic font-lora leading-relaxed text-text-secondary">
+                                    <p className="text-sm font-medium italic leading-relaxed text-text-secondary">
                                         &quot;{currentInsight}&quot;
                                     </p>
                                     <button
                                         onClick={() => setCurrentInsight(insights[Math.floor(Math.random() * insights.length)])}
-                                        className="text-[10px] font-bold text-secondary uppercase tracking-widest border-b border-secondary/20 hover:border-secondary transition-all"
+                                        className="text-[10px] font-bold text-primary uppercase tracking-widest border-b border-primary/20 hover:border-primary transition-all"
                                     >
-                                        Next Intelligence
+                                        Next Intel
                                     </button>
                                 </div>
                             )}
                         </div>
 
-                        {/* Footer stats */}
+                        {/* Footer */}
                         <div className="pt-4 border-t border-white/5 flex items-center justify-between px-2">
                             <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                                <span className="text-[8px] font-bold text-text-secondary uppercase tracking-widest">System Stable</span>
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                <span className="text-[8px] font-bold text-text-secondary uppercase tracking-widest">Forge OS 3.0</span>
                             </div>
-                            <span className="text-[8px] font-bold text-text-secondary uppercase tracking-widest">FORGE OS 2.1</span>
+                            <span className="text-[8px] font-bold text-text-secondary uppercase tracking-widest">Locked & Loaded</span>
                         </div>
                     </motion.div>
                 )}

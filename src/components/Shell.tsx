@@ -13,7 +13,8 @@ import {
     LogOut,
     Shield,
     Menu,
-    X
+    X,
+    Target
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
@@ -22,6 +23,7 @@ import { createClient } from '@/lib/supabase/client'
 const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'My Roadmap', href: '/tracker', icon: Map },
+    { name: 'JANE', href: '/jane', icon: Target },
     { name: 'Analytics', href: '/analytics', icon: BarChart2 },
     { name: 'Milestones', href: '/milestones', icon: Shield },
     { name: 'Blog', href: '/blog/manage', icon: PenTool },

@@ -8,19 +8,26 @@ import { calculateDailyDiscipline } from '@/lib/discipline'
 import { checkAndUnlockMilestones } from '@/lib/milestones'
 import { revalidatePath } from 'next/cache'
 import { analytics } from '@/lib/analytics'
+import { requireUser } from '@/lib/auth-utils'
+import { postToLinkedIn, generateBuildCompletionPost } from '@/lib/integrations/linkedin'
 
 export async function getDayDetail(dayNumber: number | string) {
+    const user = await requireUser()
     // 1. Get the current (active) program to find the absolute date for this day
     let [program] = await db
         .select()
         .from(schema.roadmapPrograms)
-        .where(eq(schema.roadmapPrograms.isActive, true))
+        .where(and(
+            eq(schema.roadmapPrograms.isActive, true),
+            eq(schema.roadmapPrograms.userId, user.id)
+        ))
         .limit(1)
 
     if (!program) {
         [program] = await db
             .select()
             .from(schema.roadmapPrograms)
+            .where(eq(schema.roadmapPrograms.userId, user.id))
             .orderBy(desc(schema.roadmapPrograms.createdAt))
             .limit(1)
     }
@@ -46,7 +53,8 @@ export async function getDayDetail(dayNumber: number | string) {
         .from(schema.dailyProgress)
         .where(and(
             eq(schema.dailyProgress.dayId, day.id),
-            eq(schema.dailyProgress.date, targetDate)
+            eq(schema.dailyProgress.date, targetDate),
+            eq(schema.dailyProgress.userId, user.id)
         ))
         .limit(1)
 
@@ -55,6 +63,7 @@ export async function getDayDetail(dayNumber: number | string) {
             .insert(schema.dailyProgress)
             .values({
                 dayId: day.id,
+                userId: user.id,
                 date: targetDate,
                 status: 'not_started',
                 hoursLogged: '0'
@@ -133,16 +142,29 @@ export async function toggleTaskCompletion(taskId: string, progressId: string, c
         })
 
     const [prog] = await db
-        .select({ date: schema.dailyProgress.date })
+        .select({ date: schema.dailyProgress.date, userId: schema.dailyProgress.userId })
         .from(schema.dailyProgress)
         .where(eq(schema.dailyProgress.id, progressId))
         .limit(1)
 
     if (prog) {
-        await calculateDailyDiscipline(prog.date)
-        await checkAndUnlockMilestones()
+        await calculateDailyDiscipline(prog.date, prog.userId)
+        await checkAndUnlockMilestones(prog.userId)
+
         if (completed) {
             analytics.trackTaskCompleted(taskId, progressId)
+
+            // Check for build-type task to trigger social update
+            const [task] = await db
+                .select()
+                .from(schema.roadmapTasks)
+                .where(eq(schema.roadmapTasks.id, taskId))
+                .limit(1)
+
+            if (task && task.taskType === 'build') {
+                const post = await generateBuildCompletionPost(task)
+                await postToLinkedIn(prog.userId, post)
+            }
         }
     }
 
@@ -224,14 +246,14 @@ export async function updateDayProgress(progressId: string, data: { status?: any
         .where(eq(schema.dailyProgress.id, progressId))
 
     const [prog] = await db
-        .select({ date: schema.dailyProgress.date })
+        .select({ date: schema.dailyProgress.date, userId: schema.dailyProgress.userId })
         .from(schema.dailyProgress)
         .where(eq(schema.dailyProgress.id, progressId))
         .limit(1)
 
     if (prog) {
-        await calculateDailyDiscipline(prog.date)
-        await checkAndUnlockMilestones()
+        await calculateDailyDiscipline(prog.date, prog.userId)
+        await checkAndUnlockMilestones(prog.userId)
     }
 
     revalidatePath('/tracker')
@@ -254,14 +276,14 @@ export async function updateKCResult(kcId: string, progressId: string, passed: b
         })
 
     const [prog] = await db
-        .select({ date: schema.dailyProgress.date })
+        .select({ date: schema.dailyProgress.date, userId: schema.dailyProgress.userId })
         .from(schema.dailyProgress)
         .where(eq(schema.dailyProgress.id, progressId))
         .limit(1)
 
     if (prog) {
-        await calculateDailyDiscipline(prog.date)
-        await checkAndUnlockMilestones()
+        await calculateDailyDiscipline(prog.date, prog.userId)
+        await checkAndUnlockMilestones(prog.userId)
         analytics.trackKCAttempted(kcId, passed)
     }
 }

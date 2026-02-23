@@ -32,7 +32,7 @@ export default function PublicProfilePage() {
         </div>
     )
 
-    const { program, stats, publicPosts, achievements } = data
+    const { program, stats, publicPosts, achievements, projects } = data
 
     return (
         <div className="min-h-screen bg-[#fafaf8] text-[#1a1a1a] selection:bg-[#ff3131] selection:text-white pb-32">
@@ -116,6 +116,66 @@ export default function PublicProfilePage() {
                         <p className="text-3xl font-fraunces font-bold">{achievements.length}</p>
                         <p className="text-[8px] font-bold uppercase tracking-tighter text-[#888]">Milestones</p>
                     </div>
+                </div>
+            </section>
+
+            {/* Project Showcase */}
+            <section className="max-w-5xl mx-auto px-6 py-32 space-y-20">
+                <div className="flex flex-col md:flex-row justify-between items-end gap-8">
+                    <div className="space-y-4">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            className="bg-[#ff3131] text-white px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] inline-block"
+                        >
+                            Build Gallery
+                        </motion.div>
+                        <h2 className="text-5xl md:text-7xl font-fraunces font-bold tracking-tighter leading-none">The Forge Output</h2>
+                        <p className="text-lora text-[#666] italic text-xl">Real-world production-ready builds from the 60-day sprint.</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    {projects && projects.length > 0 ? (
+                        projects.map((project: any) => (
+                            <div key={project.id} className="group space-y-8 bg-white border border-black/5 p-8 rounded-[2rem] hover:shadow-2xl transition-all">
+                                <div className="aspect-video bg-zinc-100 rounded-2xl overflow-hidden relative border border-black/5">
+                                    {project.showcaseImage ? (
+                                        <Image src={project.showcaseImage} alt={project.title} fill className="object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                                    ) : (
+                                        <div className="w-full h-full flex flex-col items-center justify-center space-y-4 opacity-20">
+                                            <Zap className="w-12 h-12" />
+                                            <span className="text-[10px] font-bold uppercase tracking-widest">Build Module {project.sortOrder}</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <h3 className="text-3xl font-fraunces font-bold">{project.title}</h3>
+                                            <p className="text-sm text-[#888] font-lora line-clamp-2">{project.description}</p>
+                                        </div>
+                                        {project.showcaseUrl && (
+                                            <a href={project.showcaseUrl} target="_blank" rel="noreferrer" className="p-3 bg-black text-white rounded-full hover:bg-[#ff3131] transition-all">
+                                                <ExternalLink className="w-5 h-5" />
+                                            </a>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-wrap gap-2 pt-2">
+                                        <span className="px-3 py-1 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-wider">Production Ready</span>
+                                        <span className="px-3 py-1 bg-black/5 rounded-full text-[10px] font-bold uppercase tracking-wider">React Archi</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full py-32 bg-white border border-dashed border-black/10 rounded-[3rem] flex flex-col items-center justify-center text-center space-y-4">
+                            <div className="p-6 bg-[#fafaf8] rounded-full">
+                                <Shield className="w-12 h-12 text-black/10" />
+                            </div>
+                            <h3 className="text-2xl font-fraunces font-bold text-black/20 italic">Systems are being forged. Stand by for output.</h3>
+                        </div>
+                    )}
                 </div>
             </section>
 

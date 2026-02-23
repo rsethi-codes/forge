@@ -32,10 +32,18 @@ export async function getPublicProfileData() {
         .where(sql`${schema.milestones.achievedAt} IS NOT NULL`)
         .orderBy(desc(schema.milestones.achievedAt))
 
+    // Get project showcase
+    const projects = await db
+        .select()
+        .from(schema.roadmapTasks)
+        .where(sql`${schema.roadmapTasks.showcaseImage} IS NOT NULL OR ${schema.roadmapTasks.showcaseUrl} IS NOT NULL`)
+        .limit(6)
+
     return {
         program,
         stats,
         publicPosts,
-        achievements
+        achievements,
+        projects
     }
 }

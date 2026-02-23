@@ -1,5 +1,5 @@
 import { pgTable, uuid, text, integer, timestamp, date, pgEnum, boolean, numeric, unique, jsonb } from 'drizzle-orm/pg-core'
-import { sql } from 'drizzle-orm'
+import { sql, relations } from 'drizzle-orm'
 
 // Enums
 export const taskTypeEnum = pgEnum('task_type', ['study', 'build', 'review', 'mock'])
@@ -360,4 +360,52 @@ export const linkedAccounts = pgTable('linked_accounts', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (t) => ({
     unq: unique().on(t.userId, t.provider),
+}))
+
+// --- Relations ---
+
+export const roadmapProgramsRelations = relations(roadmapPrograms, ({ many }) => ({
+    months: many(roadmapMonths),
+}))
+
+export const roadmapMonthsRelations = relations(roadmapMonths, ({ one, many }) => ({
+    program: one(roadmapPrograms, { fields: [roadmapMonths.programId], references: [roadmapPrograms.id] }),
+    weeks: many(roadmapWeeks),
+}))
+
+export const roadmapWeeksRelations = relations(roadmapWeeks, ({ one, many }) => ({
+    month: one(roadmapMonths, { fields: [roadmapWeeks.monthId], references: [roadmapMonths.id] }),
+    days: many(roadmapDays),
+}))
+
+export const roadmapDaysRelations = relations(roadmapDays, ({ one, many }) => ({
+    week: one(roadmapWeeks, { fields: [roadmapDays.weekId], references: [roadmapWeeks.id] }),
+    tasks: many(roadmapTasks),
+    topics: many(roadmapTopics),
+    knowledgeChecks: many(knowledgeChecks),
+}))
+
+export const roadmapTasksRelations = relations(roadmapTasks, ({ one }) => ({
+    day: one(roadmapDays, { fields: [roadmapTasks.dayId], references: [roadmapDays.id] }),
+}))
+
+export const janeApplicationsRelations = relations(janeApplications, ({ one, many }) => ({
+    company: one(janeCompanies, { fields: [janeApplications.companyId], references: [janeCompanies.id] }),
+    interviews: many(janeInterviews),
+}))
+
+export const janeCompaniesRelations = relations(janeCompanies, ({ many }) => ({
+    applications: many(janeApplications),
+}))
+
+export const janeInterviewsRelations = relations(janeInterviews, ({ one }) => ({
+    application: one(janeApplications, { fields: [janeInterviews.applicationId], references: [janeApplications.id] }),
+}))
+
+export const aiConversationsRelations = relations(aiConversations, ({ many }) => ({
+    messages: many(aiMessages),
+}))
+
+export const aiMessagesRelations = relations(aiMessages, ({ one }) => ({
+    conversation: one(aiConversations, { fields: [aiMessages.conversationId], references: [aiConversations.id] }),
 }))
