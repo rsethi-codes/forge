@@ -11,12 +11,15 @@ export interface DailyStats {
     message: string
 }
 
-export async function calculateDailyDiscipline(dateStr: string): Promise<DailyStats> {
+export async function calculateDailyDiscipline(dateStr: string, userId: string): Promise<DailyStats> {
     // 1. Fetch Daily Progress
     const [progress] = await db
         .select()
         .from(schema.dailyProgress)
-        .where(eq(schema.dailyProgress.date, dateStr))
+        .where(and(
+            eq(schema.dailyProgress.date, dateStr),
+            eq(schema.dailyProgress.userId, userId)
+        ))
         .limit(1)
 
     if (!progress) {
@@ -67,8 +70,9 @@ export async function calculateDailyDiscipline(dateStr: string): Promise<DailySt
     await db
         .insert(schema.disciplineScores)
         .values({
+            userId,
             date: dateStr,
-            streakDays: 0, // Should be calculated separately
+            streakDays: 0,
             tasksCompletionRate: tasksRate.toString(),
             hoursLogged: hoursLogged.toString(),
             hoursTarget: hoursTarget.toString(),
@@ -77,7 +81,7 @@ export async function calculateDailyDiscipline(dateStr: string): Promise<DailySt
             motivationMessage: message
         } as any)
         .onConflictDoUpdate({
-            target: schema.disciplineScores.date,
+            target: [schema.disciplineScores.userId, schema.disciplineScores.date],
             set: {
                 tasksCompletionRate: tasksRate.toString(),
                 hoursLogged: hoursLogged.toString(),
@@ -96,11 +100,12 @@ export async function calculateDailyDiscipline(dateStr: string): Promise<DailySt
     }
 }
 
-export async function calculateCurrentStreak(): Promise<number> {
+export async function calculateCurrentStreak(userId: string): Promise<number> {
     // Basic streak logic: count consecutive days with discipline_score > 0 starting from today backwards
     const scores = await db
         .select({ date: schema.disciplineScores.date, score: schema.disciplineScores.disciplineScore })
         .from(schema.disciplineScores)
+        .where(eq(schema.disciplineScores.userId, userId))
         .orderBy(sql`${schema.disciplineScores.date} desc`)
 
     let streak = 0
@@ -131,10 +136,11 @@ export function calculateTier(score: number): { tier: string, color: string } {
     return { tier: 'D', color: '#666666' }
 }
 
-export async function getDisciplineHistory(limit: number = 30) {
+export async function getDisciplineHistory(userId: string, limit: number = 30) {
     return await db
         .select()
         .from(schema.disciplineScores)
+        .where(eq(schema.disciplineScores.userId, userId))
         .orderBy(sql`${schema.disciplineScores.date} desc`)
         .limit(limit)
 }

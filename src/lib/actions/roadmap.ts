@@ -5,21 +5,27 @@ import * as schema from '@/lib/supabase/schema'
 import { eq, desc, and, sql, inArray } from 'drizzle-orm'
 import { format } from 'date-fns'
 import { calculateDailyDiscipline, calculateCurrentStreak } from '@/lib/discipline'
+import { requireUser } from '@/lib/auth-utils'
 
 export async function getDashboardData() {
+    const user = await requireUser()
     const today = format(new Date(), 'yyyy-MM-dd')
 
     // 1. Get current (active) program
     let [program] = await db
         .select()
         .from(schema.roadmapPrograms)
-        .where(eq(schema.roadmapPrograms.isActive, true))
+        .where(and(
+            eq(schema.roadmapPrograms.isActive, true),
+            eq(schema.roadmapPrograms.userId, user.id)
+        ))
         .limit(1)
 
     if (!program) {
         [program] = await db
             .select()
             .from(schema.roadmapPrograms)
+            .where(eq(schema.roadmapPrograms.userId, user.id))
             .orderBy(desc(schema.roadmapPrograms.createdAt))
             .limit(1)
     }
@@ -30,10 +36,16 @@ export async function getDashboardData() {
 
     // Parallelize independent queries
     const [dailyProgressArr, disciplineArr, streak, allMilestones] = await Promise.all([
-        db.select().from(schema.dailyProgress).where(eq(schema.dailyProgress.date, today)).limit(1),
-        db.select().from(schema.disciplineScores).where(eq(schema.disciplineScores.date, today)).limit(1),
-        calculateCurrentStreak(),
-        db.select().from(schema.milestones).orderBy(schema.milestones.criteriaType, schema.milestones.criteriaValue)
+        db.select().from(schema.dailyProgress).where(and(
+            eq(schema.dailyProgress.date, today),
+            eq(schema.dailyProgress.userId, user.id)
+        )).limit(1),
+        db.select().from(schema.disciplineScores).where(and(
+            eq(schema.disciplineScores.date, today),
+            eq(schema.disciplineScores.userId, user.id)
+        )).limit(1),
+        calculateCurrentStreak(user.id),
+        db.select().from(schema.milestones).where(eq(schema.milestones.userId, user.id)).orderBy(schema.milestones.criteriaType, schema.milestones.criteriaValue)
     ])
 
     const dailyProgress = dailyProgressArr[0]
@@ -93,19 +105,24 @@ export async function getDashboardData() {
 }
 
 export async function logHours(hours: number) {
+    const user = await requireUser()
     const today = format(new Date(), 'yyyy-MM-dd')
 
     // Get active program for day reference
     let [program] = await db
         .select()
         .from(schema.roadmapPrograms)
-        .where(eq(schema.roadmapPrograms.isActive, true))
+        .where(and(
+            eq(schema.roadmapPrograms.isActive, true),
+            eq(schema.roadmapPrograms.userId, user.id)
+        ))
         .limit(1)
 
     if (!program) {
         [program] = await db
             .select()
             .from(schema.roadmapPrograms)
+            .where(eq(schema.roadmapPrograms.userId, user.id))
             .orderBy(desc(schema.roadmapPrograms.createdAt))
             .limit(1)
     }
@@ -130,32 +147,38 @@ export async function logHours(hours: number) {
         .insert(schema.dailyProgress)
         .values({
             dayId: currentDay.id,
+            userId: user.id,
             date: today,
             hoursLogged: hours.toString(),
             status: 'in_progress'
         })
         .onConflictDoUpdate({
-            target: [schema.dailyProgress.dayId, schema.dailyProgress.date],
+            target: [schema.dailyProgress.userId, schema.dailyProgress.dayId, schema.dailyProgress.date],
             set: { hoursLogged: hours.toString() }
         })
 
     // Re-calculate discipline score
-    await calculateDailyDiscipline(today)
+    await calculateDailyDiscipline(today, user.id)
 
     return { success: true }
 }
 
 export async function getTrackerData(month: number = 1) {
+    const user = await requireUser()
     let [program] = await db
         .select()
         .from(schema.roadmapPrograms)
-        .where(eq(schema.roadmapPrograms.isActive, true))
+        .where(and(
+            eq(schema.roadmapPrograms.isActive, true),
+            eq(schema.roadmapPrograms.userId, user.id)
+        ))
         .limit(1)
 
     if (!program) {
         [program] = await db
             .select()
             .from(schema.roadmapPrograms)
+            .where(eq(schema.roadmapPrograms.userId, user.id))
             .orderBy(desc(schema.roadmapPrograms.createdAt))
             .limit(1)
     }
@@ -195,7 +218,10 @@ export async function getTrackerData(month: number = 1) {
         ? await db
             .select()
             .from(schema.dailyProgress)
-            .where(inArray(schema.dailyProgress.dayId, dayIds))
+            .where(and(
+                inArray(schema.dailyProgress.dayId, dayIds),
+                eq(schema.dailyProgress.userId, user.id)
+            ))
         : []
 
     return {

@@ -11,6 +11,7 @@ export const criteriaTypeEnum = pgEnum('criteria_type', ['streak', 'days_complet
 
 export const roadmapPrograms = pgTable('roadmap_programs', {
     id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
     title: text('title').notNull(),
     description: text('description'),
     totalDays: integer('total_days').notNull(),
@@ -58,6 +59,8 @@ export const roadmapTasks = pgTable('roadmap_tasks', {
     description: text('description'),
     sortOrder: integer('sort_order').notNull(),
     taskType: taskTypeEnum('task_type').default('study').notNull(),
+    showcaseUrl: text('showcase_url'),
+    showcaseImage: text('showcase_image'),
 })
 
 export const roadmapTopics = pgTable('roadmap_topics', {
@@ -94,8 +97,9 @@ export const dailyProgress = pgTable('daily_progress', {
     sessionNotes: text('session_notes'),
     startedAt: timestamp('started_at'),
     completedAt: timestamp('completed_at'),
+    userId: uuid('user_id').notNull(),
 }, (t) => ({
-    unq: sql`unique(${t.dayId}, ${t.date})`
+    unq: sql`unique(${t.userId}, ${t.dayId}, ${t.date})`
 }))
 
 export const taskCompletions = pgTable('task_completions', {
@@ -174,15 +178,16 @@ export const knowledgeCheckResults = pgTable('knowledge_check_results', {
 
 export const analyticsEvents = pgTable('analytics_events', {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id'), // optional if we add users later
-    event: text('event').notNull(), // e.g., 'task_completed', 'day_started', 'kc_attempted'
+    userId: uuid('user_id'),
+    event: text('event').notNull(),
     data: jsonb('data').default({}).notNull(),
     timestamp: timestamp('timestamp').defaultNow().notNull(),
 })
 
 export const disciplineScores = pgTable('discipline_scores', {
     id: uuid('id').primaryKey().defaultRandom(),
-    date: date('date').unique().notNull(),
+    userId: uuid('user_id').notNull(),
+    date: date('date').notNull(),
     streakDays: integer('streak_days').notNull(),
     tasksCompletionRate: numeric('tasks_completion_rate').notNull(),
     hoursLogged: numeric('hours_logged').notNull(),
@@ -190,7 +195,9 @@ export const disciplineScores = pgTable('discipline_scores', {
     kcPassRate: numeric('kc_pass_rate').notNull(),
     disciplineScore: numeric('discipline_score').notNull(),
     motivationMessage: text('motivation_message'),
-})
+}, (t) => ({
+    unq: sql`unique(${t.userId}, ${t.date})`
+}))
 
 // --- Blog Module ---
 
@@ -210,6 +217,7 @@ export const blogPosts = pgTable('blog_posts', {
     viewCount: integer('view_count').default(0).notNull(),
     technologies: jsonb('technologies').default([]),
     resources: jsonb('resources').default([]),
+    userId: uuid('user_id').notNull(),
 })
 
 export const blogTags = pgTable('blog_tags', {
@@ -253,6 +261,7 @@ export const milestones = pgTable('milestones', {
     achievedAt: timestamp('achieved_at'),
     criteriaType: criteriaTypeEnum('criteria_type').notNull(),
     criteriaValue: integer('criteria_value').notNull(),
+    userId: uuid('user_id').notNull(),
 })
 
 export const profiles = pgTable('profiles', {
@@ -275,4 +284,80 @@ export const pomodoroSessions = pgTable('pomodoro_sessions', {
     startedAt: timestamp('started_at').defaultNow().notNull(),
     completedAt: timestamp('completed_at'),
     taskId: uuid('task_id').references(() => roadmapTasks.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id').notNull(),
 })
+
+// --- JANE (Job Application Network Engine) ---
+
+export const janeCompanies = pgTable('jane_companies', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    name: text('name').notNull(),
+    website: text('website'),
+    logoUrl: text('logo_url'),
+    industry: text('industry'),
+    notes: text('notes'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const applicationStatusEnum = pgEnum('application_status', ['wishlist', 'applied', 'interviewing', 'offer', 'rejected', 'ghosted'])
+
+export const janeApplications = pgTable('jane_applications', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    companyId: uuid('company_id').references(() => janeCompanies.id, { onDelete: 'cascade' }).notNull(),
+    roleTitle: text('role_title').notNull(),
+    jobUrl: text('job_url'),
+    salaryRange: text('salary_range'),
+    status: applicationStatusEnum('status').default('wishlist').notNull(),
+    appliedAt: timestamp('applied_at'),
+    notes: text('notes'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const janeInterviews = pgTable('jane_interviews', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    applicationId: uuid('application_id').references(() => janeApplications.id, { onDelete: 'cascade' }).notNull(),
+    roundName: text('round_name').notNull(), // e.g. 'Technical Round 1'
+    scheduledAt: timestamp('scheduled_at').notNull(),
+    feedback: text('feedback'),
+    prepMaterial: text('prep_material'),
+    linkedRoadmapDay: uuid('linked_roadmap_day').references(() => roadmapDays.id),
+    status: text('status').default('scheduled').notNull(), // 'scheduled', 'completed', 'cancelled'
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+// --- AI Mentor Module ---
+
+export const aiConversations = pgTable('ai_conversations', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    title: text('title').notNull(),
+    contextType: text('context_type').default('general').notNull(), // 'general', 'roadmap_day', 'code_review'
+    contextId: uuid('context_id'), // ID of the day or task being discussed
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+export const aiMessages = pgTable('ai_messages', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    conversationId: uuid('conversation_id').references(() => aiConversations.id, { onDelete: 'cascade' }).notNull(),
+    role: text('role').notNull(), // 'user', 'assistant'
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+})
+
+// --- Social & Integrations ---
+
+export const linkedAccounts = pgTable('linked_accounts', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    provider: text('provider').notNull(), // 'linkedin', 'github'
+    accessToken: text('access_token').notNull(),
+    refreshToken: text('refresh_token'),
+    expiresAt: timestamp('expires_at'),
+    profileData: jsonb('profile_data'),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+    unq: unique().on(t.userId, t.provider),
+}))
