@@ -37,6 +37,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     const [stats, setStats] = React.useState({ day: 1, streak: 0 })
 
     const handleSignOut = async () => {
+        const { logoutAdmin } = await import('@/lib/actions/auth')
+        await logoutAdmin()
         await supabase.auth.signOut()
         window.location.href = '/login'
     }

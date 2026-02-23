@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Mail, Loader2, Shield, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { loginAdmin } from '@/lib/actions/auth'
 
 function LoginContent() {
     const [email, setEmail] = React.useState('')
@@ -31,13 +32,12 @@ function LoginContent() {
         setIsSent(false)
 
         if (isAdminMode) {
-            // Dev Admin Bypass
-            if (password === 'grind') {
-                document.cookie = "forge_dev_admin=true; path=/; max-age=86400; SameSite=Lax"
+            const result = await loginAdmin(password)
+            if (result.success) {
                 window.location.href = '/dashboard'
                 return
             } else {
-                setError("Invalid Developer Credentials.")
+                setError(result.error || "Invalid Developer Credentials.")
                 setIsLoading(false)
                 return
             }

@@ -29,8 +29,19 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    const devAdminCookie = request.cookies.get('forge_dev_admin')?.value
-    const isDevAuthorized = devAdminCookie === 'true'
+    const adminToken = request.cookies.get('forge_admin_token')?.value
+    const adminPassword = process.env.ADMIN_PASSWORD || 'grind'
+
+    // Create the expected token using a static hash for comparison
+    // We use a simple buffer comparison for security
+    const encoder = new TextEncoder()
+    const passwordData = encoder.encode(adminPassword + 'forge-salt-2026')
+    const hashBuffer = await crypto.subtle.digest('SHA-256', passwordData)
+    const expectedToken = Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+
+    const isDevAuthorized = adminToken === expectedToken
 
     const { data: { user } } = await supabase.auth.getUser()
 
