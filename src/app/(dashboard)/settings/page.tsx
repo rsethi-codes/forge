@@ -18,7 +18,8 @@ import {
     Smartphone,
     AlertTriangle,
     Loader2,
-    Clock
+    Clock,
+    Zap
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { getProfile, updateProfile } from '@/lib/actions/settings'
@@ -30,9 +31,11 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [profile, setProfile] = useState<any>(null)
+    const [zenFullscreen, setZenFullscreen] = useState(false)
 
     useEffect(() => {
         loadProfile()
+        setZenFullscreen(localStorage.getItem('pomodoro_zen_fullscreen') === 'true')
     }, [])
 
     const loadProfile = async () => {
@@ -216,6 +219,36 @@ export default function SettingsPage() {
                                             onChange={e => setProfile({ ...profile, morningDigestTime: e.target.value })}
                                             className="bg-surface-elevated border border-border-subtle rounded-lg px-2 py-1 text-xs outline-none focus:border-primary"
                                         />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-6 pt-6">
+                                    <div className="flex items-center gap-3 text-primary">
+                                        <Smartphone className="w-6 h-6" />
+                                        <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">User Experience</h3>
+                                    </div>
+
+                                    <div className="space-y-4 text-sm">
+                                        <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
+                                            <div className="flex items-center gap-3">
+                                                <Zap className="w-4 h-4 text-primary" />
+                                                <div className="flex flex-col">
+                                                    <span>Pomodoro Zen Fullscreen</span>
+                                                    <span className="text-[10px] text-text-secondary">Immersive focus mode takes over the entire browser</span>
+                                                </div>
+                                            </div>
+                                            <div
+                                                onClick={() => {
+                                                    const newValue = !zenFullscreen
+                                                    setZenFullscreen(newValue)
+                                                    localStorage.setItem('pomodoro_zen_fullscreen', String(newValue))
+                                                    window.dispatchEvent(new Event('storage'))
+                                                }}
+                                                className={cn("w-10 h-5 rounded-full p-1 cursor-pointer transition-all", zenFullscreen ? "bg-primary" : "bg-border-subtle")}
+                                            >
+                                                <div className={cn("w-3 h-3 bg-white rounded-full transition-all", zenFullscreen ? "ml-auto" : "ml-0")} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 

@@ -186,11 +186,58 @@ export default function DashboardPage() {
                             <button className="text-xs font-bold text-primary hover:underline uppercase tracking-widest">View Roadmap</button>
                         </div>
 
-                        <div className="bg-surface border border-border-subtle rounded-3xl p-8 min-h-[300px] flex items-center justify-center border-dashed group hover:border-primary/50 transition-colors">
-                            <div className="text-center space-y-4">
-                                <Calendar className="w-12 h-12 text-text-secondary mx-auto group-hover:text-primary transition-colors" />
-                                <p className="text-text-secondary font-bold uppercase tracking-widest text-sm">Synchronize your timeline to view task logs.</p>
-                                <Link href="/tracker" className="px-6 py-2 bg-surface-elevated border border-border-subtle rounded-full text-xs font-bold hover:bg-primary transition-all inline-block">Initialize Tracker</Link>
+                        <div className="bg-surface border border-border-subtle rounded-[2rem] overflow-hidden">
+                            <div className="p-6 border-b border-border-subtle bg-surface-elevated flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-text-primary">{stats.dayTitle || `Protocol Day ${stats.day}`}</h3>
+                                    <p className="text-[10px] text-text-secondary font-bold uppercase tracking-[0.2em]">{stats.programTitle}</p>
+                                </div>
+                                <div className="px-3 py-1 bg-primary/10 border border-primary/20 rounded-full">
+                                    <span className="text-[10px] font-bold text-primary uppercase">Active Channel</span>
+                                </div>
+                            </div>
+
+                            <div className="p-4 space-y-3">
+                                {stats.tasks && stats.tasks.length > 0 ? (
+                                    stats.tasks.map((task: any) => (
+                                        <div
+                                            key={task.id}
+                                            className={cn(
+                                                "p-5 rounded-2xl border transition-all flex items-center gap-4 group",
+                                                task.completed
+                                                    ? "bg-success/5 border-success/20 opacity-60"
+                                                    : "bg-[#0a0a0a] border-border-subtle hover:border-primary/30"
+                                            )}
+                                        >
+                                            <div className={cn(
+                                                "w-10 h-10 rounded-xl flex items-center justify-center border transition-colors",
+                                                task.completed
+                                                    ? "bg-success border-success text-white"
+                                                    : "bg-surface border-border-subtle group-hover:border-primary/50"
+                                            )}>
+                                                {task.completed ? <CheckCircle2 className="w-5 h-5" /> : <div className="w-2 h-2 rounded-full bg-primary" />}
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className={cn("text-sm font-bold tracking-tight", task.completed ? "line-through text-text-secondary" : "text-text-primary")}>
+                                                    {task.title}
+                                                </h4>
+                                                <p className="text-xs text-text-secondary mt-0.5">{task.duration} Target</p>
+                                            </div>
+                                            <Link
+                                                href="/tracker"
+                                                className="opacity-0 group-hover:opacity-100 p-2 bg-surface-elevated rounded-lg hover:text-primary transition-all"
+                                            >
+                                                <ArrowRight className="w-4 h-4" />
+                                            </Link>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-12 text-center space-y-4">
+                                        <Calendar className="w-12 h-12 text-text-secondary mx-auto" />
+                                        <p className="text-text-secondary font-bold uppercase tracking-widest text-xs">No active tasks for this frequency.</p>
+                                        <Link href="/tracker" className="px-6 py-2 bg-primary text-white rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all inline-block">Calibrate Timeline</Link>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>

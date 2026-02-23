@@ -1,3 +1,0 @@
-src/components/ForgeHUD.tsx(34,9): error TS2353: Object literal may only specify known properties, and 'initialMessages' does not exist in type 'UseChatOptions<UIMessage<unknown, UIDataTypes, UITools>>'.
-src/components/ForgeHUD.tsx(43,21): error TS2345: Argument of type 'string' is not assignable to parameter of type '(Omit<UIMessage<unknown, UIDataTypes, UITools>, "id" | "role"> & { id?: string | undefined; role?: "user" | "system" | "assistant" | undefined; } & { ...; }) | { ...; } | { ...; } | undefined'.
-src/components/ForgeHUD.tsx(136,60): error TS2339: Property 'content' does not exist on type 'UIMessage<unknown, UIDataTypes, UITools>'.

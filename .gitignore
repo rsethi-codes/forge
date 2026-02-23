@@ -39,9 +39,33 @@ next-env.d.ts
 
 # Project specific logs and docs
 build_log_*.txt
+build_final*.txt
+build_output.txt
+*_inspection_results.txt
+*_audit.txt
+*_output.txt
+roadmap_text.txt
 *.log
 _forge_docs/
 .gemini/
 .agent/
 temp/
 tmp/
+_temp_init/
+
+# Reference Data
+Raghav_60Day_Senior_React_Roadmap.*
+
+# Maintenance Scripts (Root)
+audit-data.ts
+check-*.ts
+debug-db.ts
+fix-*.ts
+inspect-db.ts
+nuclear-fix.ts
+test-query.ts
+drizzle_push_log.txt
+db_inspection_results.txt
+
+# Typescript build info
+tsconfig.tsbuildinfo

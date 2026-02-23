@@ -1,27 +1,76 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import {
+    ChevronRight,
+    Clock,
+    CheckCircle2,
+    Circle,
+    AlertCircle,
+    Map as MapIcon,
+    ChevronDown,
+    Loader2
+} from 'lucide-react'
+
+import { cn } from '@/lib/utils'
+import { getTrackerData } from '@/lib/actions/roadmap'
+import { listRoadmaps, setActiveRoadmap } from '@/lib/actions/roadmap-mgmt'
+import PageWrapper from '@/components/PageWrapper'
 
 export const dynamic = 'force-dynamic'
-import { ChevronRight, Clock, CheckCircle2, Circle, AlertCircle } from 'lucide-react'
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
-
-import { getTrackerData } from '@/lib/actions/roadmap'
 
 export default function RoadmapOverview() {
     const [activeMonth, setActiveMonth] = useState(1)
     const [data, setData] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [roadmaps, setRoadmaps] = useState<any[]>([])
+    const [activeRoadmapId, setActiveRoadmapId] = useState<string | null>(null)
+    const [switching, setSwitching] = useState(false)
+    const router = useRouter()
 
     useEffect(() => {
-        setLoading(true)
-        getTrackerData(activeMonth).then(res => {
-            setData(res)
-            setLoading(false)
-        })
+        loadData()
+        loadRoadmaps()
     }, [activeMonth])
+
+    const loadData = async () => {
+        setLoading(true)
+        try {
+            const res = await getTrackerData(activeMonth)
+            setData(res)
+            setActiveRoadmapId(res?.month?.programId || null)
+        } catch (error) {
+            console.error('Failed to load tracker data:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const loadRoadmaps = async () => {
+        try {
+            const rms = await listRoadmaps()
+            setRoadmaps(rms)
+        } catch (error) {
+            console.error('Failed to load roadmaps:', error)
+        }
+    }
+
+    const handleSwitchRoadmap = async (id: string) => {
+        if (id === activeRoadmapId) return
+        setSwitching(true)
+        try {
+            await setActiveRoadmap(id)
+            router.refresh()
+            await loadData()
+        } catch (error) {
+            console.error('Failed to switch roadmap:', error)
+        } finally {
+            setSwitching(false)
+        }
+    }
 
     if (loading) {
         return (
@@ -42,27 +91,51 @@ export default function RoadmapOverview() {
 
     return (
         <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10">
-            <header>
-                <h1 className="text-4xl font-syne font-bold tracking-tighter mb-4">Training Timeline</h1>
-                <div className="flex gap-2 p-1 bg-surface rounded-xl w-fit">
-                    <button
-                        onClick={() => setActiveMonth(1)}
-                        className={cn(
-                            "px-6 py-2 rounded-lg font-bold transition-all",
-                            activeMonth === 1 ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-text-secondary hover:text-text-primary"
-                        )}
-                    >
-                        Month 1
-                    </button>
-                    <button
-                        onClick={() => setActiveMonth(2)}
-                        className={cn(
-                            "px-6 py-2 rounded-lg font-bold transition-all",
-                            activeMonth === 2 ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-text-secondary hover:text-text-primary"
-                        )}
-                    >
-                        Month 2
-                    </button>
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                    <h1 className="text-4xl font-syne font-bold tracking-tighter mb-4">Training Timeline</h1>
+                    <div className="flex gap-2 p-1 bg-surface rounded-xl w-fit">
+                        <button
+                            onClick={() => setActiveMonth(1)}
+                            className={cn(
+                                "px-6 py-2 rounded-lg font-bold transition-all",
+                                activeMonth === 1 ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-text-secondary hover:text-text-primary"
+                            )}
+                        >
+                            Month 1
+                        </button>
+                        <button
+                            onClick={() => setActiveMonth(2)}
+                            className={cn(
+                                "px-6 py-2 rounded-lg font-bold transition-all",
+                                activeMonth === 2 ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-text-secondary hover:text-text-primary"
+                            )}
+                        >
+                            Month 2
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex flex-col items-end gap-2">
+                    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mr-2">Active Program</span>
+                    <div className="relative group">
+                        <select
+                            value={activeRoadmapId || ''}
+                            disabled={switching}
+                            onChange={(e) => handleSwitchRoadmap(e.target.value)}
+                            className="bg-surface border border-border-subtle hover:border-primary px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest outline-none transition-all appearance-none cursor-pointer pr-12 min-w-[240px]"
+                        >
+                            {roadmaps.length === 0 && <option value="">No Programs Found</option>}
+                            {roadmaps.map(rm => (
+                                <option key={rm.id} value={rm.id}>
+                                    {rm.title}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-secondary">
+                            {switching ? <Loader2 className="w-4 h-4 animate-spin" /> : <ChevronDown className="w-4 h-4" />}
+                        </div>
+                    </div>
                 </div>
             </header>
 
@@ -85,6 +158,9 @@ export default function RoadmapOverview() {
                         <AlertCircle className="w-12 h-12 text-text-secondary mx-auto" />
                         <h2 className="text-2xl font-syne font-bold">Plan Not Found for Month {activeMonth}</h2>
                         <p className="text-text-secondary">It seems the parser missed this month or the roadmap is shorter than expected.</p>
+                        <Link href="/setup" className="inline-flex items-center gap-2 text-primary font-bold hover:underline mt-4">
+                            Go to Forge Armory <ChevronRight className="w-4 h-4" />
+                        </Link>
                     </div>
                 ) : (
                     data.weeks.map((week: any) => (

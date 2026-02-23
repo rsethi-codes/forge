@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export const dynamic = 'force-dynamic'
-import { ArrowLeft, Save, Globe, Lock, Eye, Settings, Image as ImageIcon, Loader2 } from 'lucide-react'
+import { ArrowLeft, Save, Globe, Lock, Eye, Settings, Image as ImageIcon, Loader2, Trash2, Plus, X, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import TiptapEditor from '@/components/editor/TiptapEditor'
@@ -98,230 +98,321 @@ export default function ComposePostPage() {
         }
     }
 
+    const [isMetadataOpen, setIsMetadataOpen] = useState(true)
+
+    const wordCount = html ? html.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0
+    const readTime = Math.ceil(wordCount / 200)
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    }
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: 'spring',
+                stiffness: 100
+            }
+        }
+    }
+
     return (
-        <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
-            <header className="h-20 border-b border-border-subtle bg-surface px-6 flex items-center justify-between sticky top-0 z-50">
-                <div className="flex items-center gap-6">
-                    <Link href="/blog/manage" className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors">
-                        <ArrowLeft className="w-4 h-4" />
-                        <span className="font-bold uppercase tracking-widest text-xs hidden md:inline">Back to Lab</span>
+        <div className="min-h-screen bg-[#050505] text-text-primary flex flex-col font-syne overflow-hidden">
+            {/* Ambient Background */}
+            <div className="fixed inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] animate-pulse" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px] animate-pulse delay-700" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+            </div>
+
+            <header className="h-24 border-b border-white/5 bg-black/40 backdrop-blur-xl px-8 flex items-center justify-between sticky top-0 z-[60]">
+                <div className="flex items-center gap-8">
+                    <Link href="/blog/manage" className="group flex items-center gap-3 text-text-secondary hover:text-white transition-all">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-primary/50 transition-all">
+                            <ArrowLeft className="w-4 h-4" />
+                        </div>
+                        <span className="font-bold uppercase tracking-[0.2em] text-[10px]">Return to Lab</span>
                     </Link>
-                    <div className="h-6 w-[1px] bg-border-subtle hidden md:block" />
-                    <input
-                        type="text"
-                        placeholder="Post Title..."
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="bg-transparent text-xl font-syne font-bold outline-none placeholder:text-text-secondary w-full max-w-xl"
-                    />
+                    <div className="h-8 w-px bg-white/10" />
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="flex flex-col"
+                    >
+                        <input
+                            type="text"
+                            placeholder="UNTITLED INTELLIGENCE BRIEFING..."
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="bg-transparent text-2xl font-black outline-none placeholder:text-white/10 w-full max-w-2xl tracking-tighter uppercase italic"
+                        />
+                        <div className="flex items-center gap-4 text-[9px] font-bold text-text-secondary uppercase tracking-widest mt-1">
+                            <span className="text-primary/60">Stage: Draft</span>
+                            <span className="w-1 h-1 rounded-full bg-white/20" />
+                            <span>{readTime} Min Read</span>
+                            <span className="w-1 h-1 rounded-full bg-white/20" />
+                            <span>{wordCount} Words Output</span>
+                        </div>
+                    </motion.div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                    <div className="hidden lg:flex items-center gap-1 p-1 bg-[#0a0a0a] border border-border-subtle rounded-xl mr-4">
-                        <button
-                            onClick={() => setVisibility('private')}
-                            className={cn(
-                                "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                                visibility === 'private' ? "bg-surface-elevated text-text-primary shadow-sm" : "text-text-secondary hover:text-text-primary"
-                            )}
-                        >
-                            <Lock className="w-3 h-3" /> Private
-                        </button>
-                        <button
-                            onClick={() => setVisibility('public')}
-                            className={cn(
-                                "flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all",
-                                visibility === 'public' ? "bg-primary text-white shadow-sm" : "text-text-secondary hover:text-white"
-                            )}
-                        >
-                            <Globe className="w-3 h-3" /> Public
-                        </button>
-                    </div>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => setIsMetadataOpen(!isMetadataOpen)}
+                        className={cn(
+                            "w-12 h-12 rounded-xl flex items-center justify-center border transition-all",
+                            isMetadataOpen ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" : "bg-white/5 border-white/5 text-text-secondary hover:text-white"
+                        )}
+                    >
+                        <Settings className="w-5 h-5" />
+                    </button>
 
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="bg-primary hover:bg-red-600 text-white font-bold px-6 py-2.5 rounded-xl flex items-center gap-2 transition-all disabled:opacity-50"
+                        className="h-12 bg-white text-black hover:bg-primary hover:text-white font-black px-8 rounded-xl flex items-center gap-3 transition-all disabled:opacity-50 transform hover:scale-105 active:scale-95 shadow-2xl uppercase text-xs tracking-widest"
                     >
                         {isSaving ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
                         ) : (
                             <Save className="w-4 h-4" />
                         )}
-                        <span className="hidden sm:inline">Save Post</span>
+                        Transmit Briefing
                     </button>
                 </div>
             </header>
 
-            <main className="flex-1 overflow-auto p-4 md:p-8 lg:p-12">
-                <div className="max-w-4xl mx-auto space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Cover Image</label>
-                                <div className="flex bg-[#0a0a0a] rounded-lg p-0.5 border border-border-subtle">
-                                    <button
-                                        onClick={() => setUploadMode('url')}
-                                        className={cn(
-                                            "px-2 py-0.5 rounded-md text-[8px] font-bold uppercase transition-all",
-                                            uploadMode === 'url' ? "bg-primary text-white" : "text-text-secondary"
-                                        )}
-                                    >
-                                        URL
-                                    </button>
-                                    <button
-                                        onClick={() => setUploadMode('upload')}
-                                        className={cn(
-                                            "px-2 py-0.5 rounded-md text-[8px] font-bold uppercase transition-all",
-                                            uploadMode === 'upload' ? "bg-primary text-white" : "text-text-secondary"
-                                        )}
-                                    >
-                                        Upload
-                                    </button>
+            <div className="flex-1 flex overflow-hidden relative">
+                {/* Main Editor Canvas */}
+                <main className="flex-1 overflow-y-auto custom-scrollbar relative">
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="max-w-4xl mx-auto py-20 px-8"
+                    >
+                        <motion.section variants={itemVariants} className="bg-[#080808]/80 border border-white/5 rounded-[3rem] p-12 min-h-[1000px] shadow-[0_0_100px_rgba(0,0,0,0.5)] backdrop-blur-sm relative group">
+                            {/* Editor UI Accents */}
+                            <div className="absolute top-8 left-8 flex gap-2 opacity-20 group-hover:opacity-100 transition-opacity">
+                                <div className="w-2 h-2 rounded-full bg-red-500" />
+                                <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                                <div className="w-2 h-2 rounded-full bg-green-500" />
+                            </div>
+
+                            <div className="mb-12 border-b border-white/5 pb-8 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-text-secondary">Neural Link Established</span>
+                                </div>
+                                <div className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em]">
+                                    Forge OS 3.0 // Unified Editor
                                 </div>
                             </div>
 
-                            <div className="relative">
-                                {uploadMode === 'url' ? (
-                                    <>
-                                        <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-                                        <input
-                                            type="text"
-                                            placeholder="https://images.unsplash.com/..."
-                                            value={coverUrl}
-                                            onChange={(e) => setCoverUrl(e.target.value)}
-                                            className="w-full bg-surface border border-border-subtle rounded-xl py-3 px-11 text-sm outline-none focus:border-primary transition-all"
-                                        />
-                                    </>
-                                ) : (
-                                    <div className="relative group">
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleFileUpload}
-                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                            disabled={isUploading}
-                                        />
-                                        <div className={cn(
-                                            "bg-surface border border-dashed border-border-subtle rounded-xl py-3 px-4 flex items-center gap-3 transition-all",
-                                            isUploading ? "opacity-50" : "group-hover:border-primary/50"
-                                        )}>
-                                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-primary" /> : <ImageIcon className="w-4 h-4 text-primary" />}
-                                            <span className="text-sm text-text-secondary truncate">
-                                                {coverUrl ? "Replace Image" : (isUploading ? "Uploading..." : "Click to upload cover photo")}
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                            {coverUrl && uploadMode === 'upload' && (
-                                <p className="text-[9px] text-success font-bold uppercase mt-1 flex items-center gap-1">
-                                    ✓ Image Uploaded Successfully
-                                </p>
-                            )}
-                        </div>
-                        <div className="space-y-2 pt-[14px]">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mt-1">Excerpt</label>
-                            <div className="relative mt-2">
-                                <Settings className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
-                                <input
-                                    type="text"
-                                    placeholder="Brief summary for the card..."
-                                    value={excerpt}
-                                    onChange={(e) => setExcerpt(e.target.value)}
-                                    className="w-full bg-surface border border-border-subtle rounded-xl py-3 px-11 text-sm outline-none focus:border-primary transition-all"
-                                />
-                            </div>
-                        </div>
-                    </div>
+                            <TiptapEditor
+                                content={content}
+                                onChange={(json, htmlString) => {
+                                    setContent(json)
+                                    setHtml(htmlString)
+                                }}
+                            />
+                        </motion.section>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        <div className="space-y-4">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Technologies</label>
-                            <div className="flex flex-wrap gap-2 mb-3">
-                                {techs.map(t => (
-                                    <span key={t} className="bg-primary/20 text-primary text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-2">
-                                        {t}
-                                        <button onClick={() => setTechs(techs.filter(x => x !== t))} className="hover:text-white">×</button>
-                                    </span>
-                                ))}
-                            </div>
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="Add tech (Enter)..."
-                                    value={newTech}
-                                    onChange={(e) => setNewTech(e.target.value)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && newTech) {
-                                            setTechs([...new Set([...techs, newTech])])
-                                            setNewTech('')
-                                            e.preventDefault()
-                                        }
-                                    }}
-                                    className="flex-1 bg-surface border border-border-subtle rounded-xl py-2 px-4 text-xs outline-none focus:border-primary transition-all"
-                                />
-                            </div>
-                        </div>
+                        <motion.div
+                            variants={itemVariants}
+                            className="mt-12 text-center opacity-30 text-[10px] font-bold uppercase tracking-[0.5em] pb-20"
+                        >
+                            End of Transmission — Forge Intelligence
+                        </motion.div>
+                    </motion.div>
+                </main>
 
-                        <div className="md:col-span-2 space-y-4">
-                            <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Related Resources</label>
-                            <div className="space-y-2 mb-3">
-                                {resources.map((r, i) => (
-                                    <div key={i} className="flex items-center justify-between bg-surface border border-border-subtle rounded-xl p-3">
-                                        <div className="flex flex-col">
-                                            <span className="text-xs font-bold">{r.title}</span>
-                                            <span className="text-[10px] text-text-secondary truncate max-w-xs">{r.url}</span>
-                                        </div>
-                                        <button onClick={() => setResources(resources.filter((_, idx) => idx !== i))} className="text-text-secondary hover:text-red-500">
-                                            <Settings className="w-4 h-4 rotate-45" />
+                {/* Glassmorphic Metadata Sidebar */}
+                <AnimatePresence>
+                    {isMetadataOpen && (
+                        <motion.aside
+                            initial={{ x: 400, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            exit={{ x: 400, opacity: 0 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            className="w-[400px] bg-black/40 backdrop-blur-3xl border-l border-white/10 p-8 overflow-y-auto overflow-x-hidden z-50 h-[calc(100vh-6rem)] custom-scrollbar"
+                        >
+                            <div className="space-y-12">
+                                <header className="flex items-center justify-between">
+                                    <h2 className="text-xl font-black italic tracking-tighter uppercase italic">Configuration</h2>
+                                    <button onClick={() => setIsMetadataOpen(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
+                                        <X className="w-5 h-5 text-text-secondary" />
+                                    </button>
+                                </header>
+
+                                {/* Visibility Toggle */}
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-text-secondary">Distribution Mode</label>
+                                    <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded-2xl border border-white/5">
+                                        <button
+                                            onClick={() => setVisibility('private')}
+                                            className={cn(
+                                                "flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
+                                                visibility === 'private' ? "bg-white text-black shadow-xl" : "text-text-secondary hover:text-white"
+                                            )}
+                                        >
+                                            <Lock className="w-3.5 h-3.5" /> Internal
+                                        </button>
+                                        <button
+                                            onClick={() => setVisibility('public')}
+                                            className={cn(
+                                                "flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all",
+                                                visibility === 'public' ? "bg-primary text-white shadow-lg shadow-primary/20" : "text-text-secondary hover:text-white"
+                                            )}
+                                        >
+                                            <Globe className="w-3.5 h-3.5" /> Global
                                         </button>
                                     </div>
-                                ))}
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="Resource Title"
-                                    value={newResourceTitle}
-                                    onChange={(e) => setNewResourceTitle(e.target.value)}
-                                    className="flex-1 bg-surface border border-border-subtle rounded-xl py-2 px-4 text-xs outline-none focus:border-primary transition-all"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Resource URL"
-                                    value={newResourceUrl}
-                                    onChange={(e) => setNewResourceUrl(e.target.value)}
-                                    className="flex-1 bg-surface border border-border-subtle rounded-xl py-2 px-4 text-xs outline-none focus:border-primary transition-all"
-                                />
-                                <button
-                                    onClick={(e) => {
-                                        e.preventDefault()
-                                        if (newResourceTitle && newResourceUrl) {
-                                            setResources([...resources, { title: newResourceTitle, url: newResourceUrl }])
-                                            setNewResourceTitle('')
-                                            setNewResourceUrl('')
-                                        }
-                                    }}
-                                    className="bg-surface-elevated hover:bg-primary/20 hover:text-primary px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-widest border border-border-subtle transition-all"
-                                >
-                                    Add
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                                </div>
 
-                    <TiptapEditor
-                        content={content}
-                        onChange={(json, htmlString) => {
-                            setContent(json)
-                            setHtml(htmlString)
-                        }}
-                    />
+                                {/* Visual Identity */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-text-secondary">Hero Visual</label>
+                                        <div className="flex bg-white/5 rounded-full p-1 border border-white/5 scale-75 origin-right">
+                                            <button onClick={() => setUploadMode('url')} className={cn("px-4 py-1 rounded-full text-[10px] font-bold uppercase transition-all", uploadMode === 'url' ? "bg-primary text-white" : "text-text-secondary hover:text-white")}>URL</button>
+                                            <button onClick={() => setUploadMode('upload')} className={cn("px-4 py-1 rounded-full text-[10px] font-bold uppercase transition-all", uploadMode === 'upload' ? "bg-primary text-white" : "text-text-secondary hover:text-white")}>File</button>
+                                        </div>
+                                    </div>
 
-                    <div className="h-32" />
-                </div>
-            </main>
+                                    <div className="relative aspect-video rounded-3xl overflow-hidden bg-black/40 border border-white/10 group">
+                                        {coverUrl ? (
+                                            <div className="relative w-full h-full">
+                                                <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center backdrop-blur-sm">
+                                                    <button onClick={() => setCoverUrl('')} className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full shadow-lg transform hover:scale-110 transition-all"><Trash2 className="w-5 h-5" /></button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center p-6 text-center h-full border-2 border-dashed border-white/5 m-2 rounded-2xl">
+                                                <ImageIcon className="w-10 h-10 text-white/5 mb-3" />
+                                                <p className="text-[9px] text-text-secondary font-bold uppercase tracking-[0.2em]">Broadcast Visual Required</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="relative">
+                                        {uploadMode === 'url' ? (
+                                            <div className="relative">
+                                                <div className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary"><Plus className="w-full h-full" /></div>
+                                                <input
+                                                    type="text"
+                                                    placeholder="SOURCE URL..."
+                                                    value={coverUrl}
+                                                    onChange={(e) => setCoverUrl(e.target.value)}
+                                                    className="w-full bg-white/5 border border-white/5 rounded-2xl py-4 pl-12 pr-6 text-[10px] font-bold tracking-widest outline-none focus:border-primary/50 transition-all uppercase"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="relative group/upload">
+                                                <input type="file" accept="image/*" onChange={handleFileUpload} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" disabled={isUploading} />
+                                                <div className={cn("bg-white/5 border border-white/5 rounded-2xl py-4 px-6 flex items-center justify-center gap-3 transition-all", isUploading ? "opacity-30" : "group-hover/upload:border-primary group-hover/upload:bg-primary/5")}>
+                                                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin text-primary" /> : <Plus className="w-4 h-4 text-primary" />}
+                                                    <span className="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{isUploading ? 'SYNCING...' : 'UPLOAD SOURCE'}</span>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Executive Summary */}
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-text-secondary">Technical abstract</label>
+                                    <textarea
+                                        placeholder="Summarize the core directive of this briefing..."
+                                        value={excerpt}
+                                        onChange={(e) => setExcerpt(e.target.value)}
+                                        className="w-full bg-white/5 border border-white/5 rounded-3xl p-6 text-xs outline-none focus:border-primary/50 transition-all min-h-[140px] resize-none font-medium leading-relaxed italic"
+                                    />
+                                </div>
+
+                                {/* Tech Stack */}
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-text-secondary">Associated Core Technologies</label>
+                                    <div className="bg-white/5 border border-white/5 rounded-3xl p-6 space-y-4">
+                                        <div className="flex flex-wrap gap-2">
+                                            {techs.map(t => (
+                                                <span key={t} className="bg-primary/10 text-primary text-[9px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-2 border border-primary/20 group/tag">
+                                                    {t}
+                                                    <button onClick={() => setTechs(techs.filter(x => x !== t))} className="hover:text-white transition-colors">×</button>
+                                                </span>
+                                            ))}
+                                            {techs.length === 0 && <span className="text-[9px] text-text-secondary font-bold uppercase tracking-widest opacity-30 italic">No nodes linked...</span>}
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="ADD NODE + ENTER"
+                                            value={newTech}
+                                            onChange={(e) => setNewTech(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' && newTech) {
+                                                    setTechs([...new Set([...techs, newTech])])
+                                                    setNewTech('')
+                                                    e.preventDefault()
+                                                }
+                                            }}
+                                            className="w-full bg-black/40 border border-white/5 rounded-xl py-3 px-4 text-[10px] font-bold outline-none focus:border-primary/30 transition-all tracking-widest uppercase"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Resources */}
+                                <div className="space-y-4 pb-20">
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-text-secondary">Extracted Intelligence Nodes</label>
+                                    <div className="bg-white/5 border border-white/5 rounded-3xl p-6 space-y-4">
+                                        <div className="space-y-2">
+                                            {resources.map((r, i) => (
+                                                <div key={i} className="flex items-center justify-between text-[9px] bg-black/40 rounded-xl p-3 border border-white/5 group/res">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-bold text-white truncate max-w-[200px] uppercase tracking-tighter italic">{r.title}</span>
+                                                        <span className="text-[8px] text-text-secondary truncate max-w-[200px] font-mono opacity-50">{r.url}</span>
+                                                    </div>
+                                                    <button onClick={() => setResources(resources.filter((_, idx) => idx !== i))} className="text-text-secondary hover:text-red-500 p-2 opacity-0 group-hover/res:opacity-100 transition-all">
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {resources.length === 0 && <span className="text-[9px] text-text-secondary font-bold uppercase tracking-widest opacity-30 italic">No external nodes...</span>}
+                                        </div>
+                                        <div className="space-y-2 pt-2 border-t border-white/5">
+                                            <input type="text" placeholder="NODE TITLE" value={newResourceTitle} onChange={(e) => setNewResourceTitle(e.target.value)} className="w-full bg-black/20 text-[9px] font-bold p-3 rounded-xl border border-white/5 outline-none tracking-widest" />
+                                            <div className="flex gap-2">
+                                                <input type="text" placeholder="SOURCE URL" value={newResourceUrl} onChange={(e) => setNewResourceUrl(e.target.value)} className="flex-1 bg-black/20 text-[9px] font-bold p-3 rounded-xl border border-white/5 outline-none tracking-widest font-mono" />
+                                                <button
+                                                    onClick={() => {
+                                                        if (newResourceTitle && newResourceUrl) {
+                                                            setResources([...resources, { title: newResourceTitle, url: newResourceUrl }])
+                                                            setNewResourceTitle('')
+                                                            setNewResourceUrl('')
+                                                        }
+                                                    }}
+                                                    className="w-12 rounded-xl bg-primary flex items-center justify-center hover:bg-white hover:text-black transition-all shadow-lg shadow-primary/20"
+                                                >
+                                                    <Plus className="w-4 h-4 font-bold" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.aside>
+                    )}
+                </AnimatePresence>
+            </div>
         </div>
     )
 }

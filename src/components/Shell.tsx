@@ -23,7 +23,7 @@ import { createClient } from '@/lib/supabase/client'
 const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'My Roadmap', href: '/tracker', icon: Map },
-    { name: 'JANE', href: '/jane', icon: Target },
+    // { name: 'JANE', href: '/jane', icon: Target },
     { name: 'Analytics', href: '/analytics', icon: BarChart2 },
     { name: 'Milestones', href: '/milestones', icon: Shield },
     { name: 'Blog', href: '/blog/manage', icon: PenTool },
@@ -85,7 +85,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
                 <nav className="flex-1 px-4 py-4 space-y-2">
                     {navItems.map((item) => {
-                        const isActive = pathname === item.href
+                        const isActive = item.href === '/dashboard'
+                            ? pathname === '/dashboard'
+                            : pathname.startsWith(item.href)
                         return (
                             <Link
                                 key={item.href}
@@ -189,7 +191,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                         onClick={() => setIsMobileMenuOpen(false)}
                                         className={cn(
                                             "flex items-center gap-4 py-4 px-4 rounded-xl",
-                                            pathname === item.href ? "bg-primary text-white" : "text-text-secondary"
+                                            (item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href))
+                                                ? "bg-primary text-white"
+                                                : "text-text-secondary"
                                         )}
                                     >
                                         <item.icon className="w-6 h-6" />

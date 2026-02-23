@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Plus, Building2, Briefcase, Calendar, ExternalLink, ChevronRight, Search, Filter, Loader2, Target } from 'lucide-react'
+import { Plus, Building2, Briefcase, Calendar, ExternalLink, ChevronRight, Search, Filter, Loader2, Target, AlertCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { getJaneApplications, addJaneApplication, addJaneCompany, updateApplicationStatus, getJaneCompanies } from '@/lib/actions/jane'
@@ -22,23 +22,51 @@ export default function JanePage() {
     const [isLoading, setIsLoading] = useState(true)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
+    const [error, setError] = useState<string | null>(null)
+
     useEffect(() => {
         const load = async () => {
-            const [fetchedApps, fetchedCompanies] = await Promise.all([
-                getJaneApplications(),
-                getJaneCompanies()
-            ])
-            setApps(fetchedApps)
-            setCompanies(fetchedCompanies)
-            setIsLoading(false)
+            try {
+                setError(null)
+                const [fetchedApps, fetchedCompanies] = await Promise.all([
+                    getJaneApplications(),
+                    getJaneCompanies()
+                ])
+                setApps(fetchedApps)
+                setCompanies(fetchedCompanies)
+            } catch (err: any) {
+                console.error('[JanePage] Load failed:', err)
+                setError(err.message || 'Failed to load recruitment data')
+            } finally {
+                setIsLoading(false)
+            }
         }
         load()
     }, [])
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
                 <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                <p className="text-xs font-bold text-text-secondary uppercase tracking-widest">Accessing Recruitment Intel...</p>
+            </div>
+        )
+    }
+
+    if (error) {
+        return (
+            <div className="p-10 flex flex-col items-center justify-center min-h-[60vh] space-y-6 text-center">
+                <AlertCircle className="w-16 h-16 text-primary opacity-50" />
+                <div className="space-y-2">
+                    <h2 className="text-2xl font-syne font-bold">Encrypted Data Access Failed</h2>
+                    <p className="text-text-secondary max-w-sm mx-auto">{error}</p>
+                </div>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-8 py-3 bg-primary text-white rounded-xl font-bold uppercase tracking-widest text-xs"
+                >
+                    Retry Connection
+                </button>
             </div>
         )
     }
