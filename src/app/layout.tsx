@@ -48,6 +48,7 @@ export const metadata: Metadata = {
 };
 
 import ForgeHUD from "@/components/ForgeHUD";
+import QueryProvider from "@/components/providers/QueryProvider";
 
 export default function RootLayout({
     children,
@@ -57,8 +58,10 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} ${fraunces.variable} ${lora.variable}`}>
             <body className="antialiased">
-                {children}
-                <ForgeHUD />
+                <QueryProvider>
+                    {children}
+                    <ForgeHUD />
+                </QueryProvider>
             </body>
         </html>
     );

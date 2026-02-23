@@ -22,55 +22,56 @@ import PageWrapper from '@/components/PageWrapper'
 
 export const dynamic = 'force-dynamic'
 
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
 export default function RoadmapOverview() {
     const [activeMonth, setActiveMonth] = useState(1)
-    const [data, setData] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
-    const [roadmaps, setRoadmaps] = useState<any[]>([])
-    const [activeRoadmapId, setActiveRoadmapId] = useState<string | null>(null)
-    const [switching, setSwitching] = useState(false)
     const router = useRouter()
+    const queryClient = useQueryClient()
 
-    useEffect(() => {
-        loadData()
-        loadRoadmaps()
-    }, [activeMonth])
+    // Query for tracker data (month-based)
+    const { data, isLoading: loading } = useQuery({
+        queryKey: ['tracker', activeMonth],
+        queryFn: async () => {
+            const response = await fetch(`/api/roadmap/tracker?month=${activeMonth}`)
+            if (!response.ok) throw new Error('Failed to fetch tracker data')
+            return response.json()
+        },
+        staleTime: 5 * 60 * 1000,
+    })
 
-    const loadData = async () => {
-        setLoading(true)
-        try {
-            const res = await getTrackerData(activeMonth)
-            setData(res)
-            setActiveRoadmapId(res?.month?.programId || null)
-        } catch (error) {
-            console.error('Failed to load tracker data:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    // Query for roadmaps list
+    const { data: roadmaps = [] } = useQuery({
+        queryKey: ['roadmaps-list'],
+        queryFn: async () => {
+            const response = await fetch('/api/roadmap/list')
+            if (!response.ok) throw new Error('Failed to fetch roadmaps')
+            return response.json()
+        },
+    })
 
-    const loadRoadmaps = async () => {
-        try {
-            const rms = await listRoadmaps()
-            setRoadmaps(rms)
-        } catch (error) {
-            console.error('Failed to load roadmaps:', error)
-        }
-    }
+    const activeRoadmapId = data?.month?.programId || null
 
-    const handleSwitchRoadmap = async (id: string) => {
-        if (id === activeRoadmapId) return
-        setSwitching(true)
-        try {
+    // Mutation for switching roadmaps
+    const switchMutation = useMutation({
+        mutationFn: async (id: string) => {
             await setActiveRoadmap(id)
+        },
+        onSuccess: () => {
+            // Refetch everything to stay synced
+            queryClient.invalidateQueries({ queryKey: ['tracker'] })
+            queryClient.invalidateQueries({ queryKey: ['dashboard-data'] })
+            queryClient.invalidateQueries({ queryKey: ['sidebar-stats'] })
             router.refresh()
-            await loadData()
-        } catch (error) {
-            console.error('Failed to switch roadmap:', error)
-        } finally {
-            setSwitching(false)
         }
+    })
+
+    const handleSwitchRoadmap = (id: string) => {
+        if (id === activeRoadmapId) return
+        switchMutation.mutate(id)
     }
+
+    const switching = switchMutation.isPending
 
     if (loading) {
         return (
@@ -126,7 +127,7 @@ export default function RoadmapOverview() {
                             className="bg-surface border border-border-subtle hover:border-primary px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest outline-none transition-all appearance-none cursor-pointer pr-12 min-w-[240px]"
                         >
                             {roadmaps.length === 0 && <option value="">No Programs Found</option>}
-                            {roadmaps.map(rm => (
+                            {roadmaps.map((rm: any) => (
                                 <option key={rm.id} value={rm.id}>
                                     {rm.title}
                                 </option>

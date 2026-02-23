@@ -20,13 +20,24 @@ const insights = [
     "Design for the next engineer, not for your ego."
 ]
 
+import { useQuery } from '@tanstack/react-query'
+
 export default function ForgeHUD() {
     const [mode, setMode] = useState<HUDMode>('timer')
     const [isOpen, setIsOpen] = useState(false)
     const [currentInsight, setCurrentInsight] = useState(insights[0])
-    const [stats, setStats] = useState<any>(null)
     const [chatInput, setChatInput] = useState('')
     const pathname = usePathname()
+
+    const { data: stats } = useQuery({
+        queryKey: ['analytics-data'],
+        queryFn: async () => {
+            const response = await fetch('/api/stats/analytics')
+            if (!response.ok) throw new Error('Failed to fetch analytics')
+            return response.json()
+        },
+        staleTime: 60 * 1000,
+    })
 
     const isPublicPage = pathname === '/login' || pathname === '/profile' || pathname === '/'
 
@@ -67,10 +78,6 @@ export default function ForgeHUD() {
 
     useEffect(() => {
         setCurrentInsight(insights[Math.floor(Math.random() * insights.length)])
-        fetch('/api/stats/analytics')
-            .then(res => res.json())
-            .then(setStats)
-            .catch(err => console.error('[HUD Stats] Fetch failed:', err))
     }, [])
 
     if (isPublicPage) return null

@@ -33,22 +33,18 @@ import {
 import { cn } from '@/lib/utils'
 import { getAnalyticsData } from '@/lib/actions/analytics'
 
-export default function AnalyticsPage() {
-    const [data, setData] = useState<any>(null)
-    const [loading, setLoading] = useState(true)
+import { useQuery } from '@tanstack/react-query'
 
-    useEffect(() => {
-        fetch('/api/stats/analytics')
-            .then(res => res.json())
-            .then(res => {
-                setData(res)
-                setLoading(false)
-            })
-            .catch(err => {
-                console.error('[Analytics] Fetch failed:', err)
-                setLoading(false)
-            })
-    }, [])
+export default function AnalyticsPage() {
+    const { data, isLoading: loading } = useQuery({
+        queryKey: ['analytics-data'],
+        queryFn: async () => {
+            const response = await fetch('/api/stats/analytics')
+            if (!response.ok) throw new Error('Failed to fetch analytics data')
+            return response.json()
+        },
+        staleTime: 60 * 1000,
+    })
 
     if (loading) {
         return (

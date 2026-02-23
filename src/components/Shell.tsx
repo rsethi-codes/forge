@@ -31,50 +31,40 @@ const navItems = [
     { name: 'Share', href: '/share', icon: Share2 },
 ]
 
+import { useQuery } from '@tanstack/react-query'
+
 export default function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
     const supabase = createClient()
 
-    const [stats, setStats] = React.useState({ day: 1, streak: 0 })
+    const { data: stats } = useQuery({
+        queryKey: ['sidebar-stats'],
+        queryFn: async () => {
+            const response = await fetch('/api/stats/sidebar')
+            if (response.status === 401) {
+                window.location.href = '/login'
+                return { day: 1, streak: 0 }
+            }
+            if (!response.ok) throw new Error('Failed to fetch stats')
+            return response.json()
+        },
+        staleTime: 5 * 60 * 1000, // 5 minutes because it doesn't change frequently
+    })
+
+    const displayStats = stats || { day: 1, streak: 0 }
 
     const handleSignOut = async () => {
         try {
-            // Sign out of Supabase (primary auth)
             await supabase.auth.signOut()
         } catch (e) {
             console.error('Supabase sign-out error:', e)
         }
-
-        // Clear the admin cookie by calling a simple API route
-        // This avoids dependency on Server Actions which can fail with stale deployment IDs
         try {
             await fetch('/api/auth/logout', { method: 'POST' })
-        } catch {
-            // Best-effort: even if this fails, redirect to login
-            // The cookie will expire naturally or be invalidated on next auth check
-        }
-
+        } catch { }
         window.location.href = '/login'
     }
-
-    React.useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const response = await fetch('/api/stats/sidebar')
-                if (response.status === 401) {
-                    window.location.href = '/login'
-                    return
-                }
-                if (!response.ok) throw new Error('Failed to fetch')
-                const res = await response.json()
-                setStats(res)
-            } catch (error: any) {
-                console.error('[Shell] Failed to fetch stats:', error)
-            }
-        }
-        fetchStats()
-    }, [pathname])
 
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-text-primary">
@@ -113,18 +103,18 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     <div className="bg-surface-elevated rounded-2xl p-4 border border-border-subtle">
                         <div className="flex items-center justify-between mb-2">
                             <span className="text-xs text-text-secondary uppercase tracking-wider">Progress</span>
-                            <span className="text-xs font-bold text-primary">Day {stats.day}/60</span>
+                            <span className="text-xs font-bold text-primary">Day {displayStats.day}/60</span>
                         </div>
                         <div className="w-full bg-border-subtle rounded-full h-1.5 overflow-hidden">
                             <motion.div
                                 initial={{ width: 0 }}
-                                animate={{ width: `${(stats.day / 60) * 100}%` }}
+                                animate={{ width: `${(displayStats.day / 60) * 100}%` }}
                                 className="bg-primary h-full"
                             />
                         </div>
                         <div className="mt-4 flex items-center gap-2">
                             <span className="text-lg">🔥</span>
-                            <span className="text-sm font-bold text-text-primary">{stats.streak} day streak</span>
+                            <span className="text-sm font-bold text-text-primary">{displayStats.streak} day streak</span>
                         </div>
                     </div>
 

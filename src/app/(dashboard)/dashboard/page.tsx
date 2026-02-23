@@ -23,22 +23,18 @@ import Link from 'next/link'
 import { getDashboardData, logHours } from '@/lib/actions/roadmap'
 import PageWrapper from '@/components/PageWrapper'
 
-export default function DashboardPage() {
-    const [stats, setStats] = React.useState<any>(null)
-    const [loading, setLoading] = React.useState(true)
+import { useQuery } from '@tanstack/react-query'
 
-    React.useEffect(() => {
-        fetch('/api/stats/dashboard')
-            .then(res => res.json())
-            .then(data => {
-                setStats(data)
-                setLoading(false)
-            })
-            .catch(err => {
-                console.error('[Dashboard] Data fetch failed:', err)
-                setLoading(false)
-            })
-    }, [])
+export default function DashboardPage() {
+    const { data: stats, isLoading: loading } = useQuery({
+        queryKey: ['dashboard-data'],
+        queryFn: async () => {
+            const response = await fetch('/api/stats/dashboard')
+            if (!response.ok) throw new Error('Failed to fetch dashboard data')
+            return response.json()
+        },
+        staleTime: 60 * 1000, // 1 minute
+    })
 
     if (loading) {
         return (

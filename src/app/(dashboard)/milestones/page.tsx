@@ -10,16 +10,18 @@ import { getAllMilestones } from '@/lib/milestones'
 import { format } from 'date-fns'
 import PageWrapper from '@/components/PageWrapper'
 
-export default function MilestonesPage() {
-    const [milestones, setMilestones] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
+import { useQuery } from '@tanstack/react-query'
 
-    useEffect(() => {
-        getAllMilestones().then(res => {
-            setMilestones(res)
-            setLoading(false)
-        })
-    }, [])
+export default function MilestonesPage() {
+    const { data: milestones = [], isLoading: loading } = useQuery({
+        queryKey: ['milestones-list'],
+        queryFn: async () => {
+            const response = await fetch('/api/milestones/list')
+            if (!response.ok) throw new Error('Failed to fetch milestones')
+            return response.json()
+        },
+        staleTime: 5 * 60 * 1000,
+    })
 
     if (loading) {
         return (
