@@ -1,0 +1,60 @@
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/analytics/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/blog/manage/new/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/blog/manage/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/dashboard/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/milestones/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/settings/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/setup/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/share/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/tracker/day/[dayNumber]/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/(dashboard)/tracker/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/api/chat/route.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/api/milestones/new/route.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/api/parse-roadmap/route.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/auth/callback/route.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/blog/[slug]/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/blog/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/jane/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/login/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'
+error TS6053: File 'D:/Project-2026/forge/.next/types/app/profile/page.ts' not found.
+  The file is in the program because:
+    Matched by include pattern '.next/types/**/*.ts' in 'D:/Project-2026/forge/tsconfig.json'

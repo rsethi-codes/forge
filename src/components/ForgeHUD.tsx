@@ -7,7 +7,8 @@ import PomodoroTimer from './PomodoroTimer'
 import { cn } from '@/lib/utils'
 import { getAnalyticsData } from '@/lib/actions/analytics'
 import { usePathname } from 'next/navigation'
-import { useChat, Message } from 'ai/react'
+import { useChat } from '@ai-sdk/react'
+import type { UIMessage } from 'ai'
 
 type HUDMode = 'timer' | 'stats' | 'insight' | 'mentor'
 
@@ -24,19 +25,37 @@ export default function ForgeHUD() {
     const [isOpen, setIsOpen] = useState(false)
     const [currentInsight, setCurrentInsight] = useState(insights[0])
     const [stats, setStats] = useState<any>(null)
+    const [chatInput, setChatInput] = useState('')
     const pathname = usePathname()
 
     const isPublicPage = pathname === '/login' || pathname === '/profile' || pathname === '/'
 
-    const { messages, input, handleInputChange, handleSubmit, isLoading: isChatLoading } = useChat({
-        api: '/api/chat',
-        body: {
-            context: {
-                pathname,
-                timestamp: new Date().toISOString()
-            }
-        }
+    const { messages, sendMessage, status } = useChat<UIMessage>({
+        id: 'forge-mentor',
+        messages: [],
     })
+
+    const isChatLoading = status === 'submitted' || status === 'streaming'
+
+    const handleChatSubmit = (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!chatInput.trim() || isChatLoading) return
+
+        sendMessage({
+            text: chatInput,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: {
+                context: {
+                    pathname,
+                    timestamp: new Date().toISOString()
+                }
+            }
+        })
+        setChatInput('')
+    }
 
     const chatEndRef = useRef<HTMLDivElement>(null)
 
@@ -104,11 +123,11 @@ export default function ForgeHUD() {
                                             <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
                                                 <Sparkles className="w-8 h-8 text-primary" />
                                                 <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                                                    Ask about today's build,<br />code reviews, or roadmap topics.
+                                                    Ask about today&apos;s build,<br />code reviews, or roadmap topics.
                                                 </p>
                                             </div>
                                         ) : (
-                                            messages.map((m: Message) => (
+                                            messages.map((m) => (
                                                 <div key={m.id} className={cn("flex flex-col space-y-1", m.role === 'user' ? "items-end" : "items-start")}>
                                                     <span className="text-[8px] font-bold uppercase tracking-widest text-text-secondary">
                                                         {m.role === 'user' ? 'Operator' : 'Forge Intelligence'}
@@ -117,22 +136,30 @@ export default function ForgeHUD() {
                                                         "max-w-[90%] px-3 py-2 rounded-2xl text-[11px] leading-relaxed",
                                                         m.role === 'user' ? "bg-primary text-white rounded-tr-none" : "bg-surface border border-border-subtle rounded-tl-none font-mono"
                                                     )}>
-                                                        {m.content}
+                                                        {m.parts.map((p, i) => (
+                                                            p.type === 'text' ? <span key={i}>{p.text}</span> :
+                                                                p.type === 'reasoning' ? (
+                                                                    <div key={i} className="mb-2 p-2 bg-black/20 rounded-lg text-[10px] opacity-60 italic border-l-2 border-primary/30">
+                                                                        {p.text}
+                                                                    </div>
+                                                                ) : null
+                                                        ))}
                                                     </div>
                                                 </div>
                                             ))
                                         )}
                                         <div ref={chatEndRef} />
+
                                     </div>
-                                    <form onSubmit={handleSubmit} className="pt-4">
+                                    <form onSubmit={handleChatSubmit} className="pt-4">
                                         <div className="relative">
                                             <input
-                                                value={input}
-                                                onChange={handleInputChange}
+                                                value={chatInput}
+                                                onChange={(e) => setChatInput(e.target.value)}
                                                 placeholder="Ask Forge..."
                                                 className="w-full bg-black/40 border border-border-subtle rounded-xl py-3 pl-4 pr-10 text-[11px] outline-none focus:border-primary transition-all"
                                             />
-                                            <button type="submit" disabled={isChatLoading || !input.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:text-primary transition-colors disabled:opacity-30">
+                                            <button type="submit" disabled={isChatLoading || !chatInput.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:text-primary transition-colors disabled:opacity-30">
                                                 <Send className="w-4 h-4" />
                                             </button>
                                         </div>

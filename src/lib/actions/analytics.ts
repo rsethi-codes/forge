@@ -5,8 +5,12 @@ import * as schema from '@/lib/supabase/schema'
 import { eq, desc, sql, and, gte } from 'drizzle-orm'
 import { format, subDays } from 'date-fns'
 import { calculateTier } from '@/lib/discipline'
+import { requireUser } from '../auth-utils'
 
-export async function getAnalyticsData() {
+export async function getAnalyticsData(userId?: string) {
+    const user = userId ? { id: userId } : await requireUser()
+    const targetUserId = user.id
+
     const last7Days = Array.from({ length: 7 }, (_, i) =>
         format(subDays(new Date(), i), 'yyyy-MM-dd')
     ).reverse()
@@ -15,7 +19,10 @@ export async function getAnalyticsData() {
     const disciplineScores = await db
         .select()
         .from(schema.disciplineScores)
-        .where(gte(schema.disciplineScores.date, last7Days[0]))
+        .where(and(
+            gte(schema.disciplineScores.date, last7Days[0]),
+            eq(schema.disciplineScores.userId, targetUserId)
+        ))
         .orderBy(schema.disciplineScores.date)
 
     const disciplineTrend = last7Days.map(date => {
@@ -30,7 +37,10 @@ export async function getAnalyticsData() {
     const progressEntries = await db
         .select()
         .from(schema.dailyProgress)
-        .where(gte(schema.dailyProgress.date, last7Days[0]))
+        .where(and(
+            gte(schema.dailyProgress.date, last7Days[0]),
+            eq(schema.dailyProgress.userId, targetUserId)
+        ))
         .orderBy(schema.dailyProgress.date)
 
     const hoursData = last7Days.map(date => {
@@ -50,6 +60,8 @@ export async function getAnalyticsData() {
         .from(schema.knowledgeCheckResults)
         .innerJoin(schema.knowledgeChecks, eq(schema.knowledgeCheckResults.knowledgeCheckId, schema.knowledgeChecks.id))
         .innerJoin(schema.roadmapTopics, eq(schema.knowledgeChecks.dayId, schema.roadmapTopics.dayId))
+        .innerJoin(schema.dailyProgress, eq(schema.knowledgeCheckResults.dailyProgressId, schema.dailyProgress.id))
+        .where(eq(schema.dailyProgress.userId, targetUserId))
         .limit(100)
 
     const topicRetention: Record<string, { total: number, passed: number }> = {}
@@ -73,13 +85,17 @@ export async function getAnalyticsData() {
             publishedAt: schema.blogPosts.publishedAt
         })
         .from(schema.blogPosts)
-        .where(eq(schema.blogPosts.visibility, 'public'))
+        .where(and(
+            eq(schema.blogPosts.visibility, 'public'),
+            eq(schema.blogPosts.userId, targetUserId)
+        ))
         .orderBy(desc(schema.blogPosts.viewCount))
         .limit(5)
 
     const [blogCountRes] = await db
         .select({ count: sql`count(*)` })
         .from(schema.blogPosts)
+        .where(eq(schema.blogPosts.userId, targetUserId))
 
     const blogCount = parseInt((blogCountRes as any).count || '0')
 
@@ -91,6 +107,7 @@ export async function getAnalyticsData() {
         })
         .from(schema.dailyProgress)
         .innerJoin(schema.roadmapDays, eq(schema.dailyProgress.dayId, schema.roadmapDays.id))
+        .where(eq(schema.dailyProgress.userId, targetUserId))
         .orderBy(schema.roadmapDays.dayNumber)
 
     const heatmapData = Array.from({ length: 60 }, (_, i) => {
@@ -143,7 +160,10 @@ export async function getAnalyticsData() {
     const pomodoros = await db
         .select()
         .from(schema.pomodoroSessions)
-        .where(gte(schema.pomodoroSessions.startedAt, subDays(new Date(), 30)))
+        .where(and(
+            gte(schema.pomodoroSessions.startedAt, subDays(new Date(), 30)),
+            eq(schema.pomodoroSessions.userId, targetUserId)
+        ))
         .orderBy(desc(schema.pomodoroSessions.startedAt))
 
     const totalFocusMinutes = pomodoros

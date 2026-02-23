@@ -1,0 +1,21 @@
+
+> forge@0.1.0 build
+> next build
+
+  Γû▓ Next.js 14.2.15
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/api/chat/route.ts:26:19
+Type error: Property 'toDataStreamResponse' does not exist on type 'StreamTextResult<ToolSet, Output<string, string, never>>'. Did you mean 'toTextStreamResponse'?
+
+  24 |     })
+  25 |
+> 26 |     return result.toDataStreamResponse()
+     |                   ^
+  27 | }
+  28 |

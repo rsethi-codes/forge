@@ -18,7 +18,7 @@ export default function PublicProfilePage() {
             setData(res)
             setLoading(false)
         })
-    }, [])
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     if (loading) return (
         <div className="min-h-screen bg-[#fafaf8] flex items-center justify-center">

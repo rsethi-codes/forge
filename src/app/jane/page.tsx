@@ -1,10 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Plus, Building2, Briefcase, Calendar, ExternalLink, ChevronRight, Search, Filter, Loader2, Target } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { getJaneApplications, addJaneApplication, addJaneCompany, updateApplicationStatus, getJaneCompanies } from '@/lib/actions/jane'
+import Image from 'next/image'
 
 const STATUS_CONFIG: Record<string, { label: string, color: string, bg: string }> = {
     wishlist: { label: 'Wishlist', color: '#94a3b8', bg: 'rgba(148, 163, 184, 0.1)' },
@@ -16,12 +17,12 @@ const STATUS_CONFIG: Record<string, { label: string, color: string, bg: string }
 }
 
 export default function JanePage() {
-    const [apps, setApps] = React.useState<any[]>([])
-    const [companies, setCompanies] = React.useState<any[]>([])
-    const [isLoading, setIsLoading] = React.useState(true)
-    const [isAddModalOpen, setIsAddModalOpen] = React.useState(false)
+    const [apps, setApps] = useState<any[]>([])
+    const [companies, setCompanies] = useState<any[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false)
 
-    React.useEffect(() => {
+    useEffect(() => {
         const load = async () => {
             const [fetchedApps, fetchedCompanies] = await Promise.all([
                 getJaneApplications(),
@@ -97,9 +98,9 @@ export default function JanePage() {
                             <div className="relative z-10 space-y-4">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-[#111] border border-border-subtle flex items-center justify-center p-2">
+                                        <div className="w-12 h-12 rounded-2xl bg-[#111] border border-border-subtle flex items-center justify-center p-2 relative">
                                             {app.company.logoUrl ? (
-                                                <img src={app.company.logoUrl} alt={app.company.name} className="w-full h-full object-contain" />
+                                                <Image src={app.company.logoUrl} alt={app.company.name} fill className="object-contain" />
                                             ) : (
                                                 <Building2 className="w-6 h-6 text-text-secondary" />
                                             )}
