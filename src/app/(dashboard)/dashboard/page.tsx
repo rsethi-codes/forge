@@ -28,10 +28,16 @@ export default function DashboardPage() {
     const [loading, setLoading] = React.useState(true)
 
     React.useEffect(() => {
-        getDashboardData().then(data => {
-            setStats(data)
-            setLoading(false)
-        })
+        fetch('/api/stats/dashboard')
+            .then(res => res.json())
+            .then(data => {
+                setStats(data)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error('[Dashboard] Data fetch failed:', err)
+                setLoading(false)
+            })
     }, [])
 
     if (loading) {

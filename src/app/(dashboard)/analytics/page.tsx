@@ -38,10 +38,16 @@ export default function AnalyticsPage() {
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        getAnalyticsData().then(res => {
-            setData(res)
-            setLoading(false)
-        })
+        fetch('/api/stats/analytics')
+            .then(res => res.json())
+            .then(res => {
+                setData(res)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error('[Analytics] Fetch failed:', err)
+                setLoading(false)
+            })
     }, [])
 
     if (loading) {

@@ -67,7 +67,10 @@ export default function ForgeHUD() {
 
     useEffect(() => {
         setCurrentInsight(insights[Math.floor(Math.random() * insights.length)])
-        getAnalyticsData().then(setStats)
+        fetch('/api/stats/analytics')
+            .then(res => res.json())
+            .then(setStats)
+            .catch(err => console.error('[HUD Stats] Fetch failed:', err))
     }, [])
 
     if (isPublicPage) return null
