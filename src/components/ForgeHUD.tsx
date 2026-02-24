@@ -7,6 +7,7 @@ import PomodoroTimer from './PomodoroTimer'
 import { cn } from '@/lib/utils'
 import { getAnalyticsData } from '@/lib/actions/analytics'
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { useChat } from '@ai-sdk/react'
 import type { UIMessage } from 'ai'
 

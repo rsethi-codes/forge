@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
-import { eq, desc, and, sql, inArray } from 'drizzle-orm'
+import { eq, desc, and, sql, inArray, isNull } from 'drizzle-orm'
 import { format } from 'date-fns'
 import { calculateDailyDiscipline, calculateCurrentStreak } from '@/lib/discipline'
 import { requireUser } from '@/lib/auth-utils'
@@ -20,8 +20,10 @@ export async function getDashboardData() {
             .from(schema.roadmapPrograms)
             .where(and(
                 eq(schema.roadmapPrograms.isActive, true),
-                eq(schema.roadmapPrograms.userId, user.id)
+                eq(schema.roadmapPrograms.userId, user.id),
+                isNull(schema.roadmapPrograms.deletedAt)
             ))
+            .orderBy(desc(schema.roadmapPrograms.createdAt))
             .limit(1)
         program = programs[0]
 
@@ -43,7 +45,10 @@ export async function getDashboardData() {
         const fallbackPrograms = await db
             .select()
             .from(schema.roadmapPrograms)
-            .where(eq(schema.roadmapPrograms.userId, user.id))
+            .where(and(
+                eq(schema.roadmapPrograms.userId, user.id),
+                isNull(schema.roadmapPrograms.deletedAt)
+            ))
             .orderBy(desc(schema.roadmapPrograms.createdAt))
             .limit(1)
 
@@ -65,7 +70,13 @@ export async function getDashboardData() {
     const [latestProgress] = await db
         .select({ dayId: schema.dailyProgress.dayId })
         .from(schema.dailyProgress)
-        .where(eq(schema.dailyProgress.userId, user.id))
+        .innerJoin(schema.roadmapDays, eq(schema.dailyProgress.dayId, schema.roadmapDays.id))
+        .innerJoin(schema.roadmapWeeks, eq(schema.roadmapDays.weekId, schema.roadmapWeeks.id))
+        .innerJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
+        .where(and(
+            eq(schema.dailyProgress.userId, user.id),
+            eq(schema.roadmapMonths.programId, program.id)
+        ))
         .orderBy(desc(schema.dailyProgress.date))
         .limit(1)
 
@@ -126,22 +137,22 @@ export async function getDashboardData() {
             id: schema.roadmapDays.id,
             title: schema.roadmapDays.title,
             focus: schema.roadmapDays.focus,
-            dayNumber: schema.roadmapDays.dayNumber
+            dayNumber: schema.roadmapDays.dayNumber,
+            weekTitle: schema.roadmapWeeks.title,
+            monthTitle: schema.roadmapMonths.title
         })
         .from(schema.roadmapDays)
+        .innerJoin(schema.roadmapWeeks, eq(schema.roadmapDays.weekId, schema.roadmapWeeks.id))
+        .innerJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
         .where(
             latestProgress?.dayId
                 ? eq(schema.roadmapDays.id, latestProgress.dayId)
                 : and(
                     eq(schema.roadmapDays.dayNumber, calendarDayNum.toString()),
-                    // Need to join to ensure correct program if multiple exist
-                    sql`${schema.roadmapDays.weekId} IN (
-                        SELECT w.id FROM roadmap_weeks w 
-                        JOIN roadmap_months m ON w.month_id = m.id 
-                        WHERE m.program_id = ${program.id}
-                    )`
+                    eq(schema.roadmapMonths.programId, program.id)
                 )
         )
+        .orderBy(schema.roadmapMonths.sortOrder, schema.roadmapWeeks.sortOrder, schema.roadmapDays.sortOrder)
         .limit(1)
 
     const activeDayNum = currentDay ? parseInt(currentDay.dayNumber) : calendarDayNum
@@ -195,6 +206,8 @@ export async function getDashboardData() {
         programTitle: program.title,
         day: activeDayNum,
         totalDays: 60,
+        currentPhase: currentDay?.monthTitle || "Phase 1",
+        currentWeek: currentDay?.weekTitle || "Week 1",
         focus: currentDay?.focus || "Maintain trajectory. Finalize previous mandates.",
         dayTitle: currentDay?.title,
         disciplineScore: discipline ? parseInt(discipline.disciplineScore) : 0,
@@ -218,8 +231,52 @@ export async function getDashboardData() {
             criteriaValue: nextMilestone.criteriaValue
         } : null,
         isReviewDay: activeDayNum % 7 === 0,
-        ...behavioralDiagnostics(wallet?.coinsBalance ?? 0, activeDayTasks)
+        ...behavioralDiagnostics(wallet?.coinsBalance ?? 0, activeDayTasks),
+        activeTimer: await getActiveTimer(user.id)
     }
+}
+
+async function getActiveTimer(userId: string) {
+    // Look for any running or paused timers for this user
+    const [taskTimer] = await db
+        .select({
+            id: schema.roadmapTasks.id,
+            title: schema.roadmapTasks.title,
+            status: schema.taskCompletions.timerStatus,
+            dayNumber: schema.roadmapDays.dayNumber,
+            type: sql<string>`'task'`
+        })
+        .from(schema.taskCompletions)
+        .innerJoin(schema.roadmapTasks, eq(schema.taskCompletions.taskId, schema.roadmapTasks.id))
+        .innerJoin(schema.roadmapDays, eq(schema.roadmapTasks.dayId, schema.roadmapDays.id))
+        .innerJoin(schema.dailyProgress, eq(schema.taskCompletions.dailyProgressId, schema.dailyProgress.id))
+        .where(and(
+            eq(schema.dailyProgress.userId, userId),
+            inArray(schema.taskCompletions.timerStatus, ['running', 'paused'])
+        ))
+        .limit(1)
+
+    if (taskTimer) return taskTimer
+
+    const [topicTimer] = await db
+        .select({
+            id: schema.roadmapTopics.id,
+            title: schema.roadmapTopics.title,
+            status: schema.topicCompletions.timerStatus,
+            dayNumber: schema.roadmapDays.dayNumber,
+            type: sql<string>`'topic'`
+        })
+        .from(schema.topicCompletions)
+        .innerJoin(schema.roadmapTopics, eq(schema.topicCompletions.topicId, schema.roadmapTopics.id))
+        .innerJoin(schema.roadmapDays, eq(schema.roadmapTopics.dayId, schema.roadmapDays.id))
+        .innerJoin(schema.dailyProgress, eq(schema.topicCompletions.dailyProgressId, schema.dailyProgress.id))
+        .where(and(
+            eq(schema.dailyProgress.userId, userId),
+            inArray(schema.topicCompletions.timerStatus, ['running', 'paused'])
+        ))
+        .limit(1)
+
+    return topicTimer || null
 }
 
 function behavioralDiagnostics(coins: number, tasks: any[]) {
@@ -261,7 +318,8 @@ export async function logHours(hours: number) {
         .from(schema.roadmapPrograms)
         .where(and(
             eq(schema.roadmapPrograms.isActive, true),
-            eq(schema.roadmapPrograms.userId, user.id)
+            eq(schema.roadmapPrograms.userId, user.id),
+            isNull(schema.roadmapPrograms.deletedAt)
         ))
         .limit(1)
 
@@ -317,7 +375,8 @@ export async function getTrackerData(month: number = 1) {
         .from(schema.roadmapPrograms)
         .where(and(
             eq(schema.roadmapPrograms.isActive, true),
-            eq(schema.roadmapPrograms.userId, user.id)
+            eq(schema.roadmapPrograms.userId, user.id),
+            isNull(schema.roadmapPrograms.deletedAt)
         ))
         .limit(1)
 

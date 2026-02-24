@@ -3,6 +3,8 @@ import { getAuthStatus } from '@/lib/actions/auth-status'
 import { getQuickDashboard } from '@/lib/actions/behavior'
 import { getDashboardData } from '@/lib/actions/roadmap'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
     const auth = await getAuthStatus()
     if (!auth.isAuthenticated) return new NextResponse('Unauthorized', { status: 401 })

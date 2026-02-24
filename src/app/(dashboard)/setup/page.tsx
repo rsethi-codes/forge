@@ -18,6 +18,8 @@ export default function SetupPage() {
     const [loadingRoadmaps, setLoadingRoadmaps] = useState(true)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [editTitle, setEditTitle] = useState('')
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+    const [deletePhrase, setDeletePhrase] = useState('')
     const router = useRouter()
 
     useEffect(() => {
@@ -81,11 +83,18 @@ export default function SetupPage() {
         router.refresh()
     }
 
-    const handleDelete = async (id: string) => {
-        if (confirm('Are you sure you want to delete this roadmap and all associated progress? This cannot be undone.')) {
-            await deleteRoadmap(id)
-            loadRoadmaps()
-        }
+    const handleDelete = (id: string) => {
+        setConfirmDeleteId(id)
+        setDeletePhrase('')
+    }
+
+    const confirmPermanentDelete = async () => {
+        if (deletePhrase !== 'ERASE DATA') return
+        if (!confirmDeleteId) return
+
+        await deleteRoadmap(confirmDeleteId)
+        setConfirmDeleteId(null)
+        loadRoadmaps()
     }
 
     const handleRename = async (id: string) => {
@@ -311,6 +320,64 @@ export default function SetupPage() {
                     <span>Multi-Program Management Active</span>
                 </div>
             </div>
+
+            {/* Permanent Destruction Confirmation Modal */}
+            <AnimatePresence>
+                {confirmDeleteId && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] flex items-center justify-center p-6"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-[#0f0f0f] border border-red-500/30 rounded-[2.5rem] p-10 max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.2)] text-center space-y-8"
+                        >
+                            <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                <AlertCircle className="w-10 h-10 text-red-500" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-syne font-bold text-white uppercase tracking-tighter">Confirm Deletion</h3>
+                                <p className="text-text-secondary text-sm">
+                                    All progress, QnA logs, and associated mandates will be archived and hidden. Type <span className="text-red-500 font-black">ERASE DATA</span> to proceed.
+                                </p>
+                            </div>
+
+                            <input
+                                autoFocus
+                                type="text"
+                                value={deletePhrase}
+                                onChange={(e) => setDeletePhrase(e.target.value)}
+                                placeholder="Type phrase here..."
+                                className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-center text-sm font-bold uppercase tracking-widest text-red-500 outline-none focus:border-red-500/50 transition-all placeholder:text-white/5"
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && deletePhrase === 'ERASE DATA') confirmPermanentDelete()
+                                }}
+                            />
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => setConfirmDeleteId(null)}
+                                    className="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-xs font-bold uppercase tracking-widest transition-all"
+                                >
+                                    Abort
+                                </button>
+                                <button
+                                    disabled={deletePhrase !== 'ERASE DATA'}
+                                    onClick={confirmPermanentDelete}
+                                    className="flex-1 py-4 rounded-2xl bg-red-500 hover:bg-red-600 disabled:opacity-20 disabled:grayscale text-white text-xs font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

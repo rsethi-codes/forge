@@ -2,6 +2,19 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
+    const isDemoMode = process.env.FORGE_DEMO_MODE === 'true'
+    if (isDemoMode) {
+        const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth')
+        if (isAuthPage) {
+            return NextResponse.redirect(new URL('/dashboard', request.url))
+        }
+        return NextResponse.next({
+            request: {
+                headers: request.headers,
+            },
+        })
+    }
+
     let response = NextResponse.next({
         request: {
             headers: request.headers,

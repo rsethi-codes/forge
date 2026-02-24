@@ -27,6 +27,7 @@ import PageWrapper from '@/components/PageWrapper'
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import WhatToStartCard from '@/components/behavior/WhatToStartCard'
+import ActiveFocusCard from '@/components/behavior/ActiveFocusCard'
 import SessionHUD from '@/components/behavior/SessionHUD'
 import EndOfDayModal from '@/components/behavior/EndOfDayModal'
 import { startSession, endSession } from '@/lib/actions/behavior'
@@ -139,20 +140,30 @@ export default function DashboardPage() {
                             isManualMomentum ? "scale-[1.02] z-50" : ""
                         )}
                     >
-                        <WhatToStartCard
-                            dayNumber={heroStats.day}
-                            dayTitle={heroStats.dayTitle}
-                            recommendedAction={heroStats.recommendedAction}
-                            topTask={heroStats.topTask}
-                            shortDiagnostic={heroStats.shortDiagnostic}
-                            coinsBalance={heroStats.coinsBalance}
-                            onStart={handleStartSession}
-                            onForceMomentum={() => {
-                                setIsManualMomentum(true)
-                                setIsDismissedMomentum(false)
-                            }}
-                        />
-                        {(isManualMomentum || (stats?.recommendedAction === 'Momentum' && !isDismissedMomentum)) && (
+                        {stats.activeTimer ? (
+                            <ActiveFocusCard
+                                id={stats.activeTimer.id}
+                                title={stats.activeTimer.title}
+                                status={stats.activeTimer.status}
+                                dayNumber={stats.activeTimer.dayNumber}
+                                type={stats.activeTimer.type as 'task' | 'topic'}
+                            />
+                        ) : (
+                            <WhatToStartCard
+                                dayNumber={heroStats.day}
+                                dayTitle={heroStats.dayTitle}
+                                recommendedAction={heroStats.recommendedAction}
+                                topTask={heroStats.topTask}
+                                shortDiagnostic={heroStats.shortDiagnostic}
+                                coinsBalance={heroStats.coinsBalance}
+                                onStart={handleStartSession}
+                                onForceMomentum={() => {
+                                    setIsManualMomentum(true)
+                                    setIsDismissedMomentum(false)
+                                }}
+                            />
+                        )}
+                        {(isManualMomentum || (stats?.recommendedAction === 'Momentum' && !isDismissedMomentum)) && !stats.activeTimer && (
                             <motion.button
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -175,9 +186,13 @@ export default function DashboardPage() {
                             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                             <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">War Room Statistics</span>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-syne font-bold tracking-tighter mb-2">
+                        <h1 className="text-4xl md:text-5xl font-syne font-black tracking-tighter mb-2">
                             The Grind: <span className="text-primary">Day {stats.day}</span>
                         </h1>
+                        <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-text-secondary">
+                            <span className="bg-white/5 px-2 py-1 rounded border border-white/5">{stats.currentPhase}</span>
+                            <span className="bg-white/5 px-2 py-1 rounded border border-white/5">{stats.currentWeek}</span>
+                        </div>
                         <p className="text-text-secondary text-lg flex items-center gap-2 font-medium">
                             <Target className="w-5 h-5 text-primary" />
                             Active Focus: <span className="text-text-primary font-bold">{stats.focus}</span>

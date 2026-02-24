@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getTrackerData } from '@/lib/actions/roadmap'
 import { getAuthStatus } from '@/lib/actions/auth-status'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
     try {
         const auth = await getAuthStatus()

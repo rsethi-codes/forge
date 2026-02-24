@@ -21,6 +21,7 @@ export const roadmapPrograms = pgTable('roadmap_programs', {
     rawContent: text('raw_content'),
     fileUrl: text('file_url'),
     isActive: boolean('is_active').default(false).notNull(),
+    deletedAt: timestamp('deleted_at'),
 })
 
 export const roadmapMonths = pgTable('roadmap_months', {
@@ -102,6 +103,19 @@ export const knowledgeChecks = pgTable('knowledge_checks', {
     sortOrder: integer('sort_order').notNull(),
 })
 
+export const knowledgeCheckSubmissions = pgTable('knowledge_check_submissions', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    checkId: uuid('check_id').references(() => knowledgeChecks.id, { onDelete: 'cascade' }).notNull(),
+    userId: uuid('user_id').notNull(),
+    answerText: text('answer_text').notNull(),
+    aiScore: integer('ai_score'), // 0-100
+    aiFeedback: text('ai_feedback'),
+    missedPoints: jsonb('missed_points').default([]), // What the user missed
+    understandingLevel: text('understanding_level'), // 'Novice' | 'Competent' | 'Expert'
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 // --- Progress & Tracking ---
 
 export const dailyProgress = pgTable('daily_progress', {
@@ -129,6 +143,8 @@ export const taskCompletions = pgTable('task_completions', {
     startedAt: timestamp('started_at'),
     timerSessions: jsonb('timer_sessions').default([]), // [{start: ISO, end: ISO}, ...]
     notes: text('notes'),
+    timerStatus: text('timer_status').default('idle'), // 'idle' | 'running' | 'paused'
+    lastTimerPulse: timestamp('last_timer_pulse'),
 }, (t) => ({
     unq: unique().on(t.taskId, t.dailyProgressId)
 }))
@@ -144,6 +160,8 @@ export const topicCompletions = pgTable('topic_completions', {
     startedAt: timestamp('started_at'),
     timerSessions: jsonb('timer_sessions').default([]), // [{start: ISO, end: ISO}, ...]
     notes: text('notes'),
+    timerStatus: text('timer_status').default('idle'), // 'idle' | 'running' | 'paused'
+    lastTimerPulse: timestamp('last_timer_pulse'),
 }, (t) => ({
     unq: unique().on(t.topicId, t.dailyProgressId)
 }))
@@ -194,6 +212,10 @@ export const knowledgeCheckResults = pgTable('knowledge_check_results', {
     passed: boolean('passed').default(false).notNull(),
     notes: text('notes'),
     answer: text('answer'), // user response
+    aiScore: integer('ai_score'),
+    aiFeedback: text('ai_feedback'),
+    missedPoints: jsonb('missed_points').default([]),
+    understandingLevel: text('understanding_level'),
 }, (t) => ({
     unq: unique().on(t.knowledgeCheckId, t.dailyProgressId)
 }))

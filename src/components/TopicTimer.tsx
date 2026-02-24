@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, Square, Timer, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { syncTimerState } from '@/lib/actions/day'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -22,6 +23,18 @@ export interface TimerResult {
 type TimerState = 'idle' | 'running' | 'paused'
 
 interface TopicTimerProps {
+    /** Unique ID for the item */
+    id: string
+    /** Item type */
+    type: 'task' | 'topic'
+    /** Current day progress ID */
+    progressId: string
+    /** Initial status from server */
+    initialStatus?: TimerState
+    /** Initial sessions from server */
+    initialSessions?: TimerSession[]
+    /** Initial startedAt from server */
+    initialStartedAt?: Date | null
     /** Already-stored seconds (gross) from DB — shown as baseline on idle */
     storedGross?: number
     /** Already-stored seconds (net) from DB — shown as baseline on idle */
@@ -54,22 +67,43 @@ function formatHuman(totalSeconds: number): string {
 
 // ── Timer Component ───────────────────────────────────────────────────────────
 
-export default function TopicTimer({ storedGross = 0, storedNet = 0, onStop, label, compact = false }: TopicTimerProps) {
-    const [state, setState] = useState<TimerState>('idle')
+export default function TopicTimer({
+    id,
+    type,
+    progressId,
+    initialStatus = 'idle',
+    initialSessions = [],
+    initialStartedAt = null,
+    storedGross = 0,
+    storedNet = 0,
+    onStop,
+    label,
+    compact = false
+}: TopicTimerProps) {
+    const [state, setState] = useState<TimerState>(initialStatus)
     const [displayGross, setDisplayGross] = useState(0)   // wall-clock ticking
     const [displayNet, setDisplayNet] = useState(0)       // active-only ticking
+    const [isSyncing, setIsSyncing] = useState(false)
+
+    const storedGrossRef = useRef<number>(storedGross)
+    const storedNetRef = useRef<number>(storedNet)
 
     // Refs — used for accurate computation without stale closures
-    const startedAtRef = useRef<Date | null>(null)
-    const sessionsRef = useRef<TimerSession[]>([])
+    const startedAtRef = useRef<Date | null>(initialStartedAt ? new Date(initialStartedAt) : null)
+    const sessionsRef = useRef<TimerSession[]>(initialSessions)
     const segmentStartRef = useRef<Date | null>(null)  // start of current running segment
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-    // Tick every second while running
-    const tick = useCallback(() => {
+    const sync = useCallback(async (
+        status: TimerState,
+        override?: {
+            timeSpent?: number
+            timeSpentNet?: number
+            sessions?: TimerSession[]
+        }
+    ) => {
         const now = Date.now()
-        // Gross: time since very first start
-        const gross = startedAtRef.current
+        const sessionGross = startedAtRef.current
             ? Math.floor((now - startedAtRef.current.getTime()) / 1000)
             : 0
         // Net: sum of completed segments + current segment
@@ -79,9 +113,46 @@ export default function TopicTimer({ storedGross = 0, storedNet = 0, onStop, lab
         const currentSegNet = segmentStartRef.current
             ? Math.floor((now - segmentStartRef.current.getTime()) / 1000)
             : 0
-        setDisplayGross(gross)
-        setDisplayNet(completedNet + currentSegNet)
-    }, [])
+
+        const totalGross = storedGrossRef.current + sessionGross
+        const totalNet = storedNetRef.current + completedNet + currentSegNet
+
+        setIsSyncing(true)
+        try {
+            await syncTimerState(type, id, progressId, status, {
+                timeSpent: override?.timeSpent ?? totalGross,
+                timeSpentNet: override?.timeSpentNet ?? totalNet,
+                sessions: override?.sessions ?? sessionsRef.current
+            })
+        } finally {
+            setTimeout(() => setIsSyncing(false), 2000)
+        }
+    }, [id, type, progressId])
+
+    const lastSyncRef = useRef<number>(Date.now())
+
+    // Tick every second while running
+    const tick = useCallback(() => {
+        const now = Date.now()
+        const sessionGross = startedAtRef.current
+            ? Math.floor((now - startedAtRef.current.getTime()) / 1000)
+            : 0
+        // Net: sum of completed segments + current segment
+        const completedNet = sessionsRef.current.reduce((acc, s) => {
+            return acc + Math.floor((new Date(s.end).getTime() - new Date(s.start).getTime()) / 1000)
+        }, 0)
+        const currentSegNet = segmentStartRef.current
+            ? Math.floor((now - segmentStartRef.current.getTime()) / 1000)
+            : 0
+        setDisplayGross(storedGrossRef.current + sessionGross)
+        setDisplayNet(storedNetRef.current + completedNet + currentSegNet)
+
+        // Heartbeat: sync every 30 seconds
+        if (now - lastSyncRef.current > 30000) {
+            sync('running')
+            lastSyncRef.current = now
+        }
+    }, [sync])
 
     const startInterval = useCallback(() => {
         if (intervalRef.current) clearInterval(intervalRef.current)
@@ -98,6 +169,21 @@ export default function TopicTimer({ storedGross = 0, storedNet = 0, onStop, lab
     // Cleanup on unmount
     useEffect(() => () => stopInterval(), [stopInterval])
 
+    // Resume from server session if needed
+    useEffect(() => {
+        storedGrossRef.current = storedGross
+        storedNetRef.current = storedNet
+
+        if (initialStatus === 'running') {
+            // Re-center display before starting interval
+            tick()
+            segmentStartRef.current = new Date()
+            startInterval()
+        } else if (initialStatus === 'paused') {
+            tick() // Initial calculation for paused state
+        }
+    }, [initialStatus, startInterval, tick, storedGross, storedNet])
+
     const handleStart = () => {
         const now = new Date()
         startedAtRef.current = now
@@ -105,6 +191,7 @@ export default function TopicTimer({ storedGross = 0, storedNet = 0, onStop, lab
         sessionsRef.current = []
         setState('running')
         startInterval()
+        sync('running')
     }
 
     const handlePause = () => {
@@ -119,12 +206,14 @@ export default function TopicTimer({ storedGross = 0, storedNet = 0, onStop, lab
         }
         setState('paused')
         stopInterval()
+        sync('paused')
     }
 
     const handleResume = () => {
         segmentStartRef.current = new Date()
         setState('running')
         startInterval()
+        sync('running')
     }
 
     const handleStop = () => {
@@ -137,19 +226,28 @@ export default function TopicTimer({ storedGross = 0, storedNet = 0, onStop, lab
             segmentStartRef.current = null
         }
 
-        const grossSeconds = startedAtRef.current
+        const sessionGrossSeconds = startedAtRef.current
             ? Math.floor((now.getTime() - startedAtRef.current.getTime()) / 1000)
             : 0
-        const netSeconds = sessions.reduce((acc, s) => {
+        const sessionNetSeconds = sessions.reduce((acc, s) => {
             return acc + Math.floor((new Date(s.end).getTime() - new Date(s.start).getTime()) / 1000)
         }, 0)
 
+        const totalGrossSeconds = storedGrossRef.current + sessionGrossSeconds
+        const totalNetSeconds = storedNetRef.current + sessionNetSeconds
+
         const result: TimerResult = {
-            grossSeconds,
-            netSeconds,
+            grossSeconds: sessionGrossSeconds,
+            netSeconds: sessionNetSeconds,
             startedAt: startedAtRef.current ?? now,
             sessions,
         }
+
+        sync('idle', {
+            timeSpent: totalGrossSeconds,
+            timeSpentNet: totalNetSeconds,
+            sessions,
+        })
 
         // Reset local state
         sessionsRef.current = []
@@ -236,19 +334,24 @@ export default function TopicTimer({ storedGross = 0, storedNet = 0, onStop, lab
                         'w-5 h-5 rounded-full flex items-center justify-center',
                         isRunning ? 'bg-emerald-500' : isPaused ? 'bg-amber-500' : 'bg-white/10'
                     )}>
-                        {isRunning
-                            ? <span className="animate-pulse w-1.5 h-1.5 rounded-full bg-white" />
-                            : isPaused
-                                ? <Pause className="w-2.5 h-2.5 text-white fill-current" />
-                                : <Timer className="w-2.5 h-2.5 text-text-secondary" />
-                        }
+                        {isSyncing ? (
+                            <div className="w-2.5 h-2.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                        ) : isRunning ? (
+                            <span className="animate-pulse w-1.5 h-1.5 rounded-full bg-white" />
+                        ) : isPaused ? (
+                            <Pause className="w-2.5 h-2.5 text-white fill-current" />
+                        ) : (
+                            <Timer className="w-2.5 h-2.5 text-text-secondary" />
+                        )}
                     </div>
-                    <span className={cn(
-                        'text-[9px] font-bold uppercase tracking-widest',
-                        isRunning ? 'text-emerald-400' : isPaused ? 'text-amber-400' : 'text-text-secondary/50'
-                    )}>
-                        {isRunning ? 'Tracking...' : isPaused ? `Paused (${pauseCount} pause${pauseCount !== 1 ? 's' : ''})` : 'Timer'}
-                    </span>
+                    <div className="flex flex-col">
+                        <span className={cn(
+                            'text-[9px] font-bold uppercase tracking-widest',
+                            isRunning ? 'text-emerald-400' : isPaused ? 'text-amber-400' : 'text-text-secondary/50'
+                        )}>
+                            {isSyncing ? 'Syncing...' : isRunning ? 'Tracking...' : isPaused ? `Paused (${pauseCount} pause${pauseCount !== 1 ? 's' : ''})` : 'Timer'}
+                        </span>
+                    </div>
                 </div>
                 {label && <span className="text-[9px] text-text-secondary/40 font-bold truncate max-w-[120px]">{label}</span>}
             </div>

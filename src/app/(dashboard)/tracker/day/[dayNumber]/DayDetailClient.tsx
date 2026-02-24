@@ -15,7 +15,8 @@ import {
     Loader2,
     Search,
     MessageCircleQuestion,
-    Timer
+    Timer,
+    Zap
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -138,6 +139,34 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
         }
     }
 
+    const [aiFeedback, setAiFeedback] = useState<Record<string, any>>({})
+
+    const handleAICheck = async (kcId: string) => {
+        if (!data) return
+        const result = kcAnswers[kcId]
+        if (!result?.notes) {
+            toast.error("Write your answer first!")
+            return
+        }
+
+        setSaving(true)
+        try {
+            const kcResp = await updateKCResult(kcId, data.progress.id, result.passed, result.notes, result.notes)
+            if (kcResp?.feedback) {
+                setAiFeedback(prev => ({ ...prev, [kcId]: kcResp.feedback }))
+                toast.success("AI Evaluation Complete")
+            }
+            if (kcResp?.unlockedMilestones) {
+                celebrateMilestones(kcResp.unlockedMilestones)
+            }
+            router.refresh()
+        } catch (err) {
+            toast.error("AI Evaluation failed. The forge is busy.")
+        } finally {
+            setSaving(false)
+        }
+    }
+
     const handleSaveProgress = async () => {
         if (!data) return
         setSaving(true)
@@ -152,6 +181,8 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
             }
 
             for (const [kcId, result] of Object.entries(kcAnswers)) {
+                // If it already has AI feedback, we might not want to re-run it unless the notes changed.
+                // For now, let's just save the manual pass/notes.
                 const kcResp = await updateKCResult(kcId, data.progress.id, (result as any).passed, (result as any).notes)
                 if (kcResp?.unlockedMilestones) {
                     celebrateMilestones((kcResp as any).unlockedMilestones)
@@ -430,6 +461,12 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
 
                                             {!item.completed && (
                                                 <TopicTimer
+                                                    id={item.id}
+                                                    type={item.itemType}
+                                                    progressId={data.progress.id}
+                                                    initialStatus={item.timerStatus}
+                                                    initialSessions={item.timerSessions}
+                                                    initialStartedAt={item.startedAt}
                                                     compact
                                                     storedGross={item.timeSpent ?? 0}
                                                     storedNet={item.timeSpentNet ?? 0}
@@ -492,20 +529,82 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
                                                 placeholder="Explain in your own words..."
                                                 className="w-full bg-surface border border-border-subtle rounded-xl p-4 text-sm text-text-primary outline-none focus:border-secondary transition-all h-24 italic"
                                             />
-                                            <div className="flex items-center gap-4">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <div className="flex items-center gap-4">
+                                                    <button
+                                                        onClick={() => setKcAnswers({ ...kcAnswers, [kc.id]: { ...kcAnswers[kc.id], passed: true } })}
+                                                        className={cn("px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all", kcAnswers[kc.id]?.passed ? "bg-success text-white" : "bg-white/5 text-text-secondary")}
+                                                    >
+                                                        Passed
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setKcAnswers({ ...kcAnswers, [kc.id]: { ...kcAnswers[kc.id], passed: false } })}
+                                                        className={cn("px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all", !kcAnswers[kc.id]?.passed ? "bg-primary text-white" : "bg-white/5 text-text-secondary")}
+                                                    >
+                                                        Needs Review
+                                                    </button>
+                                                </div>
                                                 <button
-                                                    onClick={() => setKcAnswers({ ...kcAnswers, [kc.id]: { ...kcAnswers[kc.id], passed: true } })}
-                                                    className={cn("px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all", kcAnswers[kc.id]?.passed ? "bg-success text-white" : "bg-white/5 text-text-secondary")}
+                                                    onClick={() => handleAICheck(kc.id)}
+                                                    disabled={saving}
+                                                    className="px-4 py-2 rounded-lg bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 text-violet-400 text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 group"
                                                 >
-                                                    Passed
-                                                </button>
-                                                <button
-                                                    onClick={() => setKcAnswers({ ...kcAnswers, [kc.id]: { ...kcAnswers[kc.id], passed: false } })}
-                                                    className={cn("px-4 py-2 rounded-lg text-[10px] font-bold uppercase transition-all", !kcAnswers[kc.id]?.passed ? "bg-primary text-white" : "bg-white/5 text-text-secondary")}
-                                                >
-                                                    Needs Review
+                                                    <Zap className={cn("w-3 h-3 group-hover:scale-125 transition-transform", saving && "animate-pulse")} />
+                                                    AI Evaluate
                                                 </button>
                                             </div>
+
+                                            {/* AI Feedback Display */}
+                                            {(kc.result?.aiFeedback || aiFeedback[kc.id]) && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 10 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    className="mt-6 p-6 rounded-2xl bg-violet-500/5 border border-violet-500/10 space-y-4"
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-2 h-2 rounded-full bg-violet-500 animate-pulse" />
+                                                            <span className="text-[10px] font-black text-violet-400 uppercase tracking-widest">Forge AI Evaluation</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[10px] font-bold text-text-secondary uppercase">Score:</span>
+                                                            <span className={cn(
+                                                                "text-xl font-black font-syne",
+                                                                (kc.result?.aiScore || 0) >= 80 ? "text-success" : (kc.result?.aiScore || 0) >= 60 ? "text-secondary" : "text-primary"
+                                                            )}>
+                                                                {kc.result?.aiScore || 0}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="space-y-3">
+                                                            <h5 className="text-[10px] font-bold text-text-primary uppercase tracking-widest border-b border-border-subtle pb-1">Understanding Level</h5>
+                                                            <span className="inline-block px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-violet-300">
+                                                                {kc.result?.understandingLevel || 'Analyzing...'}
+                                                            </span>
+                                                        </div>
+                                                        <div className="space-y-3">
+                                                            <h5 className="text-[10px] font-bold text-text-primary uppercase tracking-widest border-b border-border-subtle pb-1">Missed Points</h5>
+                                                            <ul className="space-y-1">
+                                                                {(kc.result?.missedPoints || []).map((point: string, i: number) => (
+                                                                    <li key={i} className="text-[11px] text-primary/80 flex gap-2">
+                                                                        <span>•</span>
+                                                                        <span>{point}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <h5 className="text-[10px] font-bold text-text-primary uppercase tracking-widest border-b border-border-subtle pb-1">AI Mentor Feedback</h5>
+                                                        <p className="text-sm text-text-secondary leading-relaxed italic font-lora whitespace-pre-wrap">
+                                                            {kc.result?.aiFeedback || aiFeedback[kc.id]}
+                                                        </p>
+                                                    </div>
+                                                </motion.div>
+                                            )}
                                         </div>
                                     ))}
                                 </div>

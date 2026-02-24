@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
-import { eq, desc, not, and } from 'drizzle-orm'
+import { eq, desc, not, and, isNull } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 
 import { requireUser } from '../auth-utils'
@@ -12,7 +12,10 @@ export async function listRoadmaps() {
     return await db
         .select()
         .from(schema.roadmapPrograms)
-        .where(eq(schema.roadmapPrograms.userId, user.id))
+        .where(and(
+            eq(schema.roadmapPrograms.userId, user.id),
+            isNull(schema.roadmapPrograms.deletedAt)
+        ))
         .orderBy(desc(schema.roadmapPrograms.createdAt))
 }
 
@@ -48,10 +51,12 @@ export async function setActiveRoadmap(id: string) {
 export async function deleteRoadmap(id: string) {
     const user = await requireUser()
 
-    // Cascading delete should handle sub-items if set up in SQL, 
-    // but Drizzle sometimes needs explicit deletes or cascading relations.
-    // Fixed: Only delete for current user
-    await db.delete(schema.roadmapPrograms)
+    // Soft Delete: Set deletedAt instead of actual deletion to protect data
+    await db.update(schema.roadmapPrograms)
+        .set({
+            deletedAt: new Date(),
+            isActive: false // Also deactivate it if it was active
+        })
         .where(and(
             eq(schema.roadmapPrograms.id, id),
             eq(schema.roadmapPrograms.userId, user.id)

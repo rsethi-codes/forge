@@ -11,6 +11,9 @@ import { analytics } from '@/lib/analytics'
 import { requireUser } from '@/lib/auth-utils'
 import { postToLinkedIn, generateBuildCompletionPost } from '@/lib/integrations/linkedin'
 import { adjustCoins } from './rewards'
+import { groq } from '@ai-sdk/groq'
+import { generateObject } from 'ai'
+import { z } from 'zod'
 
 export async function getDayDetail(dayNumber: number | string) {
     const user = await requireUser()
@@ -107,6 +110,7 @@ export async function getDayDetail(dayNumber: number | string) {
                 timeSpentNet: comp?.timeSpentNet || 0, // net seconds
                 startedAt: comp?.startedAt || null,
                 timerSessions: comp?.timerSessions || [],
+                timerStatus: comp?.timerStatus || 'idle',
                 notes: comp?.notes || ''
             }
         }),
@@ -123,6 +127,7 @@ export async function getDayDetail(dayNumber: number | string) {
                 timeSpentNet: comp?.timeSpentNet || 0, // net seconds
                 startedAt: comp?.startedAt || null,
                 timerSessions: comp?.timerSessions || [],
+                timerStatus: comp?.timerStatus || 'idle',
                 notes: comp?.notes || '',
                 subtopics: subtopics.filter((s: any) => s.topicId === t.id)
             }
@@ -396,7 +401,70 @@ export async function updateDayProgress(progressId: string, data: { status?: any
     return { success: true, unlockedMilestones }
 }
 
-export async function updateKCResult(kcId: string, progressId: string, passed: boolean, notes: string) {
+
+export async function updateKCResult(kcId: string, progressId: string, passed: boolean, notes: string, answer?: string) {
+    const user = await requireUser()
+
+    // 1. Get Context for AI Evaluation if answer provided
+    let aiUpdate = {}
+    if (answer) {
+        const check = await db.query.knowledgeChecks.findFirst({
+            where: eq(schema.knowledgeChecks.id, kcId),
+            with: {
+                day: {
+                    with: {
+                        topics: {
+                            with: {
+                                subtopics: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
+
+        if (check) {
+            const { day } = check as any;
+            const { object: feedback } = await generateObject({
+                model: groq('llama-3.3-70b-versatile'),
+                schema: z.object({
+                    score: z.number().min(0).max(100),
+                    missedPoints: z.array(z.string()),
+                    understandingLevel: z.enum(['Novice', 'Competent', 'Operational', 'Expert']),
+                    feedback: z.string(),
+                    mentorComment: z.string()
+                }),
+                system: `You are the Forge AI Evaluator. You assess a user's comprehension of a specific technical topic.
+                Be brutal but constructive. Reward depth and architectural understanding. 
+                Penalize surface-level answers that don't address the "Why" or "Scale".`,
+                prompt: `
+                Context (Day): ${day.title}
+                Focus: ${day.focus}
+                Detailed Topics: ${day.topics.map((t: any) => t.title + ': ' + t.subtopics.map((s: any) => s.content).join(', ')).join('; ')}
+                
+                Question: ${check.questionText}
+                User Answer: "${answer}"
+
+                Analyze the answer and provide:
+                1. A score from 0-100.
+                2. A list of specific technical points or concepts they missed.
+                3. Their understanding level.
+                4. Detailed feedback explaining the score.
+                5. A personal, high-agency mentor comment.
+                `
+            })
+
+            aiUpdate = {
+                aiScore: feedback.score,
+                aiFeedback: feedback.feedback + "\n\n" + feedback.mentorComment,
+                missedPoints: feedback.missedPoints,
+                understandingLevel: feedback.understandingLevel,
+                passed: feedback.score >= 70, // Auto-pass threshold
+                answer
+            }
+        }
+    }
+
     await db
         .insert(schema.knowledgeCheckResults)
         .values({
@@ -404,11 +472,17 @@ export async function updateKCResult(kcId: string, progressId: string, passed: b
             dailyProgressId: progressId,
             attempted: true,
             passed,
-            notes
+            notes,
+            ...aiUpdate
         })
         .onConflictDoUpdate({
             target: [schema.knowledgeCheckResults.knowledgeCheckId, schema.knowledgeCheckResults.dailyProgressId],
-            set: { passed, notes, attempted: true }
+            set: {
+                passed: (aiUpdate as any).passed ?? passed,
+                notes,
+                attempted: true,
+                ...aiUpdate
+            }
         })
 
     const [prog] = await db
@@ -421,11 +495,52 @@ export async function updateKCResult(kcId: string, progressId: string, passed: b
     if (prog) {
         await calculateDailyDiscipline(prog.date, prog.userId)
         unlockedMilestones = await checkAndUnlockMilestones(prog.userId)
-        analytics.trackKCAttempted(kcId, passed)
-        if (passed) {
+        analytics.trackKCAttempted(kcId, (aiUpdate as any).passed ?? passed)
+        if ((aiUpdate as any).passed ?? passed) {
             await adjustCoins(prog.userId, 'kc_pass')
         }
     }
 
-    return { success: true, unlockedMilestones }
+    return { success: true, unlockedMilestones, feedback: (aiUpdate as any).aiFeedback }
+}
+
+export async function syncTimerState(
+    type: 'task' | 'topic',
+    id: string,
+    progressId: string,
+    status: 'idle' | 'running' | 'paused',
+    data: {
+        timeSpent?: number
+        timeSpentNet?: number
+        sessions?: any[]
+    }
+) {
+    const table: any = type === 'task' ? schema.taskCompletions : schema.topicCompletions
+    const idField = type === 'task' ? 'taskId' : 'topicId'
+
+    await db
+        .insert(table)
+        .values({
+            [idField]: id,
+            dailyProgressId: progressId,
+            timerStatus: status,
+            lastTimerPulse: new Date(),
+            timeSpent: data.timeSpent ?? 0,
+            timeSpentNet: data.timeSpentNet ?? 0,
+            timerSessions: data.sessions ?? []
+        })
+        .onConflictDoUpdate({
+            target: [table[idField], table.dailyProgressId],
+            set: {
+                timerStatus: status,
+                lastTimerPulse: new Date(),
+                ...(data.timeSpent !== undefined && { timeSpent: data.timeSpent }),
+                ...(data.timeSpentNet !== undefined && { timeSpentNet: data.timeSpentNet }),
+                ...(data.sessions !== undefined && { timerSessions: data.sessions })
+            }
+        })
+
+    if (status === 'idle') {
+        await recalcDayHours(progressId)
+    }
 }
