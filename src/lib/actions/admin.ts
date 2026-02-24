@@ -82,13 +82,11 @@ export async function getSecurityOverview() {
         DATABASE_URL: !!process.env.DATABASE_URL,
         ADMIN_PASSWORD: !!process.env.ADMIN_PASSWORD,
         ALLOWED_USER_EMAIL: !!process.env.ALLOWED_USER_EMAIL,
-        FORGE_DEMO_MODE: process.env.FORGE_DEMO_MODE === 'true',
     }
 
     return {
         required,
         allowedUserEmail: process.env.ALLOWED_USER_EMAIL || null,
-        demoMode: process.env.FORGE_DEMO_MODE === 'true',
     }
 }
 

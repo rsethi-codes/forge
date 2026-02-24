@@ -100,15 +100,7 @@ export default function AdminSecurityPage() {
                         <div className="font-mono text-sm">{data?.allowedUserEmail || 'NOT SET'}</div>
                     </div>
 
-                    <div className="bg-[#0c0c0c] border border-white/5 rounded-[2.5rem] p-8 space-y-4">
-                        <div className="text-[10px] font-black uppercase tracking-widest text-text-secondary">Demo Mode</div>
-                        <div className={cn(
-                            'text-[10px] font-black uppercase tracking-widest',
-                            data?.demoMode ? 'text-amber-400' : 'text-success'
-                        )}>
-                            {data?.demoMode ? 'ENABLED (Local only recommended)' : 'DISABLED'}
-                        </div>
-                    </div>
+
                 </div>
             </div>
         </div>

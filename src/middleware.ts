@@ -2,22 +2,9 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-    const isDemoMode = process.env.FORGE_DEMO_MODE === 'true'
     const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth')
     const isCallback = request.nextUrl.pathname.startsWith('/auth/callback')
     const isPublicPage = request.nextUrl.pathname.startsWith('/blog') || request.nextUrl.pathname === '/' || request.nextUrl.pathname.startsWith('/profile')
-
-    if (isDemoMode) {
-        // Only redirect login, let callback pass so it can potentially establish a real session if needed
-        if (isAuthPage && !isCallback) {
-            return NextResponse.redirect(new URL('/dashboard', request.url))
-        }
-        return NextResponse.next({
-            request: {
-                headers: request.headers,
-            },
-        })
-    }
 
     let response = NextResponse.next({
         request: {
