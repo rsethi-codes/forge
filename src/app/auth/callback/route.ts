@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get('code')
     const next = requestUrl.searchParams.get('next') ?? '/dashboard'
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
             {
                 cookies: {
                     getAll() {
-                        return Array.from(request.headers.entries()).map(([name, value]) => ({ name, value }))
+                        return request.cookies.getAll()
                     },
                     setAll(cookiesToSet: { name: string, value: string, options: any }[]) {
                         cookiesToSet.forEach(({ name, value, options }) =>

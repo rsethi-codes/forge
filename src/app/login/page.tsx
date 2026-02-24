@@ -155,7 +155,7 @@ function LoginContent() {
                             <Loader2 className="w-5 h-5 animate-spin" />
                         ) : (
                             <>
-                                {isAdminMode ? 'Login as Admin' : 'Send Magic Link'}
+                                {isAdminMode ? 'Login as Admin' : (password ? 'Login with Password' : 'Send Magic Link')}
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </>
                         )}
