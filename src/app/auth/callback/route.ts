@@ -6,15 +6,12 @@ export async function GET(request: NextRequest) {
     const code = requestUrl.searchParams.get('code')
     const next = requestUrl.searchParams.get('next') ?? '/dashboard'
 
-    console.log('--- Auth Callback Start ---')
-    console.log('Origin:', requestUrl.origin)
-    console.log('Next path:', next)
+    console.log('[AUTH_CALLBACK] Firing. Code present:', !!code)
 
     if (code) {
-        // Create the redirect response first
-        const response = NextResponse.redirect(new URL(next, requestUrl.origin))
+        // Prepare the response
+        const response = NextResponse.redirect(new URL(next, request.url))
 
-        // Create a dedicated Supabase client that writes directly to THAT response
         const supabase = createServerClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -32,21 +29,22 @@ export async function GET(request: NextRequest) {
             }
         )
 
-        console.log('Exchanging code for session...')
+        console.log('[AUTH_CALLBACK] Attempting code exchange...')
         const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
         if (!error) {
-            console.log('Success! User ID:', data.user?.id)
+            console.log('[AUTH_CALLBACK] Success. User:', data.user?.email)
+            // Force the response to have a long-lived session cookie for Vercel
             if (data.session) {
-                console.log('Session established. Redirecting with cookies.')
+                response.cookies.set('sb-access-token', data.session.access_token, { path: '/', sameSite: 'lax', secure: true })
             }
             return response
         }
 
-        console.error('Auth callback error detail:', error)
+        console.error('[AUTH_CALLBACK] Exchange error:', error.message)
         return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}`, request.url))
     }
 
-    console.warn('No code found in search params.')
+    console.warn('[AUTH_CALLBACK] No code found.')
     return NextResponse.redirect(new URL('/login?error=No+authentication+code+found', request.url))
 }
