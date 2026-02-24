@@ -6,12 +6,14 @@ export async function middleware(request: NextRequest) {
     const isCallback = request.nextUrl.pathname.startsWith('/auth/callback')
     const isPublicPage = request.nextUrl.pathname.startsWith('/blog') || request.nextUrl.pathname === '/' || request.nextUrl.pathname.startsWith('/profile')
 
+    // 1. Create an initial response
     let response = NextResponse.next({
         request: {
             headers: request.headers,
         },
     })
 
+    // 2. Initialize Supabase with the response-aware cookie handler
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -33,6 +35,7 @@ export async function middleware(request: NextRequest) {
         }
     )
 
+    // 3. Get User and Admin Status
     const adminToken = request.cookies.get('forge_admin_token')?.value
     const adminPassword = process.env.ADMIN_PASSWORD
     const adminSalt = process.env.ADMIN_SALT || 'forge-default-salt'
@@ -50,46 +53,49 @@ export async function middleware(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Admin Bypass for dev
+    // 4. Helper to return a response with cookies preserved
+    const redirectWithCookies = (url: string) => {
+        const redirectResponse = NextResponse.redirect(new URL(url, request.url))
+        // IMPORTANT: Copy all cookies from the 'response' object we've been building
+        // to the new redirect response. This fixes the session persistence bug.
+        response.cookies.getAll().forEach((cookie) => {
+            redirectResponse.cookies.set(cookie.name, cookie.value, {
+                path: cookie.path,
+                domain: cookie.domain,
+                maxAge: cookie.maxAge,
+                secure: cookie.secure,
+                sameSite: cookie.sameSite,
+            })
+        })
+        return redirectResponse
+    }
+
+    // 5. Access Control Logic
     if (isDevAuthorized && !isPublicPage && !isAuthPage) {
         return response
     }
 
-    // Redirect to login if not authenticated and trying to access protected route
     if (!user && !isAuthPage && !isPublicPage) {
-        return NextResponse.redirect(new URL('/login', request.url))
+        return redirectWithCookies('/login')
     }
 
-    // Single User Lock: Only allow a specific email
-    const ALLOWED_EMAIL = process.env.ALLOWED_USER_EMAIL
+    const ALLOWED_EMAIL = process.env.ALLOWED_USER_EMAIL?.toLowerCase()
 
-    if (user && ALLOWED_EMAIL && user.email !== ALLOWED_EMAIL && !isPublicPage && !isDevAuthorized) {
-        // Don't sign out if we are already on the way to the login page with an error
+    if (user && ALLOWED_EMAIL && user.email?.toLowerCase() !== ALLOWED_EMAIL && !isPublicPage && !isDevAuthorized) {
         if (request.nextUrl.searchParams.get('error') === 'unauthorized') {
             return response
         }
-        // If authenticated but not the owner, sign out and block
         await supabase.auth.signOut()
-        return NextResponse.redirect(new URL(`/login?error=unauthorized&email=${user.email}`, request.url))
+        return redirectWithCookies(`/login?error=unauthorized&email=${user.email}`)
     }
 
-    // Redirect to dashboard if (authenticated OR dev-authorized) and trying to access login (but NOT the callback)
     if ((user || isDevAuthorized) && isAuthPage && !isCallback) {
-        return NextResponse.redirect(new URL('/dashboard', request.url))
+        return redirectWithCookies('/dashboard')
     }
 
     return response
 }
 
 export const config = {
-    matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - icon.ico (favicon file)
-         * Feel free to modify this pattern to include more paths.
-         */
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-    ],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }

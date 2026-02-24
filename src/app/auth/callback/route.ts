@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
 
 export async function GET(request: Request) {
     const requestUrl = new URL(request.url)
@@ -11,23 +11,36 @@ export async function GET(request: Request) {
     console.log('Next path:', next)
 
     if (code) {
-        const supabase = createClient()
+        // Create the redirect response first
+        const response = NextResponse.redirect(new URL(next, requestUrl.origin))
+
+        // Create a dedicated Supabase client that writes directly to THAT response
+        const supabase = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    getAll() {
+                        return Array.from(request.headers.entries()).map(([name, value]) => ({ name, value }))
+                    },
+                    setAll(cookiesToSet: { name: string, value: string, options: any }[]) {
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            response.cookies.set(name, value, options)
+                        )
+                    },
+                },
+            }
+        )
+
         console.log('Exchanging code for session...')
         const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
         if (!error) {
             console.log('Success! User ID:', data.user?.id)
-            console.log('Email:', data.user?.email)
-
-            // Log if session is specifically returned
             if (data.session) {
-                console.log('Session established. Redirecting to:', next)
-            } else {
-                console.warn('Code exchanged but NO session returned.')
+                console.log('Session established. Redirecting with cookies.')
             }
-
-            const redirectUrl = new URL(next, requestUrl.origin)
-            return NextResponse.redirect(redirectUrl)
+            return response
         }
 
         console.error('Auth callback error detail:', error)

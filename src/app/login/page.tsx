@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Mail, Loader2, Shield, AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Mail, Loader2, Shield, AlertCircle, CheckCircle2, Lock } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { loginAdmin } from '@/lib/actions/auth'
@@ -45,6 +45,23 @@ function LoginContent() {
         }
 
         const supabase = createClient()
+
+        // Handle Password Login if a password is provided
+        if (password && !isAdminMode) {
+            const { error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            })
+            if (authError) {
+                setError(authError.message)
+                setIsLoading(false)
+            } else {
+                window.location.href = '/dashboard'
+            }
+            return
+        }
+
+        // Handle Magic Link (OTP) if no password
         const { error: authError } = await supabase.auth.signInWithOtp({
             email,
             options: {
@@ -88,57 +105,46 @@ function LoginContent() {
                         </button>
                     </div>
 
-                    {!isAdminMode ? (
+                    <div className="space-y-4">
                         <div className="space-y-2">
                             <label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-text-secondary ml-1">
-                                Professional Email
+                                {isAdminMode ? 'Admin ID' : 'Professional Email'}
                             </label>
                             <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                {isAdminMode ? (
+                                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                ) : (
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                )}
                                 <input
                                     id="email"
-                                    type="email"
-                                    placeholder="be@focused.com"
+                                    type={isAdminMode ? "text" : "email"}
+                                    placeholder={isAdminMode ? "root" : "be@focused.com"}
                                     required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    autoComplete="email"
+                                    value={isAdminMode ? adminId : email}
+                                    onChange={(e) => isAdminMode ? setAdminId(e.target.value) : setEmail(e.target.value)}
                                     className="w-full bg-[#0c0c0c] border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-primary placeholder:text-text-secondary outline-none focus:border-primary transition-all font-medium"
                                 />
                             </div>
                         </div>
-                    ) : (
-                        <div className="space-y-4 animate-in fade-in slide-in-from-right-2">
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary ml-1">Admin ID</label>
-                                <div className="relative">
-                                    <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
-                                    <input
-                                        type="text"
-                                        value={adminId}
-                                        onChange={(e) => setAdminId(e.target.value)}
-                                        autoComplete="off"
-                                        className="w-full bg-[#0c0c0c] border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-primary font-mono outline-none focus:border-primary transition-all"
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold uppercase tracking-widest text-text-secondary ml-1">Master Password</label>
-                                <div className="relative">
-                                    <Loader2 className={cn("absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary", isLoading && "animate-spin")} />
-                                    <input
-                                        type="password"
-                                        required
-                                        placeholder="••••••••"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        autoComplete="off"
-                                        className="w-full bg-[#0c0c0c] border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-primary outline-none focus:border-primary transition-all font-medium"
-                                    />
-                                </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase tracking-widest text-text-secondary ml-1">
+                                Password {!isAdminMode && <span className="text-[9px] lowercase opacity-50">(optional for magic link)</span>}
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+                                <input
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    autoComplete="current-password"
+                                    className="w-full bg-[#0c0c0c] border border-border-subtle rounded-2xl py-4 pl-12 pr-4 text-text-primary outline-none focus:border-primary transition-all font-medium"
+                                />
                             </div>
                         </div>
-                    )}
+                    </div>
 
                     <button
                         type="submit"
