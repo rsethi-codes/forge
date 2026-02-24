@@ -51,7 +51,7 @@ export const metadata: Metadata = {
 
 import ForgeHUD from "@/components/ForgeHUD";
 import QueryProvider from "@/components/providers/QueryProvider";
-
+import { TimerBackupRecovery } from "@/components/TimerBackupRecovery";
 import { Toaster } from 'react-hot-toast'
 
 export default function RootLayout({
@@ -65,6 +65,7 @@ export default function RootLayout({
                 <QueryProvider>
                     {children}
                     <ForgeHUD />
+                    <TimerBackupRecovery />
                     <Toaster
                         position="top-right"
                         toastOptions={{

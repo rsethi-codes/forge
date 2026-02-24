@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, Pause, Square, Timer, Clock } from 'lucide-react'
+import { Play, Pause, Square, Timer, Clock, CloudOff, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { syncTimerState } from '@/lib/actions/day'
 
@@ -21,6 +21,7 @@ export interface TimerResult {
 }
 
 type TimerState = 'idle' | 'running' | 'paused'
+type SyncStatus = 'idle' | 'syncing' | 'saved' | 'error'
 
 interface TopicTimerProps {
     /** Unique ID for the item */
@@ -65,6 +66,17 @@ function formatHuman(totalSeconds: number): string {
     return `${m}m`
 }
 
+/** Persist timer state to localStorage as a safety net */
+function saveLocalBackup(key: string, data: object) {
+    try {
+        localStorage.setItem(`forge_timer_${key}`, JSON.stringify({ ...data, savedAt: new Date().toISOString() }))
+    } catch { /* storage full or unavailable */ }
+}
+
+function clearLocalBackup(key: string) {
+    try { localStorage.removeItem(`forge_timer_${key}`) } catch { }
+}
+
 // ── Timer Component ───────────────────────────────────────────────────────────
 
 export default function TopicTimer({
@@ -81,19 +93,27 @@ export default function TopicTimer({
     compact = false
 }: TopicTimerProps) {
     const [state, setState] = useState<TimerState>(initialStatus)
-    const [displayGross, setDisplayGross] = useState(0)   // wall-clock ticking
-    const [displayNet, setDisplayNet] = useState(0)       // active-only ticking
-    const [isSyncing, setIsSyncing] = useState(false)
+    const [displayGross, setDisplayGross] = useState(0)
+    const [displayNet, setDisplayNet] = useState(0)
+    const [syncStatus, setSyncStatus] = useState<SyncStatus>('idle')
+    const [syncError, setSyncError] = useState<string | null>(null)
+    const [retryCount, setRetryCount] = useState(0)
 
     const storedGrossRef = useRef<number>(storedGross)
     const storedNetRef = useRef<number>(storedNet)
 
-    // Refs — used for accurate computation without stale closures
     const startedAtRef = useRef<Date | null>(initialStartedAt ? new Date(initialStartedAt) : null)
     const sessionsRef = useRef<TimerSession[]>(initialSessions)
-    const segmentStartRef = useRef<Date | null>(null)  // start of current running segment
+    const segmentStartRef = useRef<Date | null>(null)
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+    const lastSyncRef = useRef<number>(Date.now())
 
+    const localKey = `${type}_${id}_${progressId}`
+
+    /**
+     * Core sync: saves to DB. On failure, it is kept in localStorage as a backup.
+     * The UI shows error state so user is aware.
+     */
     const sync = useCallback(async (
         status: TimerState,
         override?: {
@@ -106,7 +126,6 @@ export default function TopicTimer({
         const sessionGross = startedAtRef.current
             ? Math.floor((now - startedAtRef.current.getTime()) / 1000)
             : 0
-        // Net: sum of completed segments + current segment
         const completedNet = sessionsRef.current.reduce((acc, s) => {
             return acc + Math.floor((new Date(s.end).getTime() - new Date(s.start).getTime()) / 1000)
         }, 0)
@@ -116,28 +135,44 @@ export default function TopicTimer({
 
         const totalGross = storedGrossRef.current + sessionGross
         const totalNet = storedNetRef.current + completedNet + currentSegNet
+        const sessions = override?.sessions ?? sessionsRef.current
 
-        setIsSyncing(true)
+        // Always save to localStorage first as a safety net
+        saveLocalBackup(localKey, {
+            status,
+            timeSpent: override?.timeSpent ?? totalGross,
+            timeSpentNet: override?.timeSpentNet ?? totalNet,
+            sessions,
+        })
+
+        setSyncStatus('syncing')
+        setSyncError(null)
+
         try {
             await syncTimerState(type, id, progressId, status, {
                 timeSpent: override?.timeSpent ?? totalGross,
                 timeSpentNet: override?.timeSpentNet ?? totalNet,
-                sessions: override?.sessions ?? sessionsRef.current
+                sessions,
             })
-        } finally {
-            setTimeout(() => setIsSyncing(false), 2000)
+            setSyncStatus('saved')
+            // Clear localStorage backup only when server confirms
+            if (status === 'idle') {
+                clearLocalBackup(localKey)
+            }
+            setTimeout(() => setSyncStatus('idle'), 2000)
+        } catch (err: any) {
+            console.error('[Timer] Sync failed — kept in localStorage:', err)
+            setSyncStatus('error')
+            setSyncError(err?.message ?? 'Unknown error')
+            // Don't re-throw: timer keeps running even if server save fails
         }
-    }, [id, type, progressId])
+    }, [id, type, progressId, localKey])
 
-    const lastSyncRef = useRef<number>(Date.now())
-
-    // Tick every second while running
     const tick = useCallback(() => {
         const now = Date.now()
         const sessionGross = startedAtRef.current
             ? Math.floor((now - startedAtRef.current.getTime()) / 1000)
             : 0
-        // Net: sum of completed segments + current segment
         const completedNet = sessionsRef.current.reduce((acc, s) => {
             return acc + Math.floor((new Date(s.end).getTime() - new Date(s.start).getTime()) / 1000)
         }, 0)
@@ -166,21 +201,18 @@ export default function TopicTimer({
         }
     }, [])
 
-    // Cleanup on unmount
     useEffect(() => () => stopInterval(), [stopInterval])
 
-    // Resume from server session if needed
     useEffect(() => {
         storedGrossRef.current = storedGross
         storedNetRef.current = storedNet
 
         if (initialStatus === 'running') {
-            // Re-center display before starting interval
             tick()
             segmentStartRef.current = new Date()
             startInterval()
         } else if (initialStatus === 'paused') {
-            tick() // Initial calculation for paused state
+            tick()
         }
     }, [initialStatus, startInterval, tick, storedGross, storedNet])
 
@@ -192,10 +224,10 @@ export default function TopicTimer({
         setState('running')
         startInterval()
         sync('running')
+        lastSyncRef.current = Date.now()
     }
 
     const handlePause = () => {
-        // close current segment
         const now = new Date()
         if (segmentStartRef.current) {
             sessionsRef.current = [
@@ -214,11 +246,11 @@ export default function TopicTimer({
         setState('running')
         startInterval()
         sync('running')
+        lastSyncRef.current = Date.now()
     }
 
     const handleStop = () => {
         stopInterval()
-        // Close any open segment
         const now = new Date()
         let sessions = [...sessionsRef.current]
         if (segmentStartRef.current) {
@@ -249,7 +281,6 @@ export default function TopicTimer({
             sessions,
         })
 
-        // Reset local state
         sessionsRef.current = []
         startedAtRef.current = null
         setState('idle')
@@ -257,6 +288,12 @@ export default function TopicTimer({
         setDisplayNet(0)
 
         onStop(result)
+    }
+
+    // Manual retry after a sync failure
+    const handleRetry = () => {
+        setRetryCount(c => c + 1)
+        sync(state)
     }
 
     // ── Render ─────────────────────────────────────────────────────────────────
@@ -268,11 +305,27 @@ export default function TopicTimer({
     const pauseCount = sessionsRef.current.length
     const pausedSeconds = displayGross - displayNet
 
+    const SyncIndicator = () => (
+        <span className={cn('text-[8px] font-bold uppercase tracking-widest flex items-center gap-1', {
+            'text-blue-400 animate-pulse': syncStatus === 'syncing',
+            'text-emerald-400': syncStatus === 'saved',
+            'text-red-400': syncStatus === 'error',
+            'text-text-secondary/30': syncStatus === 'idle',
+        })}>
+            {syncStatus === 'syncing' && '↑ Saving...'}
+            {syncStatus === 'saved' && '✓ Saved'}
+            {syncStatus === 'error' && (
+                <button onClick={handleRetry} className="flex items-center gap-0.5 hover:underline" title={syncError ?? ''}>
+                    <CloudOff className="w-2.5 h-2.5" />
+                    Save failed — retry
+                </button>
+            )}
+        </span>
+    )
+
     if (compact) {
-        // Compact row for Action Items
         return (
             <div className="flex items-center gap-2">
-                {/* Time display */}
                 <div className={cn(
                     'font-mono text-sm font-bold tabular-nums min-w-[56px] text-center transition-colors',
                     isRunning ? 'text-emerald-400' : isPaused ? 'text-amber-400' : 'text-text-secondary'
@@ -283,7 +336,6 @@ export default function TopicTimer({
                     }
                 </div>
 
-                {/* Controls */}
                 <div className="flex items-center gap-1">
                     {isIdle && (
                         <button
@@ -314,6 +366,11 @@ export default function TopicTimer({
                             </button>
                         </>
                     )}
+                    {syncStatus === 'error' && (
+                        <button onClick={handleRetry} title="Retry save" className="w-7 h-7 rounded-lg bg-red-500/15 border border-red-500/30 text-red-400 flex items-center justify-center">
+                            <RefreshCw className="w-3 h-3" />
+                        </button>
+                    )}
                 </div>
             </div>
         )
@@ -334,7 +391,7 @@ export default function TopicTimer({
                         'w-5 h-5 rounded-full flex items-center justify-center',
                         isRunning ? 'bg-emerald-500' : isPaused ? 'bg-amber-500' : 'bg-white/10'
                     )}>
-                        {isSyncing ? (
+                        {syncStatus === 'syncing' ? (
                             <div className="w-2.5 h-2.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                         ) : isRunning ? (
                             <span className="animate-pulse w-1.5 h-1.5 rounded-full bg-white" />
@@ -349,12 +406,27 @@ export default function TopicTimer({
                             'text-[9px] font-bold uppercase tracking-widest',
                             isRunning ? 'text-emerald-400' : isPaused ? 'text-amber-400' : 'text-text-secondary/50'
                         )}>
-                            {isSyncing ? 'Syncing...' : isRunning ? 'Tracking...' : isPaused ? `Paused (${pauseCount} pause${pauseCount !== 1 ? 's' : ''})` : 'Timer'}
+                            {isRunning ? 'Tracking...' : isPaused ? `Paused (${pauseCount} pause${pauseCount !== 1 ? 's' : ''})` : 'Timer'}
                         </span>
+                        <SyncIndicator />
                     </div>
                 </div>
                 {label && <span className="text-[9px] text-text-secondary/40 font-bold truncate max-w-[120px]">{label}</span>}
             </div>
+
+            {/* Sync error banner */}
+            {syncStatus === 'error' && (
+                <div className="flex items-center gap-2 p-2 rounded-xl bg-red-500/10 border border-red-500/20">
+                    <CloudOff className="w-4 h-4 text-red-400 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                        <p className="text-[10px] text-red-300 font-bold">Save failed — time is backed up locally</p>
+                        <p className="text-[9px] text-red-400/60 truncate">{syncError}</p>
+                    </div>
+                    <button onClick={handleRetry} className="text-[9px] text-red-400 font-bold hover:underline shrink-0">
+                        Retry
+                    </button>
+                </div>
+            )}
 
             {/* Time displays */}
             {!isIdle && (
