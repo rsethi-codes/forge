@@ -2,25 +2,38 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
-    const { searchParams, origin } = new URL(request.url)
-    const code = searchParams.get('code')
-    // if "next" is in search params, use it as the redirection URL
-    const next = searchParams.get('next') ?? '/dashboard'
+    const requestUrl = new URL(request.url)
+    const code = requestUrl.searchParams.get('code')
+    const next = requestUrl.searchParams.get('next') ?? '/dashboard'
+
+    console.log('--- Auth Callback Start ---')
+    console.log('Origin:', requestUrl.origin)
+    console.log('Next path:', next)
 
     if (code) {
         const supabase = createClient()
-        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        console.log('Exchanging code for session...')
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
         if (!error) {
-            const isLocalEnv = process.env.NODE_ENV === 'development'
-            if (isLocalEnv) {
-                // we can be more lenient in dev
-                return NextResponse.redirect(`${origin}${next}`)
+            console.log('Success! User ID:', data.user?.id)
+            console.log('Email:', data.user?.email)
+
+            // Log if session is specifically returned
+            if (data.session) {
+                console.log('Session established. Redirecting to:', next)
             } else {
-                return NextResponse.redirect(`${origin}${next}`)
+                console.warn('Code exchanged but NO session returned.')
             }
+
+            const redirectUrl = new URL(next, requestUrl.origin)
+            return NextResponse.redirect(redirectUrl)
         }
+
+        console.error('Auth callback error detail:', error)
+        return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(error.message)}`, request.url))
     }
 
-    // return the user to an error page with instructions
-    return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+    console.warn('No code found in search params.')
+    return NextResponse.redirect(new URL('/login?error=No+authentication+code+found', request.url))
 }

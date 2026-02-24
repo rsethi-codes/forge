@@ -15,13 +15,18 @@ export function createClient() {
                 },
                 setAll(cookiesToSet: { name: string, value: string, options: any }[]) {
                     try {
-                        cookiesToSet.forEach(({ name, value, options }: { name: string, value: string, options: any }) =>
-                            cookieStore.set(name, value, options)
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            cookieStore.set(name, value, {
+                                ...options,
+                                // Ensure the cookie is available across the whole site
+                                path: '/',
+                                // Safety for Vercel
+                                sameSite: 'lax',
+                                secure: process.env.NODE_ENV === 'production',
+                            })
                         )
                     } catch {
-                        // The `setAll` method was called from a Server Component.
-                        // This can be ignored if you have middleware refreshing
-                        // user sessions.
+                        // Handled by middleware
                     }
                 },
             },

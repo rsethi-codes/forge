@@ -3,9 +3,13 @@ import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
     const isDemoMode = process.env.FORGE_DEMO_MODE === 'true'
+    const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth')
+    const isCallback = request.nextUrl.pathname.startsWith('/auth/callback')
+    const isPublicPage = request.nextUrl.pathname.startsWith('/blog') || request.nextUrl.pathname === '/' || request.nextUrl.pathname.startsWith('/profile')
+
     if (isDemoMode) {
-        const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth')
-        if (isAuthPage) {
+        // Only redirect login, let callback pass so it can potentially establish a real session if needed
+        if (isAuthPage && !isCallback) {
             return NextResponse.redirect(new URL('/dashboard', request.url))
         }
         return NextResponse.next({
@@ -59,9 +63,6 @@ export async function middleware(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
 
-    const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth')
-    const isPublicPage = request.nextUrl.pathname.startsWith('/blog') || request.nextUrl.pathname === '/' || request.nextUrl.pathname.startsWith('/profile')
-
     // Admin Bypass for dev
     if (isDevAuthorized && !isPublicPage && !isAuthPage) {
         return response
@@ -75,17 +76,18 @@ export async function middleware(request: NextRequest) {
     // Single User Lock: Only allow a specific email
     const ALLOWED_EMAIL = process.env.ALLOWED_USER_EMAIL
 
-    // If in dev and no allowed email is set, we can be more lenient or log a warning
-    // BUT to follow the "Single User" requirement, we should still check if one is defined.
-
     if (user && ALLOWED_EMAIL && user.email !== ALLOWED_EMAIL && !isPublicPage && !isDevAuthorized) {
-        // If authenticated but not the owner, sign out or block
+        // Don't sign out if we are already on the way to the login page with an error
+        if (request.nextUrl.searchParams.get('error') === 'unauthorized') {
+            return response
+        }
+        // If authenticated but not the owner, sign out and block
         await supabase.auth.signOut()
         return NextResponse.redirect(new URL(`/login?error=unauthorized&email=${user.email}`, request.url))
     }
 
-    // Redirect to dashboard if (authenticated OR dev-authorized) and trying to access login
-    if ((user || isDevAuthorized) && isAuthPage) {
+    // Redirect to dashboard if (authenticated OR dev-authorized) and trying to access login (but NOT the callback)
+    if ((user || isDevAuthorized) && isAuthPage && !isCallback) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
