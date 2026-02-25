@@ -210,6 +210,7 @@ export const roadmapMetadata = pgTable('roadmap_metadata', {
     roasts: jsonb('roasts'),
     dsaLanguageDecision: jsonb('dsa_language_decision'),
     specializationDecision: jsonb('specialization_decision'),
+    docsBaseUrl: text('docs_base_url'),
 })
 
 export const resumeGaps = pgTable('resume_gaps', {

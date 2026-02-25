@@ -3,10 +3,10 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Shield, Trash2, Zap, Calendar, ArrowRight, Edit2, Check, X } from 'lucide-react'
+import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, Shield, Trash2, Zap, Calendar, ArrowRight, Edit2, Check, X, BookOpen } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { listRoadmaps, setActiveRoadmap, deleteRoadmap, updateRoadmapTitle } from '@/lib/actions/roadmap-mgmt'
+import { listRoadmaps, setActiveRoadmap, deleteRoadmap, updateRoadmapTitle, updateRoadmapDocsUrl } from '@/lib/actions/roadmap-mgmt'
 import { cn } from '@/lib/utils'
 
 export default function SetupPage() {
@@ -20,6 +20,9 @@ export default function SetupPage() {
     const [editTitle, setEditTitle] = useState('')
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
     const [deletePhrase, setDeletePhrase] = useState('')
+    const [showDocsPrompt, setShowDocsPrompt] = useState(false)
+    const [docsUrl, setDocsUrl] = useState('')
+    const [newProgramId, setNewProgramId] = useState<string | null>(null)
     const router = useRouter()
 
     useEffect(() => {
@@ -56,10 +59,12 @@ export default function SetupPage() {
                 body: formData,
             })
 
+            const data = await response.json()
             if (!response.ok) {
-                const data = await response.json()
                 throw new Error(data.message || 'Failed to parse roadmap')
             }
+
+            setNewProgramId(data.programId)
 
             setProgress({ step: 2, message: 'Analyzing structure & hierarchical mapping...' })
             await new Promise(r => setTimeout(r, 1500)) // Artificial delay for UX
@@ -67,13 +72,24 @@ export default function SetupPage() {
             setProgress({ step: 3, message: 'Seeding database with program data...' })
             await new Promise(r => setTimeout(r, 1000))
 
-            setProgress({ step: 4, message: 'Done! Redirecting to dashboard...' })
+            setProgress({ step: 4, message: 'Forge Successful! Finalizing neural paths...' })
             await new Promise(r => setTimeout(r, 800))
 
-            router.push('/dashboard')
+            setParsing(false)
+            setShowDocsPrompt(true)
         } catch (err: any) {
             setError(err.message)
             setParsing(false)
+        }
+    }
+
+    const saveDocsUrl = async () => {
+        if (!newProgramId) return
+        try {
+            await updateRoadmapDocsUrl(newProgramId, docsUrl)
+            router.push('/dashboard')
+        } catch (err) {
+            router.push('/dashboard') // Proceed anyway
         }
     }
 
@@ -209,7 +225,48 @@ export default function SetupPage() {
                             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-50"></div>
 
                             <AnimatePresence mode="wait">
-                                {!parsing ? (
+                                {showDocsPrompt ? (
+                                    <motion.div
+                                        key="docs-prompt"
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="space-y-6"
+                                    >
+                                        <div className="text-center">
+                                            <div className="w-16 h-16 bg-success/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                                <CheckCircle2 className="w-8 h-8 text-success" />
+                                            </div>
+                                            <h2 className="text-2xl font-syne font-bold mb-2">FORGE COMPLETE</h2>
+                                            <p className="text-text-secondary text-xs uppercase font-bold tracking-widest">Connect documentation vault</p>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="bg-[#0c0c0c] border border-border-subtle p-6 rounded-2xl space-y-3">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <BookOpen className="w-4 h-4 text-primary" />
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Docs Base URL (Optional)</label>
+                                                </div>
+                                                <input
+                                                    type="url"
+                                                    value={docsUrl}
+                                                    onChange={(e) => setDocsUrl(e.target.value)}
+                                                    placeholder="https://rsethi-codes.github.io/skill-up-docs-26/full-stack-plan"
+                                                    className="w-full bg-surface-elevated border border-border-subtle rounded-xl py-3 px-4 text-xs font-mono text-text-primary outline-none focus:border-primary transition-all"
+                                                />
+                                                <p className="text-[9px] text-text-secondary/60 leading-relaxed group shadow-none">
+                                                    We&apos;ll append <span className="text-primary font-mono">/day-[number]-plan.html</span> to this URL for each day&apos;s reference.
+                                                </p>
+                                            </div>
+
+                                            <button
+                                                onClick={saveDocsUrl}
+                                                className="w-full bg-white text-black hover:bg-white/90 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-widest"
+                                            >
+                                                Finalize Mandate <ArrowRight className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                ) : !parsing ? (
                                     <motion.div
                                         key="upload"
                                         initial={{ opacity: 0, scale: 0.98 }}

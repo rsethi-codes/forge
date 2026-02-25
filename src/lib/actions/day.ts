@@ -75,15 +75,16 @@ export async function getDayDetail(dayNumber: number | string) {
             .returning()
     }
 
-    // 4, 5, 6. Fetch related data in parallel
-    const [tasks, completions, kcs, kcResults, topicsData, topicCompletions, leetcodeProblems] = await Promise.all([
+    // 4, 5, 6, 7. Fetch related data in parallel
+    const [tasks, completions, kcs, kcResults, topicsData, topicCompletions, leetcodeProblems, metadata] = await Promise.all([
         db.select().from(schema.roadmapTasks).where(eq(schema.roadmapTasks.dayId, day.id)).orderBy(schema.roadmapTasks.sortOrder),
         db.select().from(schema.taskCompletions).where(eq(schema.taskCompletions.dailyProgressId, progress.id)),
         db.select().from(schema.knowledgeChecks).where(eq(schema.knowledgeChecks.dayId, day.id)).orderBy(schema.knowledgeChecks.sortOrder),
         db.select().from(schema.knowledgeCheckResults).where(eq(schema.knowledgeCheckResults.dailyProgressId, progress.id)),
         db.select().from(schema.roadmapTopics).where(eq(schema.roadmapTopics.dayId, day.id)).orderBy(schema.roadmapTopics.sortOrder),
         db.select().from(schema.topicCompletions).where(eq(schema.topicCompletions.dailyProgressId, progress.id)),
-        db.select().from(schema.leetcodeProblems).where(eq(schema.leetcodeProblems.dayId, day.id)).orderBy(schema.leetcodeProblems.sortOrder)
+        db.select().from(schema.leetcodeProblems).where(eq(schema.leetcodeProblems.dayId, day.id)).orderBy(schema.leetcodeProblems.sortOrder),
+        db.select().from(schema.roadmapMetadata).where(eq(schema.roadmapMetadata.programId, program.id)).limit(1).then(res => res[0])
     ])
 
     // Get subtopics for all topics at once
@@ -133,7 +134,8 @@ export async function getDayDetail(dayNumber: number | string) {
                 subtopics: subtopics.filter((s: any) => s.topicId === t.id)
             }
         }),
-        leetcodeProblems
+        leetcodeProblems,
+        metadata
     }
 }
 

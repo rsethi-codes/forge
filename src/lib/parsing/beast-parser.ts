@@ -24,6 +24,7 @@ export interface BeastRoadmapJson {
             time: string;
             activity: string;
         }[];
+        docs_base_url?: string;
     };
     resume_analysis: {
         section_id: string;
@@ -108,7 +109,7 @@ export function isBeastRoadmap(json: any): json is BeastRoadmapJson {
     return json && json.meta && Array.isArray(json.phases) && Array.isArray(json.weeks) && Array.isArray(json.days);
 }
 
-export async function saveBeastRoadmapToDb(userId: string, json: BeastRoadmapJson) {
+export async function saveBeastRoadmapToDb(userId: string, json: BeastRoadmapJson, docsBaseUrl?: string) {
     try {
         return await db.transaction(async (tx: any) => {
             // 1. Deactivate existing programs
@@ -140,6 +141,7 @@ export async function saveBeastRoadmapToDb(userId: string, json: BeastRoadmapJso
                 roasts: json.resume_analysis.roasts,
                 dsaLanguageDecision: json.resume_analysis.dsa_language_decision,
                 specializationDecision: json.resume_analysis.specialization_decision,
+                docsBaseUrl: docsBaseUrl || json.meta.docs_base_url
             }).returning();
 
             // Save strengths

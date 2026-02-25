@@ -157,7 +157,7 @@ export async function seedBeastRoadmap() {
         ]
     }
 
-    const program = await saveBeastRoadmapToDb(user.id, sampleBeast)
+    const program = await saveBeastRoadmapToDb(user.id, sampleBeast, "https://rsethi-codes.github.io/skill-up-docs-26/full-stack-plan")
     revalidatePath('/')
     return program
 }

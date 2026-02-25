@@ -8,6 +8,7 @@ export interface ParsedRoadmapJson {
     target_package?: string;
     daily_commitment?: string;
     total_days?: number;
+    docs_base_url?: string;
     resume_analysis?: {
         blunt_truth: string;
         gaps: [string, string, string][];
@@ -370,7 +371,7 @@ export function parseRoadmapJson(json: ParsedRoadmapJson): ParsedRoadmap {
     return roadmap;
 }
 
-export async function saveParsedRoadmapToDb(userId: string, roadmap: ParsedRoadmap, rawText: string, fileUrl: string, jsonMetadata?: ParsedRoadmapJson) {
+export async function saveParsedRoadmapToDb(userId: string, roadmap: ParsedRoadmap, rawText: string, fileUrl: string, jsonMetadata?: ParsedRoadmapJson, docsBaseUrl?: string) {
     try {
         return await db.transaction(async (tx: any) => {
             // 1. Create Program (Set all existing to inactive)
@@ -387,57 +388,57 @@ export async function saveParsedRoadmapToDb(userId: string, roadmap: ParsedRoadm
                 isActive: true
             }).returning();
 
-            // 1b. Save rich metadata if provided
-            if (jsonMetadata) {
-                const [meta] = await tx.insert(schema.roadmapMetadata).values({
-                    programId: program.id,
-                    subtitle: jsonMetadata.subtitle,
-                    targetPackage: jsonMetadata.target_package,
-                    dailyCommitment: jsonMetadata.daily_commitment,
-                    totalDays: jsonMetadata.total_days,
-                    bluntTruth: jsonMetadata.resume_analysis?.blunt_truth,
-                }).returning();
+            // 1b. Save rich metadata (always create a record to hold docsBaseUrl)
+            const [meta] = await tx.insert(schema.roadmapMetadata).values({
+                programId: program.id,
+                subtitle: jsonMetadata?.subtitle,
+                targetPackage: jsonMetadata?.target_package,
+                dailyCommitment: jsonMetadata?.daily_commitment,
+                totalDays: jsonMetadata?.total_days,
+                bluntTruth: jsonMetadata?.resume_analysis?.blunt_truth,
+                docsBaseUrl: docsBaseUrl || jsonMetadata?.docs_base_url
+            }).returning();
 
-                if (jsonMetadata.resume_analysis?.gaps) {
-                    await tx.insert(schema.resumeGaps).values(
-                        jsonMetadata.resume_analysis.gaps.map(g => ({
-                            metadataId: meta.id,
-                            area: g[0],
-                            whatResumeShows: g[1],
-                            brutalGap: g[2],
-                        }))
-                    );
-                }
-
-                if (jsonMetadata.resume_analysis?.strengths) {
-                    await tx.insert(schema.resumeStrengths).values(
-                        jsonMetadata.resume_analysis.strengths.map(s => ({
-                            metadataId: meta.id,
-                            content: s,
-                        }))
-                    );
-                }
-
-                if (jsonMetadata.execution_plan?.daily_blocks) {
-                    await tx.insert(schema.executionBlocks).values(
-                        jsonMetadata.execution_plan.daily_blocks.map(b => ({
-                            metadataId: meta.id,
-                            block: b.block,
-                            focus: b.focus,
-                        }))
-                    );
-                }
-
-                if (jsonMetadata.end_goals?.skills) {
-                    await tx.insert(schema.endGoals).values(
-                        jsonMetadata.end_goals.skills.map(s => ({
-                            metadataId: meta.id,
-                            skill: s.skill,
-                            outcome: s.outcome,
-                        }))
-                    );
-                }
+            if (jsonMetadata?.resume_analysis?.gaps) {
+                await tx.insert(schema.resumeGaps).values(
+                    jsonMetadata.resume_analysis.gaps.map(g => ({
+                        metadataId: meta.id,
+                        area: g[0],
+                        whatResumeShows: g[1],
+                        brutalGap: g[2],
+                    }))
+                );
             }
+
+            if (jsonMetadata?.resume_analysis?.strengths) {
+                await tx.insert(schema.resumeStrengths).values(
+                    jsonMetadata.resume_analysis.strengths.map(s => ({
+                        metadataId: meta.id,
+                        content: s,
+                    }))
+                );
+            }
+
+            if (jsonMetadata?.execution_plan?.daily_blocks) {
+                await tx.insert(schema.executionBlocks).values(
+                    jsonMetadata.execution_plan.daily_blocks.map(b => ({
+                        metadataId: meta.id,
+                        block: b.block,
+                        focus: b.focus,
+                    }))
+                );
+            }
+
+            if (jsonMetadata?.end_goals?.skills) {
+                await tx.insert(schema.endGoals).values(
+                    jsonMetadata.end_goals.skills.map(s => ({
+                        metadataId: meta.id,
+                        skill: s.skill,
+                        outcome: s.outcome,
+                    }))
+                );
+            }
+
 
             // Data buckets for bulk inserts
             const monthsToInsert: any[] = [];

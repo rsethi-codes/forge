@@ -81,3 +81,14 @@ export async function updateRoadmapTitle(id: string, title: string) {
     revalidatePath('/setup')
     return { success: true }
 }
+
+export async function updateRoadmapDocsUrl(id: string, docsBaseUrl: string) {
+    const user = await requireUser()
+    await db.update(schema.roadmapMetadata)
+        .set({ docsBaseUrl })
+        .where(eq(schema.roadmapMetadata.programId, id))
+
+    revalidatePath('/setup')
+    revalidatePath('/tracker')
+    return { success: true }
+}

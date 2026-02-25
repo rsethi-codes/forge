@@ -348,7 +348,7 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
                             {data.day.focus}
                         </p>
                         <a
-                            href={`https://rsethi-codes.github.io/skill-up-docs-26/FE-plan/day-${dayNumber}-plan.html`}
+                            href={`${(data.metadata?.docsBaseUrl || 'https://rsethi-codes.github.io/skill-up-docs-26/full-stack-plan').replace(/\/$/, '')}/day-${dayNumber}-plan.html`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-xl text-xs font-bold uppercase tracking-widest transition-all shrink-0"

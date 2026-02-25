@@ -9,6 +9,7 @@
     "total_weeks": 8,
     "dsa_language": "Python",
     "specialization": "Full-Stack (No Early Specialization)",
+    "docs_base_url": "https://rsethi-codes.github.io/skill-up-docs-26/full-stack-plan",
     "target_roles": [
       "Full Stack Engineer",
       "Performance-focused Full Stack Engineer",
