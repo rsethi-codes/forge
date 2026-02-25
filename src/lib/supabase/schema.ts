@@ -34,12 +34,26 @@ export const roadmapMonths = pgTable('roadmap_months', {
     sortOrder: integer('sort_order').notNull(),
 })
 
+export const roadmapPhases = pgTable('roadmap_phases', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    programId: uuid('program_id').references(() => roadmapPrograms.id, { onDelete: 'cascade' }).notNull(),
+    phaseNumber: integer('phase_number').notNull(),
+    title: text('title').notNull(),
+    description: text('description'),
+    theme: text('theme'),
+    sortOrder: integer('sort_order').notNull(),
+})
+
 export const roadmapWeeks = pgTable('roadmap_weeks', {
     id: uuid('id').primaryKey().defaultRandom(),
-    monthId: uuid('month_id').references(() => roadmapMonths.id, { onDelete: 'cascade' }).notNull(),
+    monthId: uuid('month_id').references(() => roadmapMonths.id, { onDelete: 'cascade' }),
+    phaseId: uuid('phase_id').references(() => roadmapPhases.id, { onDelete: 'cascade' }),
     weekNumber: integer('week_number').notNull(),
     title: text('title').notNull(),
     goal: text('goal'),
+    theme: text('theme'),
+    colorTheme: text('color_theme'),
+    projectMeta: jsonb('project_meta'), // For weeks that have a specific project focus
     sortOrder: integer('sort_order').notNull(),
 })
 
@@ -100,6 +114,17 @@ export const knowledgeChecks = pgTable('knowledge_checks', {
     dayId: uuid('day_id').references(() => roadmapDays.id, { onDelete: 'cascade' }).notNull(),
     questionNumber: integer('question_number').notNull(),
     questionText: text('question_text').notNull(),
+    sortOrder: integer('sort_order').notNull(),
+})
+
+export const leetcodeProblems = pgTable('leetcode_problems', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    dayId: uuid('day_id').references(() => roadmapDays.id, { onDelete: 'cascade' }).notNull(),
+    leetcodeId: text('leetcode_id'), // e.g. "LC_1"
+    title: text('title').notNull(),
+    difficulty: text('difficulty'), // "easy", "medium", "hard"
+    pattern: text('pattern'),
+    url: text('url'),
     sortOrder: integer('sort_order').notNull(),
 })
 
@@ -174,6 +199,17 @@ export const roadmapMetadata = pgTable('roadmap_metadata', {
     dailyCommitment: text('daily_commitment'),
     totalDays: integer('total_days'),
     bluntTruth: text('blunt_truth'),
+    // Beast-specific fields
+    author: text('author'),
+    dsaLanguage: text('dsa_language'),
+    specialization: text('specialization'),
+    targetRoles: jsonb('target_roles'),
+    targetSalaryMin: integer('target_salary_min'),
+    targetSalaryMax: integer('target_salary_max'),
+    dailySchedule: jsonb('daily_schedule'),
+    roasts: jsonb('roasts'),
+    dsaLanguageDecision: jsonb('dsa_language_decision'),
+    specializationDecision: jsonb('specialization_decision'),
 })
 
 export const resumeGaps = pgTable('resume_gaps', {
@@ -475,7 +511,13 @@ export const roadmapMonthsRelations = relations(roadmapMonths, ({ one, many }) =
 
 export const roadmapWeeksRelations = relations(roadmapWeeks, ({ one, many }) => ({
     month: one(roadmapMonths, { fields: [roadmapWeeks.monthId], references: [roadmapMonths.id] }),
+    phase: one(roadmapPhases, { fields: [roadmapWeeks.phaseId], references: [roadmapPhases.id] }),
     days: many(roadmapDays),
+}))
+
+export const roadmapPhasesRelations = relations(roadmapPhases, ({ one, many }) => ({
+    program: one(roadmapPrograms, { fields: [roadmapPhases.programId], references: [roadmapPrograms.id] }),
+    weeks: many(roadmapWeeks),
 }))
 
 export const roadmapDaysRelations = relations(roadmapDays, ({ one, many }) => ({

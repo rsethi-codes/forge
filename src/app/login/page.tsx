@@ -178,6 +178,34 @@ function LoginContent() {
                         </div>
                     </div>
                 )}
+
+                {/* DEV ONLY: Demo Access */}
+                {process.env.NODE_ENV === 'development' && (
+                    <div className="mt-8 pt-6 border-t border-white/5 space-y-4">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-white/5"></span>
+                            </div>
+                            <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black text-text-secondary">
+                                <span className="bg-surface px-4">Local Testing</span>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                // Clear admin token if any, set test mode
+                                document.cookie = "forge_admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+                                document.cookie = "forge_test_mode=true; path=/; max-age=31536000"
+                                window.location.href = '/dashboard'
+                            }}
+                            className="w-full bg-[#0c0c0c] hover:bg-white/5 border border-white/10 text-text-secondary hover:text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all"
+                        >
+                            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></div>
+                            Demo Access (Local Only)
+                        </button>
+                    </div>
+                )}
             </div>
 
             <p className="text-center text-xs text-text-secondary font-medium px-8 leading-relaxed">

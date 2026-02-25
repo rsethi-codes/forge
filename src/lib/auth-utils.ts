@@ -8,6 +8,17 @@ export type CurrentUser = {
 }
 
 export async function getCurrentUser(): Promise<CurrentUser | null> {
+    // DEV ONLY: Bypass auth for local testing
+    if (process.env.NODE_ENV === 'development') {
+        const cookieStore = cookies()
+        if (cookieStore.get('forge_test_mode')?.value === 'true') {
+            return {
+                id: '00000000-0000-0000-0000-000000000000',
+                email: 'test@forge.dev',
+            }
+        }
+    }
+
     const supabase = createClient()
     const { data, error } = await supabase.auth.getUser()
     if (error || !data.user || !data.user.email) return null
@@ -43,7 +54,7 @@ export async function isAdmin(): Promise<boolean> {
     if (!user) return false
 
     if (allowedEmail) {
-        return user.email === allowedEmail
+        return user.email.toLowerCase() === allowedEmail.toLowerCase()
     }
 
     return false

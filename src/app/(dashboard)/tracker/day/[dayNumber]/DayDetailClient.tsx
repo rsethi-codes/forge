@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import confetti from 'canvas-confetti'
 import { toast } from 'react-hot-toast'
@@ -16,7 +16,9 @@ import {
     Search,
     MessageCircleQuestion,
     Timer,
-    Zap
+    Zap,
+    ExternalLink,
+    Code2
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -24,7 +26,7 @@ import { cn } from '@/lib/utils'
 import { toggleTaskCompletion, updateDayProgress, updateKCResult, toggleTopicCompletion, updateTaskDetail, updateTopicDetail } from '@/lib/actions/day'
 import QnADrawer, { type DrawerTopic } from '@/components/QnADrawer'
 import QnASearchModal from '@/components/QnASearchModal'
-import TopicTimer, { type TimerResult } from '@/components/TopicTimer'
+import TopicTimer, { type TimerResult, type TimerHandle } from '@/components/TopicTimer'
 import type { QnAEntry } from '@/lib/actions/qna'
 
 interface DayDetailClientProps {
@@ -38,6 +40,9 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
     const [data, setData] = useState<any>(initialData)
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
+
+    // Ref map: itemType_id -> TimerHandle, so we can stop a running timer on checkbox click
+    const timerRefs = useRef<Map<string, TimerHandle>>(new Map())
 
     // Q&A drawer state
     const [drawerOpen, setDrawerOpen] = useState(false)
@@ -81,6 +86,19 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
 
     const handleToggleItem = async (type: 'task' | 'topic', id: string, currentStatus: boolean) => {
         if (!data) return
+
+        // If the item is being marked DONE and its timer is running/paused, stop it first
+        // so the final elapsed time is flushed to the DB before we toggle completion.
+        if (!currentStatus) {
+            const timerKey = `${type}_${id}`
+            const timerHandle = timerRefs.current.get(timerKey)
+            if (timerHandle && timerHandle.getState() !== 'idle') {
+                timerHandle.stopNow()
+                // Give the async sync() a moment to dispatch before we proceed
+                await new Promise(r => setTimeout(r, 150))
+            }
+        }
+
         let response;
         if (type === 'task') {
             setData({ ...data, tasks: data.tasks.map((t: any) => t.id === id ? { ...t, completed: !currentStatus } : t) })
@@ -461,6 +479,11 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
 
                                             {!item.completed && (
                                                 <TopicTimer
+                                                    ref={(handle) => {
+                                                        const key = `${item.itemType}_${item.id}`
+                                                        if (handle) timerRefs.current.set(key, handle)
+                                                        else timerRefs.current.delete(key)
+                                                    }}
                                                     id={item.id}
                                                     type={item.itemType}
                                                     progressId={data.progress.id}
@@ -614,6 +637,46 @@ export default function DayDetailClient({ initialData, dayNumber, initialQnAs = 
 
                     {/* Right sidebar — now clean, no QnA crammed in */}
                     <div className="space-y-8">
+                        {/* LeetCode Problems (Special for Beast Mode) */}
+                        {data.leetcodeProblems && data.leetcodeProblems.length > 0 && (
+                            <section className="bg-blue-500/5 border border-blue-500/15 rounded-3xl p-6 space-y-4">
+                                <h3 className="font-syne font-bold uppercase tracking-widest text-xs text-blue-400 flex items-center gap-2">
+                                    <Code2 className="w-4 h-4" />
+                                    Strategic DSA Focus
+                                </h3>
+                                <div className="space-y-3">
+                                    {data.leetcodeProblems.map((p: any) => (
+                                        <a
+                                            key={p.id}
+                                            href={p.url || `https://leetcode.com/problems/${p.title.toLowerCase().replace(/\s+/g, '-')}/`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="block p-4 rounded-2xl bg-[#0c0c0c] border border-white/5 hover:border-blue-500/30 group transition-all"
+                                        >
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest">{p.leetcodeId || 'LeetCode'}</span>
+                                                <span className={cn(
+                                                    "text-[8px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter",
+                                                    p.difficulty?.toLowerCase() === 'easy' ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
+                                                        p.difficulty?.toLowerCase() === 'medium' ? "bg-orange-500/10 text-orange-400 border border-orange-500/20" :
+                                                            "bg-red-500/10 text-red-400 border border-red-500/20"
+                                                )}>
+                                                    {p.difficulty || 'Medium'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-bold group-hover:text-blue-400 transition-colors">{p.title}</p>
+                                                <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-40 transition-opacity" />
+                                            </div>
+                                            {p.pattern && (
+                                                <span className="text-[10px] text-text-secondary/60 mt-1 block italic lowercase">{p.pattern}</span>
+                                            )}
+                                        </a>
+                                    ))}
+                                </div>
+                            </section>
+                        )}
+
                         <section className="bg-surface border border-border-subtle rounded-3xl p-6 space-y-4">
                             <h3 className="font-syne font-bold uppercase tracking-widest text-xs flex items-center gap-2">
                                 <MessageSquare className="w-4 h-4 text-primary" />

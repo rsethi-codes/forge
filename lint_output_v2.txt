@@ -1,0 +1,5 @@
+
+> forge@0.1.0 lint
+> next lint --max-warnings 0
+
+Γ£ö No ESLint warnings or errors

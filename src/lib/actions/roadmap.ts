@@ -2,7 +2,7 @@
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
-import { eq, desc, and, sql, inArray, isNull } from 'drizzle-orm'
+import { eq, desc, and, sql, inArray, isNull, or } from 'drizzle-orm'
 import { format } from 'date-fns'
 import { calculateDailyDiscipline, calculateCurrentStreak } from '@/lib/discipline'
 import { requireUser } from '@/lib/auth-utils'
@@ -65,6 +65,13 @@ export async function getDashboardData() {
         return { hasProgram: false }
     }
 
+    // 1b. Get rich metadata
+    const [metadata] = await db
+        .select()
+        .from(schema.roadmapMetadata)
+        .where(eq(schema.roadmapMetadata.programId, program.id))
+        .limit(1)
+
     // 2. Identify the Active Roadmap Day
     // Instead of just relying on startDate + diff, find the latest day with any activity
     const [latestProgress] = await db
@@ -72,16 +79,30 @@ export async function getDashboardData() {
         .from(schema.dailyProgress)
         .innerJoin(schema.roadmapDays, eq(schema.dailyProgress.dayId, schema.roadmapDays.id))
         .innerJoin(schema.roadmapWeeks, eq(schema.roadmapDays.weekId, schema.roadmapWeeks.id))
-        .innerJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
+        .leftJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
+        .leftJoin(schema.roadmapPhases, eq(schema.roadmapWeeks.phaseId, schema.roadmapPhases.id))
         .where(and(
             eq(schema.dailyProgress.userId, user.id),
-            eq(schema.roadmapMonths.programId, program.id)
+            or(
+                eq(schema.roadmapMonths.programId, program.id),
+                eq(schema.roadmapPhases.programId, program.id)
+            )
         ))
         .orderBy(desc(schema.dailyProgress.date))
         .limit(1)
 
     // 3. Parallelize independent queries
-    const [dailyProgressArr, disciplineArr, streak, fetchedMilestones, totalTasksDoneArr, tasksDoneTodayArr, wallet] = await Promise.all([
+    const [
+        dailyProgressArr,
+        disciplineArr,
+        streak,
+        fetchedMilestones,
+        totalTasksDoneArr,
+        tasksDoneTodayArr,
+        wallet,
+        strengthsArr,
+        gapsArr
+    ] = await Promise.all([
         db.select()
             .from(schema.dailyProgress)
             .where(and(
@@ -111,7 +132,13 @@ export async function getDashboardData() {
                 eq(schema.taskCompletions.completed, true),
                 sql`date(${schema.taskCompletions.completedAt}) = ${today}`
             )),
-        db.select().from(schema.rewardsWallet).where(eq(schema.rewardsWallet.userId, user.id)).limit(1).then(res => res[0])
+        db.select().from(schema.rewardsWallet).where(eq(schema.rewardsWallet.userId, user.id)).limit(1).then(res => res[0]),
+        db.select()
+            .from(schema.resumeStrengths)
+            .where(metadata ? eq(schema.resumeStrengths.metadataId, metadata.id) : sql`1=0`),
+        db.select()
+            .from(schema.resumeGaps)
+            .where(metadata ? eq(schema.resumeGaps.metadataId, metadata.id) : sql`1=0`)
     ])
 
     let allMilestones = fetchedMilestones
@@ -125,6 +152,8 @@ export async function getDashboardData() {
     const discipline = disciplineArr[0]
     const totalTasksDone = totalTasksDoneArr[0]?.count ?? 0
     const tasksDoneToday = tasksDoneTodayArr[0]?.count ?? 0
+    const strengths = strengthsArr || []
+    const gaps = gapsArr || []
 
     // 4. Get active day details
     const start = new Date(program.startDate)
@@ -139,20 +168,26 @@ export async function getDashboardData() {
             focus: schema.roadmapDays.focus,
             dayNumber: schema.roadmapDays.dayNumber,
             weekTitle: schema.roadmapWeeks.title,
-            monthTitle: schema.roadmapMonths.title
+            weekId: schema.roadmapWeeks.id,
+            monthTitle: schema.roadmapMonths.title,
+            phaseTitle: schema.roadmapPhases.title
         })
         .from(schema.roadmapDays)
         .innerJoin(schema.roadmapWeeks, eq(schema.roadmapDays.weekId, schema.roadmapWeeks.id))
-        .innerJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
+        .leftJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
+        .leftJoin(schema.roadmapPhases, eq(schema.roadmapWeeks.phaseId, schema.roadmapPhases.id))
         .where(
             latestProgress?.dayId
                 ? eq(schema.roadmapDays.id, latestProgress.dayId)
                 : and(
                     eq(schema.roadmapDays.dayNumber, calendarDayNum.toString()),
-                    eq(schema.roadmapMonths.programId, program.id)
+                    or(
+                        eq(schema.roadmapMonths.programId, program.id),
+                        eq(schema.roadmapPhases.programId, program.id)
+                    )
                 )
         )
-        .orderBy(schema.roadmapMonths.sortOrder, schema.roadmapWeeks.sortOrder, schema.roadmapDays.sortOrder)
+        .orderBy(schema.roadmapDays.sortOrder)
         .limit(1)
 
     const activeDayNum = currentDay ? parseInt(currentDay.dayNumber) : calendarDayNum
@@ -160,7 +195,6 @@ export async function getDashboardData() {
     // 5. Tasks for the Active Day
     let activeDayTasks: any[] = []
     let activeDayTasksTodo = 0
-    let activeDayTasksDone = 0
 
     if (currentDay) {
         activeDayTasks = await db
@@ -192,10 +226,21 @@ export async function getDashboardData() {
                 ...t,
                 completed: !!completionMap.get(t.id)
             }))
-
-            activeDayTasksDone = completions.filter((c: any) => c.completed).length
         }
     }
+
+    // 5b. LeetCode Problems for the Active Day
+    let leetcodeProblems: any[] = []
+    if (currentDay) {
+        leetcodeProblems = await db
+            .select()
+            .from(schema.leetcodeProblems)
+            .where(eq(schema.leetcodeProblems.dayId, currentDay.id))
+            .orderBy(schema.leetcodeProblems.sortOrder)
+    }
+
+    // 5c. Week Info
+    const weekInfo = currentDay ? await db.select().from(schema.roadmapWeeks).where(eq(schema.roadmapWeeks.id, currentDay.weekId)).limit(1).then(res => res[0]) : null
 
     const nextMilestone = allMilestones.find((m: any) => !m.achievedAt)
     const unlockedCount = allMilestones.filter((m: any) => m.achievedAt).length
@@ -205,20 +250,21 @@ export async function getDashboardData() {
         hasProgram: true,
         programTitle: program.title,
         day: activeDayNum,
-        totalDays: 60,
-        currentPhase: currentDay?.monthTitle || "Phase 1",
+        totalDays: program.totalDays || 60,
+        currentPhase: currentDay?.phaseTitle || currentDay?.monthTitle || "Phase 1",
         currentWeek: currentDay?.weekTitle || "Week 1",
         focus: currentDay?.focus || "Maintain trajectory. Finalize previous mandates.",
         dayTitle: currentDay?.title,
         disciplineScore: discipline ? parseInt(discipline.disciplineScore) : 0,
         streak,
         hoursLogged: dailyProgress ? parseFloat(dailyProgress.hoursLogged) : 0,
-        hoursTarget: 8,
+        hoursTarget: metadata?.dailyCommitment ? (parseInt(metadata.dailyCommitment) || 8) : 8,
         tasksDone: tasksDoneToday, // For "Live" feel, show what was done TODAY
         tasksTotal: activeDayTasksTodo,
         totalTasksDone, // NEW: Lifetime stat
         coinsBalance: wallet?.coinsBalance ?? 0,
         tasks: activeDayTasks,
+        leetcodeProblems,
         message: discipline?.motivationMessage || "The forge is cold. Start a task to ignite it.",
         unlockedCount,
         totalMilestones: allMilestones.length,
@@ -231,6 +277,12 @@ export async function getDashboardData() {
             criteriaValue: nextMilestone.criteriaValue
         } : null,
         isReviewDay: activeDayNum % 7 === 0,
+        metadata: {
+            ...metadata,
+            strengths,
+            gaps
+        },
+        weekInfo,
         ...behavioralDiagnostics(wallet?.coinsBalance ?? 0, activeDayTasks),
         activeTimer: await getActiveTimer(user.id)
     }
@@ -391,26 +443,57 @@ export async function getTrackerData(month: number = 1) {
 
     if (!program) return null
 
-    const [monthData] = await db
-        .select()
-        .from(schema.roadmapMonths)
-        .where(and(
-            eq(schema.roadmapMonths.programId, program.id),
-            eq(schema.roadmapMonths.monthNumber, month)
-        ))
-        .limit(1)
+    // Determine if it's month-based or phase-based
+    const roadmapMonths = await db.select().from(schema.roadmapMonths).where(eq(schema.roadmapMonths.programId, program.id)).orderBy(schema.roadmapMonths.monthNumber)
+    const roadmapPhases = await db.select().from(schema.roadmapPhases).where(eq(schema.roadmapPhases.programId, program.id)).orderBy(schema.roadmapPhases.phaseNumber)
 
-    if (!monthData) return { month: null, weeks: [] }
+    // month param can be treated as monthNumber or phaseNumber
+    let containerData;
+    let weeks;
 
-    // Fetch weeks and all days in those weeks in parallel
-    const weeks = await db
-        .select()
-        .from(schema.roadmapWeeks)
-        .where(eq(schema.roadmapWeeks.monthId, monthData.id))
-        .orderBy(schema.roadmapWeeks.weekNumber)
+    if (roadmapMonths.length > 0) {
+        [containerData] = await db
+            .select()
+            .from(schema.roadmapMonths)
+            .where(and(
+                eq(schema.roadmapMonths.programId, program.id),
+                eq(schema.roadmapMonths.monthNumber, month)
+            ))
+            .limit(1)
+
+        if (containerData) {
+            weeks = await db
+                .select()
+                .from(schema.roadmapWeeks)
+                .where(eq(schema.roadmapWeeks.monthId, containerData.id))
+                .orderBy(schema.roadmapWeeks.weekNumber)
+        }
+    } else if (roadmapPhases.length > 0) {
+        // Map month 1 -> Phase 1 & 2, month 2 -> Phase 3 & 4 (optional logic)
+        // Or just let 'month' param be phase directly if it's a phase view
+        // For simplicity, let's just fetch all phases and filter by phaseNumber
+        [containerData] = await db
+            .select()
+            .from(schema.roadmapPhases)
+            .where(and(
+                eq(schema.roadmapPhases.programId, program.id),
+                eq(schema.roadmapPhases.phaseNumber, month)
+            ))
+            .limit(1)
+
+        if (containerData) {
+            weeks = await db
+                .select()
+                .from(schema.roadmapWeeks)
+                .where(eq(schema.roadmapWeeks.phaseId, containerData.id))
+                .orderBy(schema.roadmapWeeks.weekNumber)
+        }
+    }
+
+    if (!containerData || !weeks) return { month: null, weeks: [] }
 
     const weekIds = weeks.map((w: any) => w.id)
-    if (weekIds.length === 0) return { month: monthData, weeks: [] }
+    if (weekIds.length === 0) return { month: containerData, weeks: [] }
 
     // Fetch days and progress in parallel
     const days = await db
@@ -431,7 +514,9 @@ export async function getTrackerData(month: number = 1) {
         : []
 
     return {
-        month: monthData,
+        month: containerData,
+        containerType: roadmapMonths.length > 0 ? 'Month' : 'Phase',
+        containers: roadmapMonths.length > 0 ? roadmapMonths : roadmapPhases,
         weeks: weeks.map((w: any) => ({
             ...w,
             days: days
@@ -439,6 +524,12 @@ export async function getTrackerData(month: number = 1) {
                 .map((d: any) => ({
                     ...d,
                     isComplete: progress.some((p: any) => p.dayId === d.id && p.status === 'complete'),
+                    completionRate: (() => {
+                        const dayProg = progress.find((p: any) => p.dayId === d.id);
+                        if (!dayProg) return 0;
+                        // Return actual calculated completion rate if needed, or 100 if complete
+                        return dayProg.status === 'complete' ? 100 : 50;
+                    })(),
                     isCurrent: false,
                 }))
         }))

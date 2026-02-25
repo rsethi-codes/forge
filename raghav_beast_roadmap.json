@@ -1,0 +1,4150 @@
+{
+  "meta": {
+    "id": "raghav_beast_mode_60day",
+    "title": "The Beast Mode Comeback Roadmap",
+    "subtitle": "8 LPA → Beast SDE-1 (SDE-2 Performance) in 60 Days",
+    "author": "Raghav Sethi",
+    "generated_at": "2026-02-25T08:15:01.413Z",
+    "total_days": 56,
+    "total_weeks": 8,
+    "dsa_language": "Python",
+    "specialization": "Full-Stack (No Early Specialization)",
+    "target_roles": [
+      "Full Stack Engineer",
+      "Performance-focused Full Stack Engineer",
+      "Next.js Specialist",
+      "Real-time Systems Engineer"
+    ],
+    "target_salary_range_lpa": {
+      "min": 18,
+      "max": 30
+    },
+    "daily_hours_commitment": 8,
+    "daily_schedule": [
+      {
+        "time": "6:00 AM - 7:30 AM",
+        "activity": "DSA (2 LeetCode problems minimum — DAILY NON-NEGOTIABLE)"
+      },
+      {
+        "time": "7:30 AM - 8:00 AM",
+        "activity": "Review yesterday's learning / spaced repetition"
+      },
+      {
+        "time": "8:00 AM - 12:00 PM",
+        "activity": "Deep learning block (theory + coding the topic of the day)"
+      },
+      {
+        "time": "12:00 PM - 1:00 PM",
+        "activity": "Break + eat"
+      },
+      {
+        "time": "1:00 PM - 5:00 PM",
+        "activity": "Project implementation / applying the day's learning"
+      },
+      {
+        "time": "5:00 PM - 6:00 PM",
+        "activity": "Break / walk"
+      },
+      {
+        "time": "6:00 PM - 8:00 PM",
+        "activity": "System Design study OR extra DSA OR reading docs"
+      },
+      {
+        "time": "8:00 PM - 9:30 PM",
+        "activity": "GitHub commit, write notes, update learning log"
+      }
+    ]
+  },
+  "resume_analysis": {
+    "section_id": "section_0",
+    "title": "Brutally Honest Resume Analysis",
+    "strengths": [
+      "React Native (Expo): Built 50+ user flows with hooks, navigation, auth — this is real, not tutorial-level",
+      "S3 Direct Upload: Architecting client-side multipart upload pipeline is genuinely good backend thinking",
+      "State machines & conversation flows: WhatsApp 15+ flows with agent escalation shows systems thinking",
+      "MongoDB ETL at scale: 25k+ records with dedup, hashing, batch inserts — actually solid data engineering",
+      "n8n workflow automation: Used AI tooling in production — niche but marketable",
+      "RBAC implementation: Not every fresher thinks about authorization properly",
+      "MCA from PES with 9.0 CGPA + Merit Scholarship: Academic pedigree checks out"
+    ],
+    "roasts": [
+      "You listed 'WebSockets' on your resume but your projects show ZERO real-time implementation. PharmaSync? Publications app? Where's the WebSocket? You're lying on your resume. Fix that or be ready to get destroyed in interviews.",
+      "Next.js is listed as a core skill but your 'Next.js projects' are just React apps with SSR sprinkled on. You don't understand ISR vs SSR vs SSG vs PPR. You can't talk about App Router internals. Any senior will sniff this out in 5 minutes.",
+      "Redis is on your resume. What have you actually used it for? Nothing in your projects mentions caching, pub/sub, rate limiting, or sessions via Redis. That's a resume lie. A lie that will humiliate you in interviews.",
+      "Docker: You listed it. One dockerized project? Compose? Multi-stage builds? Health checks? Nothing concrete visible. This is filler right now.",
+      "TypeScript: You list it but your React Native work likely has tons of any-typed code or you switched between JS and TS without real discipline. Your TS level is probably basic generics at best.",
+      "DSA is weak by your own admission. That means you cannot pass FAANG/top startup screening rounds. At your target salary jump, this is non-negotiable.",
+      "Zero open source contribution. Zero public project with stars. Zero technical blog. You exist only on paper. Employers can't verify you outside your resume.",
+      "System Design knowledge: Nowhere. No mention of any design pattern, CAP theorem, distributed systems, or architecture document. You're an MCA graduate — this should have been drilled in, but it clearly wasn't.",
+      "Performance Engineering: You claim to be interested in performance but there is NOT A SINGLE METRIC in your resume. No Lighthouse score. No bundle size reduction. No latency improvement numbers (except the S3 one). That's thin.",
+      "Your total work experience is about 8 months at ONE startup that shut down. Depending on the market, this can look risky. You need a GitHub profile that screams 'hire me' before a human even reads your resume."
+    ],
+    "dsa_language_decision": {
+      "verdict": "Python",
+      "reasons": [
+        "You already know Python (listed on resume, used in ETL pipelines). Zero ramp-up cost.",
+        "LeetCode Python solutions are 40-60% shorter than C++ equivalents. Time is your constraint.",
+        "Python is fully accepted at all top Indian product companies (Zepto, Cred, Razorpay, Swiggy, etc.)",
+        "C++ gives microsecond advantages in competitive programming. In interviews, nobody cares — they care about correctness + logic.",
+        "With 60 days, spending 2+ weeks learning C++ syntax would be criminal waste."
+      ],
+      "warning": "You will write Python for ALL DSA. No debates. No switching. Consistency beats theoretical efficiency.",
+      "tip": "Use Python's collections (defaultdict, Counter, deque, heapq) aggressively. They are your competitive edge."
+    },
+    "specialization_decision": {
+      "verdict": "NO — Stay Full-Stack",
+      "reasoning": "You are 8 months into your career. The job pool for full-stack is maximum at SDE-1 level in India. Full-stack lets you interview for frontend, backend, fullstack, AND platform roles simultaneously.",
+      "goal": "Be a DANGEROUS full-stack engineer who is scary good at Next.js and real-time systems. That is the profile that gets you 18-30 LPA roles at product companies.",
+      "comparison": [
+        {
+          "specialization_now": "Narrow job pool — fewer openings",
+          "fullstack": "Maximum openings at SDE-1 level in India"
+        },
+        {
+          "specialization_now": "Lower negotiation power on non-specialty",
+          "fullstack": "Can interview for frontend, backend, fullstack, AND platform roles"
+        },
+        {
+          "specialization_now": "If specialty has a bad hiring cycle, you're stuck",
+          "fullstack": "Recession-proof — companies always need fullstack devs"
+        },
+        {
+          "specialization_now": "PharmaSync and Publications app don't scream 'specialist'",
+          "fullstack": "Your existing projects fit 'fullstack engineer' perfectly"
+        },
+        {
+          "specialization_now": "Next.js specialist needs DEEP expertise — 60 days isn't enough",
+          "fullstack": "Next.js mastery + Node mastery + perf = premium fullstack"
+        }
+      ]
+    }
+  },
+  "phases": [
+    {
+      "phase_id": "phase_1",
+      "phase_number": 1,
+      "weeks": "1-2",
+      "days": "1-14",
+      "title": "CS Fundamentals Lock-In",
+      "description": "DSA foundations, TypeScript mastery, Next.js internals deep dive",
+      "theme": "Kill the TypeScript lie on your resume. Understand Next.js at a level where you can explain it in a system design interview."
+    },
+    {
+      "phase_id": "phase_2",
+      "phase_number": 2,
+      "weeks": "3-4",
+      "days": "15-28",
+      "title": "Backend Beast Mode",
+      "description": "Node/Express mastery, PostgreSQL, Redis, System Design basics, Real-time with WebSockets",
+      "theme": "Close the backend credibility gap. After this phase, Redis and WebSockets on your resume will be 100% honest."
+    },
+    {
+      "phase_id": "phase_3",
+      "phase_number": 3,
+      "weeks": "5-6",
+      "days": "29-42",
+      "title": "Project Build + Performance & Architecture",
+      "description": "Build SyncSpace killer project, Next.js performance, React performance, Docker, AWS, monitoring",
+      "theme": "Build the project that gets you hired. This is the most important phase. Your GitHub profile transforms here."
+    },
+    {
+      "phase_id": "phase_4",
+      "phase_number": 4,
+      "weeks": "7-8",
+      "days": "43-56",
+      "title": "Interview Domination + Launch",
+      "description": "System Design deep dives, Behavioral prep, DSA hard problems, mock interviews, apply aggressively",
+      "theme": "You are ready. Now execute. Apply aggressively. Interview fearlessly. The comeback is here."
+    }
+  ],
+  "weeks": [
+    {
+      "week_id": "week_1",
+      "week_number": 1,
+      "title": "TypeScript Mastery + Next.js Internals + DSA: Arrays & Strings",
+      "theme": "Kill the TypeScript lie on your resume. Understand Next.js at a level where you can explain it in a system design interview.",
+      "phase_ref": "phase_1",
+      "color_theme": "#1A237E"
+    },
+    {
+      "week_id": "week_2",
+      "week_number": 2,
+      "title": "PostgreSQL Mastery + Redis + WebSockets (Fix That Resume Lie)",
+      "theme": "Close the backend credibility gap. After this week, Redis and WebSockets on your resume will be 100% honest.",
+      "phase_ref": "phase_1",
+      "color_theme": "#1B5E20"
+    },
+    {
+      "week_id": "week_3",
+      "week_number": 3,
+      "title": "Docker + System Design + Advanced Backend Patterns",
+      "theme": "Make Docker real on your resume. Learn System Design enough to talk intelligently in interviews. Advanced Express patterns.",
+      "phase_ref": "phase_2",
+      "color_theme": "#B71C1C"
+    },
+    {
+      "week_id": "week_4",
+      "week_number": 4,
+      "title": "Advanced React Patterns + Next.js Production + Monitoring",
+      "theme": "The gap between junior and senior React dev. After this week you think about rendering, state, and architecture like a senior.",
+      "phase_ref": "phase_2",
+      "color_theme": "#0D47A1"
+    },
+    {
+      "week_id": "week_5",
+      "week_number": 5,
+      "title": "KILLER PROJECT BUILD — Week 1 of 2",
+      "theme": "Build the project that gets you hired. This is the most important week. Your GitHub profile transforms here.",
+      "phase_ref": "phase_3",
+      "color_theme": "#B71C1C",
+      "project": {
+        "name": "SyncSpace",
+        "description": "Real-Time Collaborative Platform",
+        "features": [
+          "Real-time document collaboration",
+          "User authentication (JWT + httpOnly cookies)",
+          "File uploads to S3 with presigned URLs",
+          "Redis caching (cache-aside pattern)",
+          "WebSocket with Socket.IO + Redis adapter",
+          "Fully typed TypeScript (strict mode)",
+          "Next.js App Router frontend",
+          "Docker deployment with CI/CD"
+        ],
+        "frontend_stack": [
+          "Next.js 15 App Router",
+          "TypeScript strict",
+          "Tailwind CSS",
+          "Zustand",
+          "React Query",
+          "Socket.IO client"
+        ],
+        "backend_stack": [
+          "Node.js",
+          "Express",
+          "TypeScript",
+          "Socket.IO",
+          "PostgreSQL",
+          "Redis",
+          "JWT auth",
+          "Zod validation"
+        ],
+        "devops": [
+          "Docker Compose (local dev)",
+          "GitHub Actions CI",
+          "Vercel (frontend)",
+          "Railway/Render (backend)"
+        ]
+      }
+    },
+    {
+      "week_id": "week_6",
+      "week_number": 6,
+      "title": "PROJECT POLISH + DSA INTENSIVE + System Design Deep Dive",
+      "theme": "Make the project production-ready. Become dangerous at DSA. System design at SDE-2 depth.",
+      "phase_ref": "phase_3",
+      "color_theme": "#1B5E20"
+    },
+    {
+      "week_id": "week_7",
+      "week_number": 7,
+      "title": "Interview Preparation: System Design + Behavioral + DSA Hard",
+      "theme": "Interview simulation mode. Every day has mock components. You are now preparing to WIN.",
+      "phase_ref": "phase_4",
+      "color_theme": "#4A148C"
+    },
+    {
+      "week_id": "week_8",
+      "week_number": 8,
+      "title": "LAUNCH WEEK — Apply, Interview, Win",
+      "theme": "You are ready. Now execute. Apply aggressively. Interview fearlessly. The comeback is here.",
+      "phase_ref": "phase_4",
+      "color_theme": "#B71C1C"
+    }
+  ],
+  "days": [
+    {
+      "day_id": "day_1",
+      "day_number": 1,
+      "week_ref": "week_1",
+      "phase_ref": "phase_1",
+      "title": "TypeScript: The Real Foundation",
+      "category": "core_learning",
+      "tags": [
+        "typescript",
+        "type-system",
+        "react"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "afternoon_task": "Build a TypeScript utility library — 5 functions using advanced types.",
+      "topics": [
+        {
+          "topic_id": "day1_t1",
+          "title": "Type System Fundamentals",
+          "context": "You listed TypeScript on resume. If you can't explain structural typing vs nominal typing you're done.",
+          "subtopics": [
+            "Primitive types: string, number, boolean, null, undefined, symbol, bigint",
+            "Type vs Interface: when to use each, declaration merging (only interface does this)",
+            "Union types (string | number) vs Intersection types (TypeA & TypeB)",
+            "Literal types: const x: 'hello' = 'hello' — why this is powerful",
+            "Type narrowing: typeof, instanceof, in operator, discriminated unions",
+            "never type: exhaustive checks, unreachable code, function that throws or loops forever",
+            "unknown vs any: unknown forces type checking, any is a lie"
+          ]
+        },
+        {
+          "topic_id": "day1_t2",
+          "title": "Advanced Types",
+          "subtopics": [
+            "Generics: <T>, constraints with extends, multiple generics <T, K extends keyof T>",
+            "Utility types: Partial<T>, Required<T>, Readonly<T>, Pick<T,K>, Omit<T,K>, Record<K,V>",
+            "Mapped types: { [K in keyof T]: T[K] } — how they work under the hood",
+            "Conditional types: T extends string ? 'yes' : 'no' — practical uses",
+            "Infer keyword in conditional types — extracting types from function return values",
+            "Template literal types: `${string}Id` for typed string patterns"
+          ]
+        },
+        {
+          "topic_id": "day1_t3",
+          "title": "TypeScript with React",
+          "subtopics": [
+            "Typing React components: FC vs explicit return types (prefer explicit)",
+            "useState generics: useState<User | null>(null)",
+            "useRef typing: useRef<HTMLInputElement>(null)",
+            "Event typing: React.ChangeEvent<HTMLInputElement>, React.MouseEvent<HTMLButtonElement>",
+            "Custom hooks with return types",
+            "Typing context: createContext with default values"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the difference between interface and type alias? Give a concrete example of where they behave differently.",
+          "Explain discriminated unions. Write a Shape type with Circle, Rectangle, Triangle and a function that uses exhaustive checking with never.",
+          "What does the infer keyword do? Write a ReturnType<T> utility type from scratch without using the built-in.",
+          "What's wrong with using any? When would you legitimately use unknown instead?",
+          "Write a DeepReadonly<T> mapped type that recursively makes all nested properties readonly.",
+          "Explain how TypeScript's structural typing works. Can you assign { name: string, age: number } to { name: string }?",
+          "What is a conditional type? Write a NonNullable<T> implementation.",
+          "How do you type a function that accepts a key of an object and returns the value at that key?",
+          "What is the difference between Partial<T> and Required<T>? Write both from scratch.",
+          "Explain template literal types. How would you create a type EventName that is `on${Capitalize<string>}`?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_2",
+      "day_number": 2,
+      "week_ref": "week_1",
+      "phase_ref": "phase_1",
+      "title": "TypeScript Advanced + Async Patterns",
+      "category": "core_learning",
+      "tags": [
+        "typescript",
+        "async",
+        "nodejs",
+        "express"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "tip": "Build a small typed Express app today: User CRUD with full TypeScript, no any, proper error types.",
+      "topics": [
+        {
+          "topic_id": "day2_t1",
+          "title": "TypeScript Async & Error Handling",
+          "subtopics": [
+            "Typing async functions: Promise<User>, Promise<void>",
+            "Result pattern: type Result<T,E> = { ok: true; value: T } | { ok: false; error: E }",
+            "Never throw raw errors — always type your errors",
+            "Discriminated union error handling — real production pattern",
+            "Axios response typing, fetch with generics"
+          ]
+        },
+        {
+          "topic_id": "day2_t2",
+          "title": "TypeScript Module System & Declaration Files",
+          "subtopics": [
+            "Modules: ES modules vs CommonJS in TypeScript context",
+            "Declaration files (.d.ts): when to write them and why",
+            "Ambient declarations: declare module, declare global",
+            "@types packages: what they are, how DefinitelyTyped works",
+            "tsconfig.json deep dive: strict, target, lib, paths, baseUrl, moduleResolution",
+            "Path aliases in TypeScript (@/components → src/components)"
+          ]
+        },
+        {
+          "topic_id": "day2_t3",
+          "title": "TypeScript with Node.js/Express",
+          "subtopics": [
+            "Typing Express Request: extending Request interface with user property",
+            "Middleware typing with RequestHandler<Params, ResBody, ReqBody, Query>",
+            "Typed environment variables with a schema validation approach",
+            "Class decorators basics (important for NestJS if you go there)"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Write a Result<T,E> type and a function fetchUser that returns Result<User, ApiError>.",
+          "How do you extend Express's Request interface to include a user property?",
+          "What is the difference between declaration merging and module augmentation?",
+          "Explain tsconfig strict mode. What does it enable and why should you always use it?",
+          "How do you type environment variables safely in TypeScript without using process.env.FOO as string everywhere?",
+          "What is a discriminated union and how does it improve error handling over try-catch?",
+          "Write a typed generic fetch wrapper: async function apiFetch<T>(url: string): Promise<T>",
+          "What does moduleResolution: 'bundler' do in tsconfig vs 'node'?",
+          "How do you create path aliases in TypeScript and what problem do they solve?",
+          "What is the purpose of satisfies operator introduced in TypeScript 4.9?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_3",
+      "day_number": 3,
+      "week_ref": "week_1",
+      "phase_ref": "phase_1",
+      "title": "Next.js App Router: Deep Internals",
+      "category": "core_learning",
+      "tags": [
+        "nextjs",
+        "app-router",
+        "rendering",
+        "server-components"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "roast": "If you cannot explain the difference between ISR and PPR right now, your 'Next.js specialist' claim is a joke. This is the most important day of Week 1.",
+      "topics": [
+        {
+          "topic_id": "day3_t1",
+          "title": "Rendering Strategies — The Core",
+          "context": "This is your biggest gap. You need to understand this deeply enough to defend architecture decisions.",
+          "subtopics": [
+            "SSR (Server-Side Rendering): Rendered on server per request. getServerSideProps (Pages Router). Async Server Component (App Router).",
+            "SSG (Static Site Generation): HTML built at COMPILE time. getStaticProps. generateStaticParams. Fastest possible delivery.",
+            "ISR (Incremental Static Regeneration): SSG + revalidation interval. revalidate property. Background regeneration.",
+            "CSR (Client-Side Rendering): 'use client' components. Data fetched in browser. Worst for SEO, best for interactivity.",
+            "PPR (Partial Pre-Rendering): Next.js 15+ feature. Static shell + dynamic holes with Suspense. The future.",
+            "On-demand revalidation: revalidatePath(), revalidateTag() — trigger ISR manually from API routes or server actions"
+          ]
+        },
+        {
+          "topic_id": "day3_t2",
+          "title": "App Router Architecture (Your New Bible)",
+          "subtopics": [
+            "File-based routing: page.tsx, layout.tsx, loading.tsx, error.tsx, not-found.tsx, route.ts",
+            "Layouts: root layout, nested layouts, parallel routes with @slot convention",
+            "Server Components vs Client Components: Server by default, 'use client' opts in to client",
+            "What CAN'T Server Components do: no useState, no useEffect, no browser APIs, no event handlers",
+            "What CAN Server Components do: async/await directly, access databases directly, keep secrets server-side",
+            "Data fetching in Server Components: fetch with {cache: 'no-store'} vs {next: {revalidate: 60}}",
+            "Server Actions: async functions with 'use server'. Form submissions without API routes.",
+            "Streaming with Suspense: <Suspense fallback={<Loading/>}> wrapping async server components",
+            "Route Groups: (marketing), (app) — organize routes without affecting URL structure",
+            "Dynamic routes: [id], [...slug], [[...slug]] — catch-all and optional catch-all",
+            "Intercepting routes: (.) same level, (..) one level up, (...) root — for modals pattern"
+          ]
+        },
+        {
+          "topic_id": "day3_t3",
+          "title": "Next.js Image, Font, and Metadata APIs",
+          "subtopics": [
+            "next/image: width/height required, fill prop, priority for LCP images, quality, formats",
+            "Automatic WebP/AVIF conversion, lazy loading by default, blur placeholder",
+            "next/font: zero layout shift, self-hosted, font-display swap automatically",
+            "Metadata API: generateMetadata(), static metadata object, opengraph, twitter cards",
+            "generateStaticParams(): pre-generating dynamic routes for SSG"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Explain ISR. What is the revalidate property and how does background regeneration work? What happens if a request comes in during regeneration?",
+          "What is Partial Pre-Rendering (PPR)? How does it differ from ISR? What version of Next.js introduced it?",
+          "In the App Router, what is the difference between a Server Component and a Client Component? List 5 things each can and cannot do.",
+          "Explain the 'waterfall' problem in data fetching. How does Suspense solve it? Write an example.",
+          "What is a Server Action? Write a form submission without an API route using Server Actions.",
+          "How does revalidatePath() work? When would you use it over setting a revalidate interval?",
+          "Explain parallel routes and intercepting routes. Give a real use case (modal on top of a page).",
+          "What is the difference between layout.tsx and template.tsx? When would you use template?",
+          "How does next/image optimize images under the hood? What formats does it serve and when?",
+          "What does the generateStaticParams function do? Write an example for a blog with dynamic [slug] routes."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_4",
+      "day_number": 4,
+      "week_ref": "week_1",
+      "phase_ref": "phase_1",
+      "title": "Next.js Performance + Middleware + Edge",
+      "category": "core_learning",
+      "tags": [
+        "nextjs",
+        "performance",
+        "middleware",
+        "edge-runtime",
+        "caching"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "tip": "Build: a Next.js app with middleware-based auth, ISR pages, and dynamic imports. Measure before and after Lighthouse scores.",
+      "topics": [
+        {
+          "topic_id": "day4_t1",
+          "title": "Next.js Performance Optimization",
+          "subtopics": [
+            "Core Web Vitals: LCP (Largest Contentful Paint < 2.5s), FID/INP (< 200ms), CLS (< 0.1)",
+            "Bundle analysis: next build && next analyze — @next/bundle-analyzer",
+            "Code splitting: automatic per-page, dynamic() for component-level splitting",
+            "dynamic() with ssr: false — client-only components, no SSR for heavy libraries",
+            "Tree shaking: how Next.js eliminates dead code (ESM required)",
+            "Route prefetching: Link prefetch={true} (default) vs prefetch={false}",
+            "Font optimization: next/font, self-hosted, no external network requests",
+            "Script optimization: next/script with strategy: 'lazyOnload' | 'afterInteractive' | 'beforeInteractive'",
+            "Image optimization: priority prop for above-fold, sizes prop for responsive"
+          ]
+        },
+        {
+          "topic_id": "day4_t2",
+          "title": "Caching Architecture in Next.js — All 4 Layers",
+          "subtopics": [
+            "Request Memoization: same fetch URL in same render tree is called ONCE automatically",
+            "Data Cache: fetch results stored on server across requests (persistent). unstable_cache for non-fetch calls.",
+            "Full Route Cache: static HTML/RSC payload stored at build time or after first request (SSG/ISR)",
+            "Router Cache: client-side cache in browser for RSC payloads — navigated routes are cached",
+            "How to opt out: cache: 'no-store', no-cache in fetch options, dynamic = 'force-dynamic' in route",
+            "cache() function: memoize arbitrary async functions within a request"
+          ]
+        },
+        {
+          "topic_id": "day4_t3",
+          "title": "Middleware",
+          "subtopics": [
+            "middleware.ts: runs at the Edge before a request is processed",
+            "matcher config: which routes middleware applies to",
+            "Use cases: auth redirects, A/B testing, geo-redirects, rate limiting at edge, feature flags",
+            "NextRequest, NextResponse APIs",
+            "Edge Runtime vs Node.js Runtime: edge has limited APIs (no fs, no native Node modules)",
+            "Geolocation and IP headers available in middleware"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Explain Next.js's 4 caching layers. What is the difference between Data Cache and Full Route Cache?",
+          "What is Request Memoization? Does it persist across requests?",
+          "How do you force a Server Component to always run dynamically (never cache)?",
+          "What is the Edge Runtime? What Node.js APIs are NOT available on it?",
+          "Write a middleware.ts that redirects unauthenticated users to /login based on a JWT cookie.",
+          "What is the unstable_cache function? When do you need it vs fetch with cache options?",
+          "Explain code splitting in Next.js. What happens automatically vs what you need dynamic() for?",
+          "What are Core Web Vitals? What are the passing thresholds for LCP, INP, and CLS?",
+          "How does the Router Cache work? Can you programmatically invalidate it?",
+          "What is the 'sizes' prop on next/image and why does it matter for performance?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_5",
+      "day_number": 5,
+      "week_ref": "week_1",
+      "phase_ref": "phase_1",
+      "title": "DSA Focus Day: Arrays, Strings & Sliding Window",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "arrays",
+        "strings",
+        "sliding-window",
+        "two-pointers",
+        "python"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "context": "DSA sessions happen EVERY morning (6-7:30am). Friday is your first full DSA focus day to consolidate the week.",
+      "topics": [
+        {
+          "topic_id": "day5_t1",
+          "title": "Array Fundamentals in Python",
+          "subtopics": [
+            "list operations: append O(1) amortized, insert O(n), pop O(1) from end, pop(0) O(n)",
+            "Two pointers technique: left/right pointers moving toward each other",
+            "Prefix sums: precompute cumulative sums for range queries in O(1)",
+            "Kadane's algorithm: maximum subarray in O(n)",
+            "Dutch National Flag: sort 0s, 1s, 2s in O(n) single pass"
+          ]
+        },
+        {
+          "topic_id": "day5_t2",
+          "title": "Sliding Window — HIGH Frequency Interview Pattern",
+          "subtopics": [
+            "Fixed window: maintain sum/state for window of size k",
+            "Variable window: expand right, shrink left when condition violated",
+            "Pattern: two pointers + a frequency map (Counter) for string problems",
+            "Problems to solve today: Maximum subarray, Longest substring without repeating chars, Minimum window substring, Sliding window maximum"
+          ]
+        },
+        {
+          "topic_id": "day5_t3",
+          "title": "String Manipulation",
+          "subtopics": [
+            "String immutability in Python — always use list then join for O(n) builds",
+            "Anagram check: Counter(s) == Counter(t) or sorted comparison",
+            "Palindrome: two pointer from ends",
+            "KMP Algorithm: pattern matching in O(n+m) — understand the failure function"
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_1",
+          "title": "Two Sum",
+          "difficulty": "easy",
+          "pattern": "hash map",
+          "url": "https://leetcode.com/problems/two-sum/"
+        },
+        {
+          "id": "LC_121",
+          "title": "Best Time to Buy and Sell Stock",
+          "difficulty": "easy",
+          "pattern": "single pass",
+          "url": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/"
+        },
+        {
+          "id": "LC_3",
+          "title": "Longest Substring Without Repeating Characters",
+          "difficulty": "medium",
+          "pattern": "sliding window",
+          "url": "https://leetcode.com/problems/longest-substring-without-repeating-characters/"
+        },
+        {
+          "id": "LC_76",
+          "title": "Minimum Window Substring",
+          "difficulty": "hard",
+          "pattern": "sliding window + Counter",
+          "url": "https://leetcode.com/problems/minimum-window-substring/"
+        },
+        {
+          "id": "LC_53",
+          "title": "Maximum Subarray",
+          "difficulty": "medium",
+          "pattern": "Kadane's algorithm",
+          "url": "https://leetcode.com/problems/maximum-subarray/"
+        },
+        {
+          "id": "LC_238",
+          "title": "Product of Array Except Self",
+          "difficulty": "medium",
+          "pattern": "prefix/suffix products",
+          "url": "https://leetcode.com/problems/product-of-array-except-self/"
+        },
+        {
+          "id": "LC_217",
+          "title": "Contains Duplicate",
+          "difficulty": "easy",
+          "pattern": "set",
+          "url": "https://leetcode.com/problems/contains-duplicate/"
+        },
+        {
+          "id": "LC_242",
+          "title": "Valid Anagram",
+          "difficulty": "easy",
+          "pattern": "Counter",
+          "url": "https://leetcode.com/problems/valid-anagram/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the time complexity of list.insert(0, x) in Python? Why?",
+          "Explain the sliding window technique. What determines when you use fixed vs variable window?",
+          "How does Kadane's algorithm work? Walk through it with [-2,1,-3,4,-1,2,1,-5,4].",
+          "What is a prefix sum array? How do you use it to answer range sum queries in O(1)?",
+          "Solve: Given a string s, find the length of the longest substring with at most k distinct characters.",
+          "What is the two pointers technique? Give 2 different problems where it applies.",
+          "How do you check if two strings are anagrams in O(n)?",
+          "Explain the KMP failure function. Why does KMP run in O(n+m) vs O(n*m) naive?",
+          "What is the Dutch National Flag problem? Write the solution.",
+          "For LC 76 (Minimum Window Substring), explain your approach before coding."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_6",
+      "day_number": 6,
+      "week_ref": "week_1",
+      "phase_ref": "phase_1",
+      "title": "Node.js Internals + Event Loop Mastery",
+      "category": "core_learning",
+      "tags": [
+        "nodejs",
+        "event-loop",
+        "streams",
+        "worker-threads",
+        "concurrency"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "roast": "You built an API with Node.js at Defyd. Can you explain what happens in the event loop when your route handler makes a MongoDB query? If you can't answer that, you don't understand Node.js, you just used it.",
+      "topics": [
+        {
+          "topic_id": "day6_t1",
+          "title": "The Event Loop — Most Asked Node.js Interview Topic",
+          "subtopics": [
+            "Single-threaded but non-blocking: how Node handles concurrency",
+            "Event Loop phases in ORDER: timers, pending callbacks, idle/prepare, poll, check, close callbacks",
+            "Timers phase: setTimeout, setInterval callbacks",
+            "Poll phase: I/O callbacks, the loop blocks here waiting for events",
+            "Check phase: setImmediate callbacks run here",
+            "Microtasks: process.nextTick (BEFORE next phase) and Promise.then (after nextTick, before next phase)",
+            "ORDER of execution: sync code → process.nextTick → Promise.then → setTimeout/setImmediate",
+            "Thread pool (libuv): file I/O, DNS, crypto operations run on 4 threads by default. UV_THREADPOOL_SIZE env."
+          ]
+        },
+        {
+          "topic_id": "day6_t2",
+          "title": "Streams — Underrated but Critical",
+          "subtopics": [
+            "4 types: Readable, Writable, Duplex, Transform",
+            "Streaming vs buffering: why streaming a 5GB file works, buffering crashes the process",
+            "pipe() and pipeline(): the right way to chain streams, pipeline handles errors",
+            "Backpressure: when writable can't keep up with readable — highWaterMark",
+            "Real use case: streaming file upload to S3, streaming CSV parsing, HTTP response streaming",
+            "stream.pipeline with async generators — modern pattern"
+          ]
+        },
+        {
+          "topic_id": "day6_t3",
+          "title": "Node.js Cluster & Worker Threads",
+          "subtopics": [
+            "Cluster module: spawn N worker processes for CPU core utilization",
+            "Master-worker model: master manages, workers share same port via OS round-robin",
+            "Worker Threads: true parallelism for CPU-intensive work (NOT I/O)",
+            "SharedArrayBuffer: share memory between worker threads",
+            "When to use cluster vs worker threads vs just async I/O"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "List all phases of the Node.js event loop in order. What happens in the poll phase?",
+          "What is the difference between process.nextTick and setImmediate? Which runs first?",
+          "What is backpressure in streams? How does highWaterMark relate to it?",
+          "Explain the difference between Worker Threads and Cluster. When would you use each?",
+          "What is libuv's thread pool used for? What is the default thread pool size?",
+          "What is the output order? console.log(1); setTimeout(()=>console.log(2),0); Promise.resolve().then(()=>console.log(3)); console.log(4);",
+          "How does Node.js handle 10,000 concurrent HTTP requests with a single thread?",
+          "What is stream.pipeline and why is it preferred over .pipe()?",
+          "How would you stream a large CSV file through Node.js to a client without running out of memory?",
+          "What is the difference between Readable in flowing vs paused mode?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_7",
+      "day_number": 7,
+      "week_ref": "week_1",
+      "phase_ref": "phase_1",
+      "title": "Week 1 Review + DSA: Hash Maps & Sets + Build Day",
+      "category": "review_and_build",
+      "tags": [
+        "review",
+        "dsa",
+        "hash-maps",
+        "sets",
+        "nextjs",
+        "build"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": true,
+      "is_review_day": true,
+      "tip": "If you can't explain something in simple words, you don't understand it yet. The blog writing is the test.",
+      "schedule": [
+        {
+          "time": "6:00 AM - 9:00 AM",
+          "task": "3 DSA problems — focus on hash map patterns (LC 49 Group Anagrams, LC 128 Longest Consecutive Sequence, LC 347 Top K Frequent Elements)"
+        },
+        {
+          "time": "9:00 AM - 1:00 PM",
+          "task": "Build a TypeScript + Next.js App Router mini-project that uses at least 3 rendering strategies, middleware, and a Server Action"
+        },
+        {
+          "time": "1:00 PM - 3:00 PM",
+          "task": "Review all 7 days' notes. Identify where you're shaky."
+        },
+        {
+          "time": "3:00 PM - 5:00 PM",
+          "task": "Read the Next.js official docs for App Router caching — primary source only"
+        },
+        {
+          "time": "5:00 PM - 7:00 PM",
+          "task": "GitHub push, clean up code, write README with architecture decisions explained"
+        },
+        {
+          "time": "7:00 PM - 9:00 PM",
+          "task": "Write a Notion/blog-style explanation of the event loop in your own words"
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_49",
+          "title": "Group Anagrams",
+          "difficulty": "medium",
+          "pattern": "hash map",
+          "url": "https://leetcode.com/problems/group-anagrams/"
+        },
+        {
+          "id": "LC_128",
+          "title": "Longest Consecutive Sequence",
+          "difficulty": "medium",
+          "pattern": "hash set",
+          "url": "https://leetcode.com/problems/longest-consecutive-sequence/"
+        },
+        {
+          "id": "LC_347",
+          "title": "Top K Frequent Elements",
+          "difficulty": "medium",
+          "pattern": "heap + hash map",
+          "url": "https://leetcode.com/problems/top-k-frequent-elements/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_8",
+      "day_number": 8,
+      "week_ref": "week_2",
+      "phase_ref": "phase_1",
+      "title": "PostgreSQL: Beyond Basic CRUD",
+      "category": "core_learning",
+      "tags": [
+        "postgresql",
+        "database",
+        "query-optimization",
+        "indexes",
+        "transactions",
+        "sql"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day8_t1",
+          "title": "Query Optimization & Indexes",
+          "subtopics": [
+            "B-Tree index: default, ideal for equality and range queries, ordered",
+            "Hash index: equality only, faster for exact match, not range",
+            "GIN index: for JSONB, arrays, full-text search",
+            "GiST index: for geometric types, full-text, nearest-neighbor",
+            "Partial indexes: CREATE INDEX ON users(email) WHERE deleted_at IS NULL — smaller, faster",
+            "Composite indexes: order matters — (last_name, first_name) serves queries on last_name but not first_name alone",
+            "Index-only scans: when all needed columns are in the index (covering indexes)",
+            "EXPLAIN ANALYZE: reading query plans, understanding Seq Scan vs Index Scan vs Index Only Scan",
+            "seq_page_cost vs random_page_cost: why planner sometimes prefers seq scan"
+          ]
+        },
+        {
+          "topic_id": "day8_t2",
+          "title": "Advanced SQL Patterns",
+          "subtopics": [
+            "Window functions: ROW_NUMBER(), RANK(), DENSE_RANK(), LAG(), LEAD(), FIRST_VALUE()",
+            "PARTITION BY with window functions: per-group calculations",
+            "CTEs (WITH clause): readable complex queries, recursive CTEs for hierarchical data",
+            "DISTINCT ON: PostgreSQL-specific, get first row per group efficiently",
+            "Upsert: INSERT ... ON CONFLICT DO UPDATE SET ... — atomic, no race conditions",
+            "JSONB operators: ->, ->>, @>, ?, #>, jsonb_set(), jsonb_build_object()",
+            "Full-text search: to_tsvector, to_tsquery, @@ operator, ts_rank"
+          ]
+        },
+        {
+          "topic_id": "day8_t3",
+          "title": "Transactions & Isolation",
+          "subtopics": [
+            "ACID properties: Atomicity, Consistency, Isolation, Durability — what each means concretely",
+            "Isolation levels: READ UNCOMMITTED, READ COMMITTED (PG default), REPEATABLE READ, SERIALIZABLE",
+            "Dirty reads, non-repeatable reads, phantom reads: which level prevents which",
+            "Optimistic vs pessimistic locking: SELECT FOR UPDATE (pessimistic), version column (optimistic)",
+            "Deadlocks: what causes them, how PostgreSQL detects and resolves, how to prevent",
+            "Long transactions: why they are dangerous (hold locks, block autovacuum, bloat WAL)"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the difference between B-Tree and Hash indexes in PostgreSQL? When would you use each?",
+          "Explain EXPLAIN ANALYZE output. What does 'Seq Scan' vs 'Index Scan' tell you?",
+          "Write a query using a window function to rank users by their total order value within each country.",
+          "What is a partial index? Write a real example and explain why it's better than a full index here.",
+          "Explain DISTINCT ON in PostgreSQL. How is it different from GROUP BY?",
+          "What is a phantom read? Which isolation level prevents it?",
+          "Explain SELECT FOR UPDATE. What problem does it solve? What problem does it create?",
+          "Write an upsert query for an events table that increments a counter on conflict.",
+          "What is a covering index? How does it enable index-only scans?",
+          "Write a recursive CTE to find all ancestors of a node in an organization chart table."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_9",
+      "day_number": 9,
+      "week_ref": "week_2",
+      "phase_ref": "phase_1",
+      "title": "Redis: Make That Resume Lie True",
+      "category": "core_learning",
+      "tags": [
+        "redis",
+        "caching",
+        "pub-sub",
+        "rate-limiting",
+        "data-structures"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "tip": "Build today: Express API with Redis caching (cache-aside), rate limiting middleware using sliding window, and a simple pub/sub notification system.",
+      "topics": [
+        {
+          "topic_id": "day9_t1",
+          "title": "Redis Data Structures & Use Cases",
+          "subtopics": [
+            "String: simple key-value, counters (INCR), rate limiting, session store, feature flags",
+            "Hash: store object fields, HSET user:1 name 'Raghav' age '25', HGETALL — like a row in memory",
+            "List: LPUSH/RPUSH, LPOP/RPOP, LRANGE — message queues, activity feeds, recent items",
+            "Set: SADD, SMEMBERS, SINTER (intersection), SUNION, SDIFF — unique items, tagging",
+            "Sorted Set (ZSet): ZADD with score, ZRANGEBYSCORE, ZREVRANK — leaderboards, priority queues, time-series",
+            "HyperLogLog: approximate unique count with tiny memory — COUNT DISTINCT at scale",
+            "Pub/Sub: PUBLISH channel message, SUBSCRIBE channel — real-time messaging",
+            "Streams: XADD, XREAD, consumer groups — Kafka-lite, audit logs, event sourcing"
+          ]
+        },
+        {
+          "topic_id": "day9_t2",
+          "title": "Redis Caching Patterns",
+          "subtopics": [
+            "Cache-aside (lazy loading): app checks cache first, on miss reads DB and populates cache",
+            "Write-through: write to cache AND DB simultaneously — always fresh, but write latency",
+            "Write-behind (write-back): write to cache, async flush to DB — risky, fastest writes",
+            "TTL strategy: EXPIRE, EXPIREAT, PEXPIRE (milliseconds)",
+            "Cache stampede / thundering herd: many requests hit DB on cache miss simultaneously",
+            "Solution: probabilistic early expiration, locking with SETNX (SET if Not eXists)",
+            "Cache invalidation: hardest problem. Tag-based invalidation with Redis Sets."
+          ]
+        },
+        {
+          "topic_id": "day9_t3",
+          "title": "Redis Rate Limiting Patterns",
+          "subtopics": [
+            "Fixed window counter: INCR key, EXPIRE on first INCR — simple but boundary burst issue",
+            "Sliding window log: ZADD with timestamp score, ZREMRANGEBYSCORE — accurate but memory heavy",
+            "Sliding window counter: two windows with weighted average — balance of accuracy and memory",
+            "Token bucket: more complex but smoother rate limiting",
+            "Implementing with Lua scripts for atomicity: redis.call inside EVAL"
+          ]
+        },
+        {
+          "topic_id": "day9_t4",
+          "title": "Redis Pub/Sub vs Streams",
+          "subtopics": [
+            "Pub/Sub: fire and forget, no persistence, subscriber must be online. Good for real-time events.",
+            "Streams: persistent log, consumer groups, acknowledgment, replay. Good for reliable messaging.",
+            "When to use Pub/Sub: live notifications, chat",
+            "When to use Streams: event sourcing, audit log, reliable job queues"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What Redis data structure would you use for a leaderboard? How would you get the top 10 users?",
+          "Explain cache-aside pattern. Write the code flow step by step.",
+          "What is a cache stampede? How do you prevent it with SETNX?",
+          "What is the difference between Redis Pub/Sub and Streams? When do you choose Streams?",
+          "Implement a fixed window rate limiter in Redis using INCR and EXPIRE. What is the boundary burst problem?",
+          "What is HyperLogLog? When would you use it over a Set?",
+          "How would you implement distributed session management with Redis?",
+          "What is a Redis pipeline? How does it differ from a transaction (MULTI/EXEC)?",
+          "Explain Redis eviction policies. What is LRU and LFU?",
+          "How do you implement a sliding window rate limiter using a Sorted Set?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_10",
+      "day_number": 10,
+      "week_ref": "week_2",
+      "phase_ref": "phase_1",
+      "title": "WebSockets & Real-Time Systems (The Big Fix)",
+      "category": "core_learning",
+      "tags": [
+        "websockets",
+        "socket.io",
+        "real-time",
+        "sse",
+        "scaling"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "roast": "You listed WebSockets on your resume and your projects have ZERO real-time. Today you fix that and build something real. This is not optional.",
+      "tip": "Build: A real-time collaborative document editor or live chat with Socket.IO, Redis adapter, rooms, and typing indicators. Push to GitHub TODAY.",
+      "topics": [
+        {
+          "topic_id": "day10_t1",
+          "title": "WebSocket Protocol Deep Dive",
+          "subtopics": [
+            "HTTP vs WebSocket: HTTP is request-response, WS is persistent bidirectional TCP connection",
+            "WebSocket handshake: HTTP Upgrade request → 101 Switching Protocols response",
+            "Frames: text frames, binary frames, ping/pong frames, close frames",
+            "WS URL: ws:// (plaintext) and wss:// (TLS encrypted)",
+            "Browser WebSocket API: new WebSocket(url), onopen, onmessage, onerror, onclose, send()",
+            "ReadyState: CONNECTING(0), OPEN(1), CLOSING(2), CLOSED(3)"
+          ]
+        },
+        {
+          "topic_id": "day10_t2",
+          "title": "Socket.IO — Industry Standard",
+          "subtopics": [
+            "Socket.IO over raw WebSocket: automatic fallback to long-polling, reconnection, rooms, namespaces",
+            "Rooms: socket.join(room), io.to(room).emit() — group messaging",
+            "Namespaces: /chat, /admin — separate concerns on same connection",
+            "Events: socket.on(), socket.emit(), io.emit() (broadcast all), socket.broadcast.emit() (all except sender)",
+            "Acknowledgments: emit with callback for guaranteed delivery",
+            "Middleware in Socket.IO: authentication, logging",
+            "socket.io-adapter with Redis adapter: horizontal scaling across multiple Node.js processes"
+          ]
+        },
+        {
+          "topic_id": "day10_t3",
+          "title": "Scaling Real-Time Systems",
+          "subtopics": [
+            "Sticky sessions: route same client to same server (needed if no Redis adapter)",
+            "Redis Pub/Sub adapter: broadcast events across multiple server instances",
+            "Redis Streams for message persistence: replay missed events for reconnected clients",
+            "Load balancing WebSockets: L4 load balancer (TCP passthrough) vs L7 (HTTP upgrade aware)",
+            "Connection management: heartbeat/ping-pong to detect dead connections",
+            "Rate limiting on WebSocket messages: prevent abuse"
+          ]
+        },
+        {
+          "topic_id": "day10_t4",
+          "title": "Server-Sent Events (SSE) — Know the Alternative",
+          "subtopics": [
+            "SSE: one-directional server→client over HTTP/1.1. EventSource API in browser.",
+            "When to use SSE over WebSocket: notifications, live feed, progress updates (server→client only)",
+            "SSE advantages: works over HTTP/2, proxies handle it, auto-reconnect built-in",
+            "SSE in Next.js App Router: streaming with ReadableStream from route handlers"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Explain the WebSocket handshake process. What HTTP headers are involved?",
+          "What is the difference between socket.broadcast.emit() and io.emit()?",
+          "How do you scale Socket.IO across multiple Node.js instances? What does the Redis adapter do?",
+          "When would you use SSE instead of WebSocket? Give 2 real examples.",
+          "What is a Socket.IO room? Write code to implement a private chat between two users.",
+          "How do you authenticate WebSocket connections? Show the Socket.IO middleware pattern.",
+          "What happens when a WebSocket connection drops? How does Socket.IO handle reconnection?",
+          "How do you implement typing indicators in a chat app with Socket.IO?",
+          "What is the sticky session problem? How does the Redis adapter solve it?",
+          "Explain ping/pong frames. Why are they important for connection health?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_11",
+      "day_number": 11,
+      "week_ref": "week_2",
+      "phase_ref": "phase_1",
+      "title": "API Design: REST Mastery + GraphQL Intro",
+      "category": "core_learning",
+      "tags": [
+        "rest-api",
+        "graphql",
+        "api-design",
+        "jwt",
+        "oauth",
+        "security"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day11_t1",
+          "title": "REST API Design Best Practices",
+          "subtopics": [
+            "Resource naming: nouns not verbs. /users not /getUsers. /orders/123/items not /getOrderItems",
+            "HTTP methods semantics: GET (idempotent, safe), POST (create, not idempotent), PUT (full replace, idempotent), PATCH (partial update), DELETE (idempotent)",
+            "Status codes: 200 OK, 201 Created, 204 No Content, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict, 422 Unprocessable Entity, 429 Too Many Requests, 500 Internal Server Error",
+            "Filtering, sorting, pagination: ?page=1&limit=20&sort=createdAt:desc&filter[status]=active",
+            "Cursor-based pagination vs offset: cursor is faster for large datasets (no COUNT(*)), offset has page jump capability",
+            "Versioning strategies: URL versioning (/v1/users), header versioning (Accept: application/vnd.api.v1+json)",
+            "HATEOAS: responses include links to related actions — more self-describing APIs",
+            "Rate limiting headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, Retry-After"
+          ]
+        },
+        {
+          "topic_id": "day11_t2",
+          "title": "API Security",
+          "subtopics": [
+            "JWT deep dive: header.payload.signature, HS256 vs RS256, token expiry, refresh token pattern",
+            "Refresh token rotation: issue new refresh token on use, invalidate old one — stateless revocation",
+            "OAuth 2.0 flows: Authorization Code (web apps), PKCE (SPAs), Client Credentials (M2M)",
+            "API Key authentication: hashed storage, scoped permissions, key rotation",
+            "Request validation: zod/joi schema validation before business logic",
+            "SQL injection prevention: parameterized queries ALWAYS, never string concat",
+            "CORS configuration: origins whitelist, credentials: true implications",
+            "Helmet.js: security headers — CSP, HSTS, X-Frame-Options, etc."
+          ]
+        },
+        {
+          "topic_id": "day11_t3",
+          "title": "GraphQL Fundamentals (Awareness Level)",
+          "subtopics": [
+            "Schema definition: type Query, type Mutation, type Subscription",
+            "Resolvers: function that returns data for a field",
+            "N+1 problem: naive resolvers make N DB calls for N items — solved by DataLoader (batching)",
+            "GraphQL vs REST: GraphQL wins on flexibility/overfetch, REST wins on caching/simplicity",
+            "When companies use GraphQL: when clients have wildly different data needs (mobile vs web)"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Design a REST API for a food delivery app. List the endpoints for orders with proper HTTP methods and status codes.",
+          "What is cursor-based pagination? When is it better than offset pagination?",
+          "Explain JWT structure. How do you invalidate a JWT token?",
+          "What is refresh token rotation? Why is it more secure than long-lived JWTs?",
+          "What is the N+1 problem in GraphQL? How does DataLoader solve it?",
+          "What is the difference between 401 and 403 status codes?",
+          "How do you implement idempotency in a payment API? What is an idempotency key?",
+          "What headers should your API return for rate limiting? What should the client do with Retry-After?",
+          "Explain OAuth 2.0 Authorization Code flow with PKCE. Why is PKCE needed for SPAs?",
+          "What is HATEOAS? Give an example of a HATEOAS-style response."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_12",
+      "day_number": 12,
+      "week_ref": "week_2",
+      "phase_ref": "phase_1",
+      "title": "DSA: Linked Lists + Stacks + Queues",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "linked-lists",
+        "stacks",
+        "queues",
+        "monotonic-stack",
+        "python"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day12_t1",
+          "title": "Linked Lists",
+          "subtopics": [
+            "Singly vs Doubly linked list: node structure, pointer manipulation",
+            "Dummy/sentinel node pattern: simplifies edge cases at head/tail",
+            "Floyd's cycle detection: slow/fast pointers — O(1) space cycle detection",
+            "Reverse a linked list: iterative (3 pointers) and recursive",
+            "Merge two sorted lists, find middle node (slow/fast pointer), detect cycle, remove nth from end"
+          ]
+        },
+        {
+          "topic_id": "day12_t2",
+          "title": "Stacks & Queues",
+          "subtopics": [
+            "Stack: LIFO. Python: list with append/pop. Use cases: balanced parentheses, function call stack, undo/redo",
+            "Monotonic stack: maintain increasing or decreasing order for next greater/smaller element problems",
+            "Queue: FIFO. Python: collections.deque with append/popleft (O(1)). NOT list.pop(0) which is O(n)",
+            "Monotonic deque: sliding window maximum problem",
+            "BFS uses a queue. DFS uses a stack (or recursion)."
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_206",
+          "title": "Reverse Linked List",
+          "difficulty": "easy",
+          "pattern": "linked list",
+          "url": "https://leetcode.com/problems/reverse-linked-list/"
+        },
+        {
+          "id": "LC_21",
+          "title": "Merge Two Sorted Lists",
+          "difficulty": "easy",
+          "pattern": "linked list",
+          "url": "https://leetcode.com/problems/merge-two-sorted-lists/"
+        },
+        {
+          "id": "LC_141",
+          "title": "Linked List Cycle",
+          "difficulty": "easy",
+          "pattern": "Floyd's algorithm",
+          "url": "https://leetcode.com/problems/linked-list-cycle/"
+        },
+        {
+          "id": "LC_19",
+          "title": "Remove Nth Node From End of List",
+          "difficulty": "medium",
+          "pattern": "two pointers",
+          "url": "https://leetcode.com/problems/remove-nth-node-from-end-of-list/"
+        },
+        {
+          "id": "LC_20",
+          "title": "Valid Parentheses",
+          "difficulty": "easy",
+          "pattern": "stack",
+          "url": "https://leetcode.com/problems/valid-parentheses/"
+        },
+        {
+          "id": "LC_739",
+          "title": "Daily Temperatures",
+          "difficulty": "medium",
+          "pattern": "monotonic stack",
+          "url": "https://leetcode.com/problems/daily-temperatures/"
+        },
+        {
+          "id": "LC_239",
+          "title": "Sliding Window Maximum",
+          "difficulty": "hard",
+          "pattern": "monotonic deque",
+          "url": "https://leetcode.com/problems/sliding-window-maximum/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Write Floyd's cycle detection algorithm. How does it work to find the cycle start?",
+          "What is a monotonic stack? How does it solve the 'Next Greater Element' problem?",
+          "Why should you use collections.deque for a queue instead of a Python list?",
+          "Write a function to reverse a linked list iteratively with O(1) space.",
+          "What is the dummy node pattern? Show how it simplifies removing the head of a linked list.",
+          "How do you find the middle of a linked list in one pass?",
+          "Write an LRU Cache using an OrderedDict or doubly linked list + hash map.",
+          "Explain the sliding window maximum problem. Why is a monotonic deque O(n)?",
+          "What is the difference between a stack and a call stack?",
+          "Implement a stack that supports push, pop, and getMin in O(1) each."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_13",
+      "day_number": 13,
+      "week_ref": "week_2",
+      "phase_ref": "phase_1",
+      "title": "React Performance Engineering",
+      "category": "core_learning",
+      "tags": [
+        "react",
+        "performance",
+        "memoization",
+        "fiber",
+        "state-management",
+        "code-splitting"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day13_t1",
+          "title": "React Rendering Mechanics",
+          "subtopics": [
+            "Why React re-renders: state change, prop change, context value change, parent re-render",
+            "Reconciliation: React compares VDOM trees, patches DOM minimally",
+            "Key prop: signals React which list items are same/new. Keys must be stable, unique, and NOT index in reordered lists.",
+            "Fiber architecture: Fiber is a unit of work. React can pause, resume, prioritize rendering.",
+            "Concurrent features: useTransition (mark updates as non-urgent), useDeferredValue (defer expensive re-renders)"
+          ]
+        },
+        {
+          "topic_id": "day13_t2",
+          "title": "Memoization APIs",
+          "subtopics": [
+            "React.memo: memoizes a component, skips re-render if props unchanged (shallow compare)",
+            "useMemo: memoizes a computed VALUE. const value = useMemo(() => expensive(a,b), [a,b])",
+            "useCallback: memoizes a FUNCTION reference. const fn = useCallback(() => {}, [deps])",
+            "When NOT to use memo: premature optimization. Memo adds cost. Only memoize proven bottlenecks.",
+            "Referential equality trap: objects and arrays are new on every render. useMemo fixes this.",
+            "Profiler API: React DevTools Profiler — measure which components are slow and why"
+          ]
+        },
+        {
+          "topic_id": "day13_t3",
+          "title": "State Management Performance",
+          "subtopics": [
+            "Context performance: every context consumer re-renders when context VALUE changes. Split contexts.",
+            "Zustand: lightweight, no boilerplate, selective subscriptions (only re-render on the slice you subscribe to)",
+            "Jotai: atomic state, derive state from atoms",
+            "React Query / TanStack Query: server state management. Caching, background refetch, optimistic updates.",
+            "Why not Redux for everything: too much boilerplate for most apps. Use Zustand for client state + React Query for server state."
+          ]
+        },
+        {
+          "topic_id": "day13_t4",
+          "title": "Code Splitting & Lazy Loading",
+          "subtopics": [
+            "React.lazy + Suspense: dynamic import of component, show fallback while loading",
+            "Route-level code splitting: import Dashboard when /dashboard route is hit",
+            "Preloading: import() call in mouseenter/touchstart to preload before click"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What triggers a React re-render? List all possible causes.",
+          "What is the difference between useMemo and useCallback? Give a concrete example of each.",
+          "When would you NOT use React.memo? What are the costs?",
+          "Explain React Fiber. What problem does it solve compared to the old stack reconciler?",
+          "What is the 'context performance problem'? How do you solve it?",
+          "What is useTransition? Build an example: a search filter that uses useTransition.",
+          "How does React Query handle caching? What is staleTime vs gcTime?",
+          "Why is key={index} bad for lists that can be reordered or filtered?",
+          "Explain optimistic updates in React Query. What happens if the mutation fails?",
+          "What does React DevTools Profiler measure? What are you looking for in a flame chart?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_14",
+      "day_number": 14,
+      "week_ref": "week_2",
+      "phase_ref": "phase_1",
+      "title": "Week 2 Review + System Design Intro + DSA: Trees",
+      "category": "review_and_build",
+      "tags": [
+        "review",
+        "system-design",
+        "cap-theorem",
+        "dsa",
+        "binary-trees",
+        "bst"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": true,
+      "topics": [
+        {
+          "topic_id": "day14_t1",
+          "title": "System Design Introduction",
+          "subtopics": [
+            "What interviewers want: a structured approach, not the right answer",
+            "Framework: Clarify requirements → Estimate scale → API design → Database design → High-level design → Deep dive → Bottlenecks",
+            "CAP Theorem: Consistency, Availability, Partition Tolerance — pick 2. Real systems make tradeoffs.",
+            "Horizontal vs vertical scaling: scale out (more machines) vs scale up (bigger machine)",
+            "Load balancer: distributes traffic, health checks, algorithms (round robin, least connections, IP hash)",
+            "Database: read replicas for read scaling, sharding for write scaling",
+            "CDN: static asset delivery from edge nodes close to users"
+          ]
+        },
+        {
+          "topic_id": "day14_t2",
+          "title": "DSA: Binary Trees & BST",
+          "subtopics": [
+            "Tree traversals: inorder (left-root-right), preorder (root-left-right), postorder (left-right-root) — both iterative and recursive",
+            "BFS (level order): use a queue, process level by level",
+            "DFS patterns: most tree problems are DFS with a choice of what to return or pass down",
+            "BST property: left subtree < root, right subtree > root. Inorder traversal of BST = sorted array.",
+            "Common patterns: find height, check balance, find LCA, validate BST, kth smallest"
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_104",
+          "title": "Maximum Depth of Binary Tree",
+          "difficulty": "easy",
+          "pattern": "DFS",
+          "url": "https://leetcode.com/problems/maximum-depth-of-binary-tree/"
+        },
+        {
+          "id": "LC_226",
+          "title": "Invert Binary Tree",
+          "difficulty": "easy",
+          "pattern": "DFS",
+          "url": "https://leetcode.com/problems/invert-binary-tree/"
+        },
+        {
+          "id": "LC_100",
+          "title": "Same Tree",
+          "difficulty": "easy",
+          "pattern": "DFS",
+          "url": "https://leetcode.com/problems/same-tree/"
+        },
+        {
+          "id": "LC_235",
+          "title": "Lowest Common Ancestor of BST",
+          "difficulty": "medium",
+          "pattern": "BST property",
+          "url": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/"
+        },
+        {
+          "id": "LC_102",
+          "title": "Binary Tree Level Order Traversal",
+          "difficulty": "medium",
+          "pattern": "BFS",
+          "url": "https://leetcode.com/problems/binary-tree-level-order-traversal/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Write iterative inorder traversal of a binary tree without recursion.",
+          "What is the CAP theorem? Give an example of a CP system and an AP system.",
+          "How does a load balancer decide which server to route a request to? List 3 algorithms.",
+          "What is database sharding? What are the challenges of sharding?",
+          "How do you find the Lowest Common Ancestor of two nodes in a Binary Tree (not BST)?",
+          "Validate if a binary tree is a valid BST. What is the elegant approach using min/max bounds?",
+          "Explain the difference between read replicas and sharding. When do you use each?",
+          "What is a CDN? How does cache invalidation work in a CDN?",
+          "Write BFS level order traversal and return results as a list of lists (one per level).",
+          "What is consistent hashing? Why is it used for distributing cache across multiple nodes?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_15",
+      "day_number": 15,
+      "week_ref": "week_3",
+      "phase_ref": "phase_2",
+      "title": "Docker: From Filler to Real Skill",
+      "category": "core_learning",
+      "tags": [
+        "docker",
+        "containers",
+        "dockerfile",
+        "docker-compose",
+        "devops"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tip": "Build: Dockerize your Node.js + PostgreSQL + Redis app with docker-compose. Multi-stage Dockerfile for Node. Healthchecks on DB. Hot reload in development with bind mount.",
+      "topics": [
+        {
+          "topic_id": "day15_t1",
+          "title": "Docker Fundamentals — Deep",
+          "subtopics": [
+            "Container vs VM: containers share host OS kernel, VMs have separate OS. Containers are lighter.",
+            "Dockerfile instructions: FROM, WORKDIR, COPY, RUN, ENV, EXPOSE, CMD, ENTRYPOINT",
+            "CMD vs ENTRYPOINT: CMD is default args (overridable), ENTRYPOINT is fixed command",
+            "COPY vs ADD: COPY is explicit, ADD can extract archives and fetch URLs — prefer COPY",
+            "Layer caching: each instruction is a layer. Order matters — put infrequently changing things first",
+            "Build context: what gets sent to Docker daemon. Use .dockerignore to exclude node_modules, .git"
+          ]
+        },
+        {
+          "topic_id": "day15_t2",
+          "title": "Multi-Stage Builds — Must Know",
+          "subtopics": [
+            "Problem: dev dependencies, build tools bloat the final image",
+            "Solution: stage 1 builds, stage 2 copies only production artifacts",
+            "Example: FROM node:18 AS builder → npm ci, npm run build → FROM node:18-alpine → COPY --from=builder /app/dist",
+            "Result: image goes from 800MB to 150MB. This is what you mention in interviews.",
+            "Alpine images: minimal Linux, but missing some GNU tools. Prefer slim or alpine for production."
+          ]
+        },
+        {
+          "topic_id": "day15_t3",
+          "title": "Docker Compose",
+          "subtopics": [
+            "docker-compose.yml: define services, networks, volumes",
+            "depends_on: start order (but not readiness — use healthcheck for readiness)",
+            "Environment variables: .env file, env_file option, environment block",
+            "Volumes: named volumes (persist across container restarts), bind mounts (for development hot reload)",
+            "Networks: services on same network can reach each other by service name (internal DNS)",
+            "healthcheck: liveness probe — when is container 'ready' vs just 'running'"
+          ]
+        },
+        {
+          "topic_id": "day15_t4",
+          "title": "Docker Networking",
+          "subtopics": [
+            "Bridge network: default, containers can talk to each other by container name",
+            "Host network: container uses host networking stack (no isolation, max performance, Linux only)",
+            "Overlay network: cross-host networking (Docker Swarm / Kubernetes context)",
+            "Port binding: -p 3000:3000 (host:container). EXPOSE is documentation only, not port binding."
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the difference between COPY and ADD in a Dockerfile?",
+          "Explain Docker layer caching. Why is the order of instructions important for caching?",
+          "Write a multi-stage Dockerfile for a Next.js app. What is the benefit?",
+          "What is the difference between a named volume and a bind mount?",
+          "How do services in docker-compose communicate with each other?",
+          "What does EXPOSE do in a Dockerfile? Does it actually bind the port?",
+          "What is the difference between CMD and ENTRYPOINT?",
+          "How do you add a healthcheck to a docker-compose service? Why is depends_on not enough?",
+          "What is .dockerignore? What should always be in it for a Node.js project?",
+          "How do you reduce a Docker image size? List 4 concrete techniques."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_16",
+      "day_number": 16,
+      "week_ref": "week_3",
+      "phase_ref": "phase_2",
+      "title": "System Design: Designing Real Systems",
+      "category": "system_design",
+      "tags": [
+        "system-design",
+        "url-shortener",
+        "notification-system",
+        "rate-limiter",
+        "architecture"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day16_t1",
+          "title": "Design a URL Shortener",
+          "subtopics": [
+            "Functional requirements: create short URL, redirect, analytics",
+            "Scale estimate: 100M URLs/month write, 10B redirects/month read (100:1 read:write)",
+            "Core challenge: generate unique short codes — base62 encoding of auto-increment ID vs random",
+            "Database choice: NoSQL (DynamoDB/MongoDB) — simple key-value, horizontal scale",
+            "Cache (Redis): store {shortCode → longURL}. 80% traffic from 20% of URLs (hot URLs).",
+            "Redirect: 301 (permanent, browser caches — no analytics tracking) vs 302 (temporary, always hits server — better for analytics)",
+            "Custom aliases, expiry, analytics counters with Redis INCR"
+          ]
+        },
+        {
+          "topic_id": "day16_t2",
+          "title": "Design a Notification System",
+          "subtopics": [
+            "Types: push (mobile), email, SMS, in-app",
+            "Flow: API receives notification request → queue (Kafka/SQS) → workers per channel → delivery",
+            "Why queue: decouple producer from consumer, handle spikes, retry on failure",
+            "Priorities: transactional (OTP, password reset) must be fast, marketing can be batch",
+            "Fan-out: sending to 1M users. Need parallel workers, rate limits per channel provider.",
+            "Retry with exponential backoff: 1s, 2s, 4s, 8s... with jitter",
+            "Deduplication: idempotency key prevents sending same notification twice",
+            "Preferences: user opt-out, quiet hours, channel preferences stored in DB/cache"
+          ]
+        },
+        {
+          "topic_id": "day16_t3",
+          "title": "Design a Rate Limiter",
+          "subtopics": [
+            "Where: API gateway (centralized), middleware per service (distributed needs Redis)",
+            "Algorithms: fixed window, sliding window log, sliding window counter, token bucket, leaky bucket",
+            "Distributed rate limiting: Redis INCR with TTL for fixed window, ZSet for sliding window",
+            "Response: 429 Too Many Requests with Retry-After header",
+            "Different limits for different users: free tier 100/hour, premium 1000/hour"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Design a URL shortener. Walk through your full architecture: API, DB schema, caching, redirect mechanism.",
+          "What is the difference between 301 and 302 redirect in a URL shortener? Which tracks analytics better?",
+          "Why use a message queue for a notification system? What problem does it solve?",
+          "Explain exponential backoff with jitter. Why is jitter important?",
+          "Design the database schema for a notification system supporting email, SMS, and push.",
+          "How do you implement a token bucket rate limiter? What is the difference from a leaky bucket?",
+          "How does fan-out work for sending notifications to 1 million users?",
+          "What is a message queue dead letter queue (DLQ)? When should messages go there?",
+          "How do you prevent a notification from being sent twice (deduplication)?",
+          "How would you handle user time zones and quiet hours in a notification system?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_17",
+      "day_number": 17,
+      "week_ref": "week_3",
+      "phase_ref": "phase_2",
+      "title": "Advanced Express: Middleware, Error Handling, Architecture",
+      "category": "core_learning",
+      "tags": [
+        "express",
+        "nodejs",
+        "middleware",
+        "error-handling",
+        "architecture",
+        "mvc"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day17_t1",
+          "title": "Express Middleware Architecture",
+          "subtopics": [
+            "Middleware signature: (req, res, next) => void. Error middleware: (err, req, res, next).",
+            "Order matters: middleware runs in order of registration",
+            "Application-level vs Router-level middleware",
+            "Building your own middleware: request logger, response time, correlation ID",
+            "Third-party must-haves: helmet (security), morgan (logging), compression, express-rate-limit"
+          ]
+        },
+        {
+          "topic_id": "day17_t2",
+          "title": "Error Handling Properly",
+          "subtopics": [
+            "NEVER throw in async route handlers without try-catch — unhandled rejection crashes Node",
+            "express-async-handler wrapper OR top-level async express support (Express 5)",
+            "Centralized error handler: 4-argument middleware at the END of your app",
+            "Custom AppError class: extends Error with statusCode and isOperational flag",
+            "Operational vs programmer errors: log differently, respond differently",
+            "Joi/Zod validation errors → 400, auth errors → 401, not found → 404, everything else → 500"
+          ]
+        },
+        {
+          "topic_id": "day17_t3",
+          "title": "Project Architecture (MVC + Service Layer)",
+          "subtopics": [
+            "Routes → Controller → Service → Repository → Database",
+            "Routes: URL matching only, no business logic",
+            "Controller: HTTP layer — parse req, call service, format res",
+            "Service: business logic, orchestration, no HTTP knowledge",
+            "Repository: database queries, no business logic",
+            "Why layers: testability (mock repository for service tests), replaceability",
+            "Dependency injection: pass dependencies as constructor args instead of importing directly"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Write a centralized error handling middleware for Express. What is the 4-argument signature?",
+          "What is the difference between operational and programmer errors? How do you handle them differently?",
+          "What does express-async-handler do and why is it needed in Express 4?",
+          "Design the folder structure for a production Express app with proper separation of concerns.",
+          "Write a correlation ID middleware that adds a unique ID to every request for tracing.",
+          "What is the Repository pattern? How does it make your service layer testable?",
+          "How does Zod validation work in an Express middleware? Show the pattern.",
+          "What is dependency injection? How does it help with testing?",
+          "Why must error-handling middleware be registered LAST in Express?",
+          "How do you gracefully shutdown an Express server on SIGTERM?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_18",
+      "day_number": 18,
+      "week_ref": "week_3",
+      "phase_ref": "phase_2",
+      "title": "Testing: Jest/Vitest — Make Your Tests Actually Good",
+      "category": "core_learning",
+      "tags": [
+        "testing",
+        "jest",
+        "vitest",
+        "supertest",
+        "rtl",
+        "tdd",
+        "mocking"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day18_t1",
+          "title": "Testing Philosophy & Types",
+          "subtopics": [
+            "Unit tests: test one function/module in isolation. Mock all dependencies.",
+            "Integration tests: test multiple units together. Real DB (test DB) or in-memory.",
+            "E2E tests: full user flow in a browser. Playwright, Cypress.",
+            "Testing pyramid: many unit, fewer integration, few E2E. Inverse pyramid is expensive.",
+            "TDD: write test first, then code. Not always practical but shapes API design.",
+            "Coverage: aim for 80%+ on business logic. 100% is often not worth it."
+          ]
+        },
+        {
+          "topic_id": "day18_t2",
+          "title": "Jest/Vitest Patterns",
+          "subtopics": [
+            "describe, it/test, expect, beforeEach, afterEach, beforeAll, afterAll",
+            "Matchers: toBe (strict equal), toEqual (deep equal), toContain, toThrow, toHaveBeenCalledWith",
+            "Mocking: jest.mock() for modules, jest.fn() for functions, jest.spyOn() for methods",
+            "Mock implementation: mockReturnValue, mockResolvedValue, mockRejectedValue",
+            "Async testing: async/await in test, resolves/rejects matchers",
+            "Testing Express: supertest library — make HTTP requests to your app in tests"
+          ]
+        },
+        {
+          "topic_id": "day18_t3",
+          "title": "Testing React",
+          "subtopics": [
+            "React Testing Library: test as a user would. findByText, getByRole, userEvent.",
+            "Avoid testing implementation details: don't test internal state, test what the user sees",
+            "Mock API calls: msw (Mock Service Worker) — intercept at network level",
+            "Testing hooks: @testing-library/react-hooks or renderHook"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the difference between toBe and toEqual in Jest?",
+          "How do you mock a module in Jest? Show the pattern for mocking a database repository.",
+          "Write a unit test for a service function that creates a user, with the repository mocked.",
+          "What is supertest? Write an integration test for a POST /users Express route.",
+          "What is Mock Service Worker (msw)? How does it differ from mocking fetch directly?",
+          "What is test coverage? Is 100% coverage always the goal?",
+          "Explain the difference between beforeEach and beforeAll. When do you use each?",
+          "How do you test a React component that fetches data? What do you mock?",
+          "What does jest.spyOn do differently from jest.fn()?",
+          "What makes a good unit test? List 5 properties."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_19",
+      "day_number": 19,
+      "week_ref": "week_3",
+      "phase_ref": "phase_2",
+      "title": "DSA: Graphs + BFS/DFS Patterns",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "graphs",
+        "bfs",
+        "dfs",
+        "topological-sort",
+        "union-find",
+        "python"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day19_t1",
+          "title": "Graph Fundamentals",
+          "subtopics": [
+            "Representations: adjacency list (most common — O(V+E) space), adjacency matrix (O(V²) — for dense graphs)",
+            "Directed vs undirected, weighted vs unweighted",
+            "Python graph as defaultdict(list)"
+          ]
+        },
+        {
+          "topic_id": "day19_t2",
+          "title": "BFS on Graphs",
+          "subtopics": [
+            "BFS: queue, visited set, level-by-level exploration",
+            "Use cases: shortest path in unweighted graph, level order, minimum steps",
+            "LC 200: Number of Islands (BFS flood fill)",
+            "LC 127: Word Ladder (BFS shortest transformation)",
+            "LC 286: Walls and Gates (multi-source BFS)"
+          ]
+        },
+        {
+          "topic_id": "day19_t3",
+          "title": "DFS on Graphs",
+          "subtopics": [
+            "DFS: recursive or iterative with stack, visited set to prevent cycles",
+            "Topological sort: DFS post-order OR Kahn's algorithm (BFS with in-degree)",
+            "Cycle detection: in directed graph — DFS with recursion stack, not just visited",
+            "Connected components, strongly connected components",
+            "LC 207: Course Schedule (topological sort / cycle detection)",
+            "LC 130: Surrounded Regions (DFS from border)"
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_200",
+          "title": "Number of Islands",
+          "difficulty": "medium",
+          "pattern": "BFS/DFS flood fill",
+          "url": "https://leetcode.com/problems/number-of-islands/"
+        },
+        {
+          "id": "LC_207",
+          "title": "Course Schedule",
+          "difficulty": "medium",
+          "pattern": "topological sort / cycle detection",
+          "url": "https://leetcode.com/problems/course-schedule/"
+        },
+        {
+          "id": "LC_130",
+          "title": "Surrounded Regions",
+          "difficulty": "medium",
+          "pattern": "DFS from border",
+          "url": "https://leetcode.com/problems/surrounded-regions/"
+        },
+        {
+          "id": "LC_127",
+          "title": "Word Ladder",
+          "difficulty": "hard",
+          "pattern": "BFS shortest path",
+          "url": "https://leetcode.com/problems/word-ladder/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the time complexity of BFS and DFS on a graph? What determines it?",
+          "How do you detect a cycle in a directed graph using DFS?",
+          "What is topological sort? When can't you topological sort a graph?",
+          "Explain Kahn's algorithm for topological sort using in-degree.",
+          "How do you solve the Number of Islands problem? Explain the flood fill approach.",
+          "What is multi-source BFS? How do you implement it for the Walls and Gates problem?",
+          "What is the difference between connected components (undirected) and strongly connected components (directed)?",
+          "How do you find the shortest path in a weighted graph? (Dijkstra's algorithm basics)",
+          "What data structure do you use for graph BFS in Python and why?",
+          "Explain Union-Find (Disjoint Set Union). What is path compression and union by rank?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_20",
+      "day_number": 20,
+      "week_ref": "week_3",
+      "phase_ref": "phase_2",
+      "title": "AWS Deep Dive: S3, IAM, EC2, Cognito",
+      "category": "core_learning",
+      "tags": [
+        "aws",
+        "s3",
+        "iam",
+        "ec2",
+        "cognito",
+        "cloud"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day20_t1",
+          "title": "S3 Mastery (You've Used It — Now Master It)",
+          "subtopics": [
+            "Buckets: globally unique names, region-specific. Objects: key (path), value (bytes), metadata.",
+            "Presigned URLs: generate time-limited URLs for private objects. Clients upload/download directly.",
+            "Multipart upload: split large files, parallel upload, assemble on S3. You've done this — know the API.",
+            "S3 storage classes: Standard, Standard-IA (infrequent access), Glacier, Intelligent-Tiering",
+            "Lifecycle policies: automatically transition or delete objects based on age",
+            "Bucket policies vs ACLs: prefer bucket policies, ACLs are legacy",
+            "CORS configuration on S3: required for browser direct uploads",
+            "S3 versioning: keep multiple versions of same object — accidental delete protection",
+            "S3 Transfer Acceleration: CloudFront edge for faster upload over long distance"
+          ]
+        },
+        {
+          "topic_id": "day20_t2",
+          "title": "IAM Deep Dive",
+          "subtopics": [
+            "IAM Policies: JSON documents. Effect, Action, Resource, Condition.",
+            "IAM Roles vs Users: users have long-term credentials, roles are assumed temporarily",
+            "Principle of least privilege: grant ONLY what is needed",
+            "Instance profiles: EC2 instances assume roles — no hardcoded credentials",
+            "Cross-account access with roles",
+            "STS (Security Token Service): temporary credentials for assumed roles"
+          ]
+        },
+        {
+          "topic_id": "day20_t3",
+          "title": "EC2 Basics + Cognito",
+          "subtopics": [
+            "EC2 instance types: compute optimized (C), memory optimized (R), general purpose (T/M)",
+            "Security groups: stateful firewall. Inbound + outbound rules.",
+            "User Data: bootstrap script that runs on first launch",
+            "AMI: machine image — snapshot to launch EC2 from",
+            "AWS Cognito (you've used it): User Pools (authentication), Identity Pools (federated identities)",
+            "Cognito User Pool: handles sign-up, sign-in, MFA, JWT tokens. Hosted UI or custom UI."
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "How do presigned S3 URLs work? What information is embedded in them?",
+          "Explain S3 multipart upload. At what file size should you switch from single to multipart?",
+          "What is the difference between an IAM Role and an IAM User?",
+          "What is an EC2 Instance Profile? Why should you use it instead of access keys on EC2?",
+          "What is the principle of least privilege? Give a concrete IAM policy example.",
+          "How does CORS configuration on S3 enable browser-based direct uploads?",
+          "What is the difference between AWS Cognito User Pools and Identity Pools?",
+          "Explain S3 storage classes. When would you use Standard-IA vs Glacier?",
+          "What are S3 lifecycle policies? Give an example policy for archiving old logs.",
+          "How do you restrict an S3 bucket to only allow uploads from your application server?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_21",
+      "day_number": 21,
+      "week_ref": "week_3",
+      "phase_ref": "phase_2",
+      "title": "Week 3 Review + Mock System Design Interview",
+      "category": "review_and_build",
+      "tags": [
+        "review",
+        "system-design",
+        "mock-interview",
+        "docker",
+        "testing"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": true,
+      "is_review_day": true,
+      "schedule": [
+        {
+          "time": "6:00 AM - 9:00 AM",
+          "task": "3 DSA problems — review weakest area from the week"
+        },
+        {
+          "time": "10:00 AM - 12:00 PM",
+          "task": "Full mock system design session. Design a Twitter/X-like feed system. Time it. Draw it out."
+        },
+        {
+          "time": "12:00 PM - 2:00 PM",
+          "task": "Review Docker Compose setup, make sure all services run with one command"
+        },
+        {
+          "time": "2:00 PM - 5:00 PM",
+          "task": "Write integration tests for your Express API using supertest"
+        },
+        {
+          "time": "5:00 PM - 7:00 PM",
+          "task": "Read about message queues — RabbitMQ vs Kafka basics (awareness)"
+        },
+        {
+          "time": "7:00 PM - 9:00 PM",
+          "task": "GitHub cleanup, README updates, commit streak check"
+        }
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_22",
+      "day_number": 22,
+      "week_ref": "week_4",
+      "phase_ref": "phase_2",
+      "title": "Advanced React Patterns",
+      "category": "core_learning",
+      "tags": [
+        "react",
+        "compound-components",
+        "hoc",
+        "custom-hooks",
+        "portals",
+        "error-boundaries"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day22_t1",
+          "title": "Compound Components",
+          "subtopics": [
+            "Pattern: parent component shares state implicitly with children via Context",
+            "Example: <Select> + <Select.Option> — children access Select's state without explicit props",
+            "Implementation: createContext inside parent, children consume it",
+            "When to use: component libraries, flexible APIs with many variants"
+          ]
+        },
+        {
+          "topic_id": "day22_t2",
+          "title": "Render Props & Children as Function",
+          "subtopics": [
+            "Pattern: component accepts a function as children or prop, calls it with data",
+            "Example: <DataFetcher render={data => <List data={data}/>}/>",
+            "Modern alternative: custom hooks (cleaner, but render props still appear in interviews)"
+          ]
+        },
+        {
+          "topic_id": "day22_t3",
+          "title": "HOC (Higher Order Components)",
+          "subtopics": [
+            "Function that takes a component and returns enhanced component",
+            "Use case: cross-cutting concerns — auth guards, analytics, logging",
+            "Pitfalls: prop drilling complexity, displayName for debugging",
+            "Modern replacement: hooks + composition (but understand HOC for legacy code)"
+          ]
+        },
+        {
+          "topic_id": "day22_t4",
+          "title": "Custom Hooks Patterns",
+          "subtopics": [
+            "Encapsulate stateful logic, reuse across components",
+            "useDebounce: delay state updates for search input",
+            "usePrevious: ref to hold previous value",
+            "useIntersectionObserver: infinite scroll, lazy loading detection",
+            "useLocalStorage: sync state with localStorage",
+            "Rule: hooks must start with 'use', cannot be called conditionally"
+          ]
+        },
+        {
+          "topic_id": "day22_t5",
+          "title": "Portals & Error Boundaries",
+          "subtopics": [
+            "Portal: render child into DOM node outside parent hierarchy. Use case: modals, tooltips.",
+            "Error Boundary: class component (no hook equivalent yet) that catches render errors",
+            "Combine: portal-rendered modal + error boundary for resilient modals"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Implement a compound component pattern for a Tabs component with Tab.Header and Tab.Content.",
+          "What is the difference between a render prop and a custom hook? When do you use each?",
+          "Write a useDebounce hook. How does it work internally?",
+          "What is a Higher Order Component? Give an example of a withAuth HOC.",
+          "What are Error Boundaries? Why can't you write them as a function component?",
+          "What is React Portal? Write a Modal component that uses createPortal.",
+          "Write a useIntersectionObserver hook for infinite scrolling.",
+          "What are the rules of hooks? Why do these rules exist?",
+          "Implement a useAsync hook that handles loading, error, and data state.",
+          "What is the Context API performance problem and how do you solve it with compound components?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_23",
+      "day_number": 23,
+      "week_ref": "week_4",
+      "phase_ref": "phase_2",
+      "title": "Next.js Production Deployment + CI/CD + Monitoring",
+      "category": "core_learning",
+      "tags": [
+        "nextjs",
+        "deployment",
+        "vercel",
+        "github-actions",
+        "ci-cd",
+        "monitoring",
+        "sentry",
+        "logging"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day23_t1",
+          "title": "Next.js Build & Output",
+          "subtopics": [
+            "next build: creates .next folder with optimized build. Shows page-by-page rendering strategy.",
+            "next start: production server (Node.js). Requires server for SSR/ISR.",
+            "output: 'export': generates static HTML. No server, no ISR, no dynamic routes without generateStaticParams.",
+            "Standalone output: output: 'standalone' in next.config — minimal production bundle for Docker",
+            "Environment variables: NEXT_PUBLIC_ prefix for client-side exposure. Server-only: access normally."
+          ]
+        },
+        {
+          "topic_id": "day23_t2",
+          "title": "Deploying on Vercel",
+          "subtopics": [
+            "Zero-config deployment for Next.js. Git push → auto deploy.",
+            "Vercel Edge Functions: middleware runs on edge, near users globally",
+            "Vercel KV (Redis), Vercel Blob, Vercel Postgres — managed services",
+            "Preview deployments: every PR gets its own URL — great for team review",
+            "Environment variables: set per environment (development, preview, production)"
+          ]
+        },
+        {
+          "topic_id": "day23_t3",
+          "title": "CI/CD with GitHub Actions",
+          "subtopics": [
+            "Workflow: .github/workflows/ci.yml",
+            "Trigger: on push/PR to main",
+            "Steps: checkout → install deps → lint → type-check → test → build → deploy",
+            "Secrets: store API keys in GitHub Secrets, access as ${{ secrets.API_KEY }}",
+            "Caching: cache node_modules based on package-lock.json hash — faster CI",
+            "Matrix builds: test on Node 18 and 20 simultaneously"
+          ]
+        },
+        {
+          "topic_id": "day23_t4",
+          "title": "Monitoring & Observability",
+          "subtopics": [
+            "Three pillars: Logs (what happened), Metrics (how much), Traces (where time was spent)",
+            "Logging: structured JSON logs with winston or pino. Include: timestamp, level, message, requestId, userId.",
+            "Error tracking: Sentry — capture unhandled errors with stack traces, sourcemaps, context",
+            "APM: application performance monitoring. Response times, slow queries, throughput.",
+            "Health checks: /health endpoint returning DB/Redis connectivity status",
+            "Alerting: when error rate spikes or latency exceeds threshold"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the difference between output: 'standalone' and a regular Next.js build for Docker?",
+          "What is NEXT_PUBLIC_ prefix? What happens if you access a secret variable with NEXT_PUBLIC_?",
+          "Write a GitHub Actions workflow that lints, tests, and builds a Next.js app on every PR.",
+          "What are the 3 pillars of observability? Give an example tool for each.",
+          "How do you integrate Sentry into a Next.js app to catch both client and server errors?",
+          "What should a /health endpoint check and return?",
+          "What is a structured log? Why is JSON logging better than plain text logging?",
+          "How do Vercel Preview Deployments work? What are they useful for?",
+          "How do you cache node_modules in GitHub Actions? Write the cache step.",
+          "What is a deployment rollback? How do you implement it with GitHub Actions?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_24",
+      "day_number": 24,
+      "week_ref": "week_4",
+      "phase_ref": "phase_2",
+      "title": "Database Design: Modeling Like a Senior",
+      "category": "core_learning",
+      "tags": [
+        "database",
+        "postgresql",
+        "mongodb",
+        "schema-design",
+        "normalization",
+        "connection-pooling"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day24_t1",
+          "title": "Relational Database Design Principles",
+          "subtopics": [
+            "Normalization: 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies)",
+            "Denormalization: intentionally duplicate data for read performance (when reads >> writes)",
+            "Foreign keys: referential integrity, ON DELETE CASCADE vs RESTRICT vs SET NULL",
+            "Many-to-many: junction/pivot table with composite primary key",
+            "Soft deletes: deleted_at timestamp instead of actually deleting rows",
+            "Audit tables: who changed what when — shadow tables or event log"
+          ]
+        },
+        {
+          "topic_id": "day24_t2",
+          "title": "MongoDB Advanced Patterns",
+          "subtopics": [
+            "Embedding vs referencing: embed when data is accessed together and small. Reference when data is large or shared.",
+            "Aggregation pipeline: $match → $group → $project → $sort → $limit",
+            "Indexes in MongoDB: compound indexes, text indexes, TTL indexes, sparse indexes",
+            "Transactions: multi-document ACID transactions (available in replica sets)",
+            "Schema validation: Mongoose validation vs MongoDB JSON Schema validator",
+            "Change streams: real-time data change notifications — pub/sub on DB events"
+          ]
+        },
+        {
+          "topic_id": "day24_t3",
+          "title": "Database Connection Management",
+          "subtopics": [
+            "Connection pooling: reuse connections instead of creating new one per request",
+            "Pool size: max connections = (CPU cores * 2) + disk spindles — rule of thumb",
+            "pg (node-postgres) pool: Pool constructor with max, idleTimeoutMillis, connectionTimeoutMillis",
+            "Mongoose connection: singleton pattern, retry logic on disconnect"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Explain 3rd Normal Form. Give an example of a table that violates 3NF and how to fix it.",
+          "When would you denormalize a PostgreSQL table? Give a concrete example.",
+          "What is the difference between embedding and referencing in MongoDB? How do you decide?",
+          "Write a MongoDB aggregation pipeline to calculate total revenue per user per month.",
+          "What is a TTL index in MongoDB? What problem does it solve?",
+          "What is database connection pooling? What happens without it?",
+          "Explain ON DELETE CASCADE vs RESTRICT. When would each be appropriate?",
+          "What are MongoDB Change Streams? What real-time use cases do they enable?",
+          "How do you implement soft deletes? What indexes do you need?",
+          "Design the database schema for a multi-tenant SaaS application. How do you isolate tenant data?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_25",
+      "day_number": 25,
+      "week_ref": "week_4",
+      "phase_ref": "phase_2",
+      "title": "DSA: Dynamic Programming — The Dragon",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "dynamic-programming",
+        "memoization",
+        "tabulation",
+        "python"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "roast": "Most developers memorize DP solutions without understanding the pattern. That's why they can't solve new DP problems in interviews. Today you learn the thinking, not just the solutions.",
+      "topics": [
+        {
+          "topic_id": "day25_t1",
+          "title": "DP Thinking Framework — 5 Steps",
+          "subtopics": [
+            "Step 1: Identify if it's DP — optimal substructure + overlapping subproblems",
+            "Step 2: Define the state — what does dp[i] or dp[i][j] represent?",
+            "Step 3: Find the recurrence — how does dp[i] relate to dp[i-1]?",
+            "Step 4: Identify base cases",
+            "Step 5: Determine order (top-down memoization OR bottom-up tabulation)"
+          ]
+        },
+        {
+          "topic_id": "day25_t2",
+          "title": "1D DP Problems",
+          "subtopics": [
+            "LC 70: Climbing Stairs — dp[n] = dp[n-1] + dp[n-2]",
+            "LC 198: House Robber — dp[i] = max(dp[i-1], dp[i-2] + nums[i])",
+            "LC 322: Coin Change — dp[i] = min(dp[i - coin] + 1) for each coin",
+            "LC 300: Longest Increasing Subsequence — dp[i] = max dp[j]+1 where j<i and nums[j]<nums[i]",
+            "LC 139: Word Break — dp[i] = any dp[j] where s[j:i] is in wordDict"
+          ]
+        },
+        {
+          "topic_id": "day25_t3",
+          "title": "2D DP Problems",
+          "subtopics": [
+            "LC 62: Unique Paths — dp[i][j] = dp[i-1][j] + dp[i][j-1]",
+            "LC 1143: Longest Common Subsequence — dp[i][j] based on match or no match",
+            "LC 518: Coin Change 2 (combinations, not permutations) — 2D DP"
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_70",
+          "title": "Climbing Stairs",
+          "difficulty": "easy",
+          "pattern": "1D DP",
+          "url": "https://leetcode.com/problems/climbing-stairs/"
+        },
+        {
+          "id": "LC_198",
+          "title": "House Robber",
+          "difficulty": "medium",
+          "pattern": "1D DP",
+          "url": "https://leetcode.com/problems/house-robber/"
+        },
+        {
+          "id": "LC_322",
+          "title": "Coin Change",
+          "difficulty": "medium",
+          "pattern": "1D DP",
+          "url": "https://leetcode.com/problems/coin-change/"
+        },
+        {
+          "id": "LC_300",
+          "title": "Longest Increasing Subsequence",
+          "difficulty": "medium",
+          "pattern": "1D DP",
+          "url": "https://leetcode.com/problems/longest-increasing-subsequence/"
+        },
+        {
+          "id": "LC_139",
+          "title": "Word Break",
+          "difficulty": "medium",
+          "pattern": "1D DP",
+          "url": "https://leetcode.com/problems/word-break/"
+        },
+        {
+          "id": "LC_62",
+          "title": "Unique Paths",
+          "difficulty": "medium",
+          "pattern": "2D DP",
+          "url": "https://leetcode.com/problems/unique-paths/"
+        },
+        {
+          "id": "LC_1143",
+          "title": "Longest Common Subsequence",
+          "difficulty": "medium",
+          "pattern": "2D DP",
+          "url": "https://leetcode.com/problems/longest-common-subsequence/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What are the two properties a problem must have to be solved with DP?",
+          "What is the difference between top-down memoization and bottom-up tabulation?",
+          "Explain the Coin Change problem. Write both top-down and bottom-up solutions.",
+          "What does dp[i] represent in the House Robber problem? Write the recurrence.",
+          "How do you reduce a 2D DP to O(n) space (space optimization)?",
+          "What is the LCS (Longest Common Subsequence) recurrence relation?",
+          "How does Word Break work? What is dp[i] and how do you compute it?",
+          "What is the difference between LC 322 (Coin Change) and LC 518 (Coin Change 2)?",
+          "What is the Longest Increasing Subsequence? What is the O(n log n) solution?",
+          "How do you identify that a problem has overlapping subproblems?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_26",
+      "day_number": 26,
+      "week_ref": "week_4",
+      "phase_ref": "phase_2",
+      "title": "Security: Web App Security Every Developer Must Know",
+      "category": "core_learning",
+      "tags": [
+        "security",
+        "owasp",
+        "xss",
+        "csrf",
+        "sql-injection",
+        "jwt",
+        "tls"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day26_t1",
+          "title": "OWASP Top 10 — Must Know",
+          "subtopics": [
+            "1. Injection (SQL, NoSQL, Command): parameterized queries, never trust user input",
+            "2. Broken Authentication: weak passwords, no MFA, predictable tokens — use bcrypt, JWTs properly",
+            "3. XSS (Cross-Site Scripting): reflected, stored, DOM-based. Sanitize output, CSP headers.",
+            "4. IDOR (Insecure Direct Object Reference): check authorization, not just authentication",
+            "5. Security Misconfiguration: default credentials, verbose errors, open ports",
+            "6. Vulnerable Dependencies: npm audit, dependabot, Snyk",
+            "7. Cryptographic Failures: HTTP not HTTPS, weak encryption, storing plaintext passwords"
+          ]
+        },
+        {
+          "topic_id": "day26_t2",
+          "title": "Common Attack Vectors & Defenses",
+          "subtopics": [
+            "CSRF: Cross-Site Request Forgery. Defense: CSRF tokens, SameSite cookie attribute.",
+            "Clickjacking: X-Frame-Options: DENY header",
+            "SQL injection: parameterized queries, ORMs, input validation",
+            "Password hashing: bcrypt (cost factor 10-12), argon2id (preferred), NEVER MD5/SHA1 for passwords",
+            "Sensitive data: never log passwords/tokens/PII. Mask in logs."
+          ]
+        },
+        {
+          "topic_id": "day26_t3",
+          "title": "HTTPS, TLS, and Certificate Management",
+          "subtopics": [
+            "TLS 1.2 vs 1.3: 1.3 is faster (0-RTT handshake), more secure (removes weak ciphers)",
+            "Certificate authorities, self-signed certs (local dev only)",
+            "HSTS: force HTTPS even when user types http://",
+            "Let's Encrypt: free TLS certs, 90-day rotation, certbot automation"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is XSS? Explain reflected vs stored XSS with examples.",
+          "What is the difference between authentication and authorization? Give a code-level example of IDOR.",
+          "What is CSRF? How does the SameSite cookie attribute help prevent it?",
+          "Why is bcrypt better than SHA-256 for password hashing?",
+          "What is Content Security Policy (CSP)? How does it prevent XSS?",
+          "What does 'npm audit' check? What is Dependabot?",
+          "Explain SQL injection. Write a vulnerable query and the parameterized fix.",
+          "What is HSTS? What problem does it solve?",
+          "What HTTP security headers should every Express app set? List 5 and explain each.",
+          "What is the difference between TLS 1.2 and TLS 1.3?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_27",
+      "day_number": 27,
+      "week_ref": "week_4",
+      "phase_ref": "phase_2",
+      "title": "DSA: Heaps + Greedy + Binary Search",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "heaps",
+        "greedy",
+        "binary-search",
+        "python"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day27_t1",
+          "title": "Heaps / Priority Queues",
+          "subtopics": [
+            "Python: heapq module — min-heap by default. For max-heap: negate values.",
+            "heapq.heappush(heap, item), heapq.heappop(heap) — O(log n)",
+            "heapq.nlargest(k, iterable), heapq.nsmallest(k, iterable)",
+            "LC 347: Top K Frequent Elements — heap of size k",
+            "LC 295: Find Median from Data Stream — two heaps (max-heap for left half, min-heap for right)",
+            "LC 23: Merge K Sorted Lists — heap with (val, listIndex, node)"
+          ]
+        },
+        {
+          "topic_id": "day27_t2",
+          "title": "Binary Search — Beyond Simple Search",
+          "subtopics": [
+            "Template: lo=0, hi=len-1, while lo<=hi: mid=(lo+hi)//2",
+            "Search space: recognize when you can binary search on the ANSWER, not just the array",
+            "LC 33: Search in Rotated Sorted Array — which half is sorted?",
+            "LC 153: Find Minimum in Rotated Sorted Array",
+            "LC 875: Koko Eating Bananas — binary search on eating speed (answer)",
+            "LC 1011: Capacity to Ship Packages — binary search on capacity (answer)"
+          ]
+        },
+        {
+          "topic_id": "day27_t3",
+          "title": "Greedy",
+          "subtopics": [
+            "Greedy: make locally optimal choice at each step, hope it leads to global optimum",
+            "Prove greedy works: exchange argument — show swapping away from greedy makes it worse",
+            "LC 455: Assign Cookies, LC 45: Jump Game II, LC 134: Gas Station"
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_347_2",
+          "title": "Top K Frequent Elements",
+          "difficulty": "medium",
+          "pattern": "heap",
+          "url": "https://leetcode.com/problems/top-k-frequent-elements/"
+        },
+        {
+          "id": "LC_295",
+          "title": "Find Median from Data Stream",
+          "difficulty": "hard",
+          "pattern": "two heaps",
+          "url": "https://leetcode.com/problems/find-median-from-data-stream/"
+        },
+        {
+          "id": "LC_23",
+          "title": "Merge k Sorted Lists",
+          "difficulty": "hard",
+          "pattern": "heap",
+          "url": "https://leetcode.com/problems/merge-k-sorted-lists/"
+        },
+        {
+          "id": "LC_875",
+          "title": "Koko Eating Bananas",
+          "difficulty": "medium",
+          "pattern": "binary search on answer",
+          "url": "https://leetcode.com/problems/koko-eating-bananas/"
+        },
+        {
+          "id": "LC_33",
+          "title": "Search in Rotated Sorted Array",
+          "difficulty": "medium",
+          "pattern": "binary search",
+          "url": "https://leetcode.com/problems/search-in-rotated-sorted-array/"
+        },
+        {
+          "id": "LC_45",
+          "title": "Jump Game II",
+          "difficulty": "medium",
+          "pattern": "greedy",
+          "url": "https://leetcode.com/problems/jump-game-ii/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "How does a min-heap work? What is the time complexity of push and pop?",
+          "How do you implement a max-heap with Python's heapq (which is a min-heap)?",
+          "Solve: Find the Kth largest element in an array using a heap. What is the complexity?",
+          "Explain binary search on the answer. Apply it to the Koko Eating Bananas problem.",
+          "How do you search in a rotated sorted array? Walk through your logic.",
+          "What is the greedy choice for Jump Game II? Why does it work?",
+          "How do you find the median of a stream of numbers efficiently?",
+          "What is the Merge K Sorted Lists approach using a heap? What is the complexity?",
+          "Explain the exchange argument for proving greedy correctness.",
+          "Binary search: what is the difference between left-biased and right-biased binary search?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_28",
+      "day_number": 28,
+      "week_ref": "week_4",
+      "phase_ref": "phase_2",
+      "title": "Week 4 Review + Mock Full-Stack Interview",
+      "category": "review_and_build",
+      "tags": [
+        "review",
+        "mock-interview",
+        "month-1-complete"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": true,
+      "month_1_checklist": [
+        "TypeScript: genuine understanding, no more any abuse",
+        "Next.js: rendering strategies, App Router, caching, middleware — interview-ready",
+        "Node.js: event loop, streams, cluster — can answer internals questions",
+        "PostgreSQL: query optimization, window functions, transactions, indexes",
+        "Redis: 5 data structures with use cases, caching patterns, rate limiting, pub/sub",
+        "WebSockets: Socket.IO, rooms, scaling — project on GitHub",
+        "Docker: Dockerfile, multi-stage, docker-compose — project running",
+        "System Design: URL shortener, notification system, rate limiter patterns",
+        "DSA: arrays, strings, linked lists, trees, graphs, DP basics, heaps, binary search"
+      ],
+      "action": "Do a mock interview today. Ask a friend or use Pramp/interviewing.io. Record yourself.",
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_29",
+      "day_number": 29,
+      "week_ref": "week_5",
+      "phase_ref": "phase_3",
+      "title": "SyncSpace Project: Architecture & Setup",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "architecture",
+        "setup",
+        "typescript",
+        "nextjs",
+        "express"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tip": "Architecture Document in README.md: explain every decision. This is what interviewers read.",
+      "tasks": [
+        "Monorepo vs separate repos: use separate repos (simpler for job portfolio)",
+        "Init frontend repo: Next.js 15 App Router, TypeScript strict, Tailwind, Zustand, React Query, Socket.IO client",
+        "Init backend repo: Node.js, Express, TypeScript, Socket.IO, PostgreSQL, Redis, JWT auth, Zod",
+        "Configure TypeScript strict mode on both repos",
+        "Set up ESLint + Prettier with shared config",
+        "Docker Compose dev environment: Postgres + Redis + API + Web all running with one command",
+        "Write Architecture README: tech choices, folder structure, data flow diagrams"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_30",
+      "day_number": 30,
+      "week_ref": "week_5",
+      "phase_ref": "phase_3",
+      "title": "SyncSpace: Authentication System",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "authentication",
+        "jwt",
+        "bcrypt",
+        "security"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tip": "httpOnly cookies for JWT: more secure than localStorage. Prevents XSS token theft.",
+      "tasks": [
+        "Implement full JWT auth: register, login, refresh token rotation, logout",
+        "Password hashing with bcrypt (10 rounds)",
+        "Middleware: authenticateToken middleware on protected routes",
+        "Frontend: auth context, protected routes, token persistence in httpOnly cookie (not localStorage)",
+        "Zod validation on all inputs: email format, password strength",
+        "Rate limiting on auth endpoints: 5 attempts per 15 minutes"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_31",
+      "day_number": 31,
+      "week_ref": "week_5",
+      "phase_ref": "phase_3",
+      "title": "SyncSpace: Real-Time Core (WebSockets + Rooms)",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "websockets",
+        "socket.io",
+        "redis",
+        "real-time"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tasks": [
+        "Socket.IO server setup with JWT authentication middleware",
+        "Rooms: each document is a room. Users join room on document open.",
+        "Events: user-joined, user-left, cursor-moved, document-changed, user-typing",
+        "Redis adapter: scale Socket.IO across instances",
+        "Presence system: track who is in each document room with Redis Sets",
+        "Cursor synchronization: broadcast cursor position, display other users' cursors"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_32",
+      "day_number": 32,
+      "week_ref": "week_5",
+      "phase_ref": "phase_3",
+      "title": "SyncSpace: File Upload System + S3 Integration",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "s3",
+        "file-upload",
+        "presigned-urls",
+        "aws"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tasks": [
+        "Direct upload from client to S3 using presigned URLs",
+        "File type validation: magic bytes not just extension",
+        "File size limits: enforced on backend when issuing presigned URL",
+        "Multipart upload for files > 5MB",
+        "Store file metadata in PostgreSQL: user_id, filename, s3_key, size, mime_type, created_at",
+        "Soft delete: mark as deleted, don't immediately remove from S3 (scheduled cleanup)"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_33",
+      "day_number": 33,
+      "week_ref": "week_5",
+      "phase_ref": "phase_3",
+      "title": "SyncSpace: Caching Layer + Performance",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "redis",
+        "caching",
+        "performance",
+        "lighthouse"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tasks": [
+        "Cache-aside with Redis: cache document metadata, user profiles",
+        "Cache invalidation: on document update, invalidate cache",
+        "Rate limiting on API endpoints with Redis sliding window",
+        "Database query optimization: EXPLAIN ANALYZE on slow queries, add indexes",
+        "Frontend performance: React.memo on expensive components, virtual list for document list",
+        "Next.js performance: analyze bundle size, add dynamic imports for heavy libraries",
+        "Lighthouse score: aim for 90+ performance on landing page"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_34",
+      "day_number": 34,
+      "week_ref": "week_5",
+      "phase_ref": "phase_3",
+      "title": "SyncSpace: Testing + Error Handling",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "testing",
+        "jest",
+        "supertest",
+        "sentry",
+        "error-handling"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tasks": [
+        "Unit tests for service layer: mock repositories",
+        "Integration tests for API with supertest: auth flow, document CRUD, file upload",
+        "Frontend component tests with RTL: auth form, document list",
+        "Centralized error handling: AppError class, global error middleware",
+        "Sentry integration: capture errors in production with context",
+        "Structured logging with pino: every request logged with method, path, duration, statusCode, requestId"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_35",
+      "day_number": 35,
+      "week_ref": "week_5",
+      "phase_ref": "phase_3",
+      "title": "SyncSpace: DevOps + CI/CD",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "docker",
+        "github-actions",
+        "ci-cd",
+        "deployment"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tip": "This README is your sales pitch. Write it as if it's your job application.",
+      "tasks": [
+        "Multi-stage Dockerfile for Next.js (standalone output) and Express",
+        "Docker Compose production configuration",
+        "GitHub Actions: lint → typecheck → test → build → deploy on push to main",
+        "Environment configuration: .env.example file with all required variables documented",
+        "Health check endpoints on both services",
+        "README: architecture diagram, setup instructions, features list, tech decisions rationale"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_36",
+      "day_number": 36,
+      "week_ref": "week_6",
+      "phase_ref": "phase_3",
+      "title": "Project Polish: UI/UX + Edge Cases",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "ux",
+        "accessibility",
+        "error-handling",
+        "mobile"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tasks": [
+        "Add skeleton loaders for async content (no layout shift)",
+        "Error boundaries on all major page sections",
+        "Empty states: well-designed empty states for no documents, no users",
+        "Optimistic updates in React Query: instant UI feedback before server response",
+        "Offline detection: show banner when network drops, reconnect Socket.IO",
+        "Mobile responsiveness: test on 375px (iPhone SE) viewport",
+        "Accessibility: keyboard navigation, ARIA labels, color contrast ratios"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_37",
+      "day_number": 37,
+      "week_ref": "week_6",
+      "phase_ref": "phase_3",
+      "title": "System Design: Design a Chat System (WhatsApp Scale)",
+      "category": "system_design",
+      "tags": [
+        "system-design",
+        "whatsapp",
+        "chat",
+        "cassandra",
+        "websockets",
+        "fan-out"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "context": "Relevant to your WhatsApp API work at Defyd — now design it at scale.",
+      "topics": [
+        {
+          "topic_id": "day37_t1",
+          "title": "WhatsApp System Design — Full Architecture",
+          "subtopics": [
+            "Requirements: 1:1 messaging, group messaging (max 500 members), online status, message delivery receipts",
+            "Scale: 2B users, 100B messages/day",
+            "Core components: Chat service, Presence service, Notification service, Media service",
+            "WebSocket for online users: persistent connection, message push",
+            "Message queue for offline users: store messages, push when user reconnects",
+            "Group messaging fan-out: async fan-out for groups, sync for small groups",
+            "Message persistence: Cassandra (wide column, high write throughput) or DynamoDB",
+            "Media: upload to S3, store URL in message, CDN delivery",
+            "Message ordering: sequence numbers, logical clocks, or wall clock (risky)",
+            "Delivery receipts: sent (1 tick), delivered (2 ticks), read (blue ticks)",
+            "End-to-end encryption basics: key exchange (Signal Protocol conceptually)"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Why is Cassandra often chosen for chat message storage at scale?",
+          "How do you handle message ordering in a distributed chat system?",
+          "Explain the fan-out problem for group messaging. How do you optimize for large groups?",
+          "How do delivery receipts work technically? What happens when recipient is offline?",
+          "What is the role of a WebSocket gateway vs an API server in a chat architecture?",
+          "How would you implement presence (online/offline) status at scale?",
+          "What is the CAP theorem trade-off for a chat system? Which do you choose?",
+          "How does media sharing work in WhatsApp? Walk through the full upload and delivery flow.",
+          "How do you prevent message duplication in a chat system?",
+          "How would you implement message search efficiently at scale?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_38",
+      "day_number": 38,
+      "week_ref": "week_6",
+      "phase_ref": "phase_3",
+      "title": "DSA Intensive: Graph + DP + Backtracking",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "graphs",
+        "dynamic-programming",
+        "backtracking",
+        "hard-problems"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "context": "Solve 5 medium/hard problems today. Timer on. No hints until 25 minutes.",
+      "topics": [
+        {
+          "topic_id": "day38_t1",
+          "title": "Backtracking Pattern",
+          "subtopics": [
+            "Template: choose → explore → unchoose",
+            "Used for: permutations, combinations, subsets, constraint satisfaction",
+            "LC 46: Permutations, LC 78: Subsets, LC 51: N-Queens",
+            "Pruning: cut branches early — critical for performance"
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_207_2",
+          "title": "Course Schedule",
+          "difficulty": "medium",
+          "pattern": "graph cycle detection",
+          "time_limit_min": 25,
+          "url": "https://leetcode.com/problems/course-schedule/"
+        },
+        {
+          "id": "LC_417",
+          "title": "Pacific Atlantic Water Flow",
+          "difficulty": "medium",
+          "pattern": "DFS from both oceans",
+          "time_limit_min": 30,
+          "url": "https://leetcode.com/problems/pacific-atlantic-water-flow/"
+        },
+        {
+          "id": "LC_312",
+          "title": "Burst Balloons",
+          "difficulty": "hard",
+          "pattern": "interval DP",
+          "time_limit_min": 35,
+          "url": "https://leetcode.com/problems/burst-balloons/"
+        },
+        {
+          "id": "LC_79",
+          "title": "Word Search",
+          "difficulty": "medium",
+          "pattern": "backtracking + DFS on grid",
+          "time_limit_min": 25,
+          "url": "https://leetcode.com/problems/word-search/"
+        },
+        {
+          "id": "LC_131",
+          "title": "Palindrome Partitioning",
+          "difficulty": "medium",
+          "pattern": "backtracking + DP",
+          "time_limit_min": 30,
+          "url": "https://leetcode.com/problems/palindrome-partitioning/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the backtracking template? Apply it to generating all subsets.",
+          "How is backtracking different from brute force?",
+          "Explain interval DP. What is dp[i][j] in the Burst Balloons problem?",
+          "How do you solve Word Search? Why do you need to mark cells visited?",
+          "What is the time complexity of generating all permutations?",
+          "Solve: Given a set of candidates and a target, find all combinations that sum to target (LC 39).",
+          "What is the difference between LC 78 (Subsets) and LC 90 (Subsets II with duplicates)?",
+          "How do you use memoization in backtracking to avoid recomputation?",
+          "Explain the N-Queens problem. How do you check if a position is safe efficiently?",
+          "What is the time complexity of LC 79 Word Search?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_39",
+      "day_number": 39,
+      "week_ref": "week_6",
+      "phase_ref": "phase_3",
+      "title": "TypeScript + Node.js Advanced: Streams, Job Queues, Background Jobs",
+      "category": "core_learning",
+      "tags": [
+        "nodejs",
+        "bullmq",
+        "job-queues",
+        "streams",
+        "graceful-shutdown"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day39_t1",
+          "title": "Bull/BullMQ — Job Queues",
+          "subtopics": [
+            "Bull: Redis-backed job queue. Add jobs, process with workers, retry on failure.",
+            "Queue types: FIFO, priority, delayed, repeatable (cron)",
+            "Worker concurrency: how many jobs processed in parallel",
+            "Job lifecycle: waiting → active → completed / failed → delayed",
+            "Use cases: email sending, image processing, PDF generation, webhook delivery, report generation",
+            "BullMQ: newer, TypeScript-first successor to Bull"
+          ]
+        },
+        {
+          "topic_id": "day39_t2",
+          "title": "Node.js Streams in Production",
+          "subtopics": [
+            "Streaming CSV export: write rows as they are fetched from DB, pipe to response",
+            "Streaming file uploads: pipe multipart upload directly to S3 without buffering in memory",
+            "Transform streams: modify data as it flows (encryption, compression, transformation)",
+            "stream.pipeline: proper error propagation when piping multiple streams"
+          ]
+        },
+        {
+          "topic_id": "day39_t3",
+          "title": "Graceful Shutdown",
+          "subtopics": [
+            "Why: in-flight requests should complete, DB connections should close properly",
+            "process.on('SIGTERM', ...) and process.on('SIGINT', ...)",
+            "server.close() → wait for active connections → close DB pool → process.exit(0)",
+            "Health check: /health returns 503 immediately on shutdown signal (stop load balancer routing)"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is a job queue? Why is it better to use Bull than a cron job for email sending?",
+          "What happens to a Bull job when the worker crashes mid-processing?",
+          "How do you stream a CSV export of 1 million rows without running out of memory?",
+          "What is a Transform stream? Write one that uppercases all text as it flows through.",
+          "Why is graceful shutdown important? What happens to in-flight requests if you skip it?",
+          "How do you implement a rate-limited job queue? (e.g., send at most 10 emails per second)",
+          "What is job priority in Bull? When would you use it?",
+          "How do you implement a repeatable cron job with BullMQ?",
+          "What is the difference between stream.pipe and stream.pipeline?",
+          "How do you handle failed jobs in Bull? What is exponential backoff in this context?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_40",
+      "day_number": 40,
+      "week_ref": "week_6",
+      "phase_ref": "phase_3",
+      "title": "Frontend Excellence: Accessibility + Animations + Forms",
+      "category": "core_learning",
+      "tags": [
+        "accessibility",
+        "a11y",
+        "forms",
+        "react-hook-form",
+        "zod",
+        "tailwind",
+        "css"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day40_t1",
+          "title": "Accessibility (a11y)",
+          "subtopics": [
+            "WCAG 2.1 levels: A, AA (industry standard), AAA",
+            "Semantic HTML: <button> not <div onClick>, <nav>, <main>, <article>, <section>",
+            "ARIA: aria-label, aria-describedby, aria-live (for dynamic content announcements), role",
+            "Keyboard navigation: focus management, focus trap in modals, skip links",
+            "Color contrast: 4.5:1 for normal text, 3:1 for large text (AA)",
+            "Screen reader testing: VoiceOver (Mac), NVDA (Windows) — basic testing"
+          ]
+        },
+        {
+          "topic_id": "day40_t2",
+          "title": "Forms Done Right",
+          "subtopics": [
+            "React Hook Form + Zod: the standard. Zero re-renders until submit.",
+            "Controlled vs uncontrolled: React Hook Form uses uncontrolled under the hood (register ref)",
+            "Field-level validation vs form-level: show errors per field, summarize at top",
+            "Async validation: check username availability on blur",
+            "Form submission states: loading, success, error — prevent double submit",
+            "Optimistic form updates: show success immediately, rollback on error"
+          ]
+        },
+        {
+          "topic_id": "day40_t3",
+          "title": "CSS & Tailwind Performance",
+          "subtopics": [
+            "Critical CSS: inline above-fold CSS, async load rest",
+            "PurgeCSS / Tailwind JIT: only include classes you use — dramatically smaller CSS",
+            "CSS variables for theming: --primary-color, toggle dark mode with class on :root",
+            "CSS Grid vs Flexbox: grid for 2D layouts, flex for 1D",
+            "Container queries: style based on parent container size, not viewport — new and powerful"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is the difference between aria-label and aria-labelledby?",
+          "How do you implement a focus trap in a modal dialog?",
+          "What is React Hook Form? Why is it more performant than controlled form inputs?",
+          "How does Zod integrate with React Hook Form? Show the pattern.",
+          "What is WCAG color contrast requirement for body text?",
+          "How do you prevent a form from being submitted twice?",
+          "What are container queries? How do they differ from media queries?",
+          "What is the CSS painting order (stacking context)? What triggers a new stacking context?",
+          "How do you implement dark mode with Tailwind CSS?",
+          "What makes Tailwind JIT faster than the classic Tailwind CSS approach?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_41",
+      "day_number": 41,
+      "week_ref": "week_6",
+      "phase_ref": "phase_3",
+      "title": "DSA: Practice Day — Mixed Problems",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "mixed",
+        "speed-training",
+        "review"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "context": "10 Problems. Random selection. Build speed. Target: 6 solved independently, 4 with hints after 25 min. Track your times.",
+      "leetcode_problems": [
+        {
+          "id": "LC_2",
+          "title": "Add Two Numbers",
+          "difficulty": "medium",
+          "pattern": "linked list math",
+          "url": "https://leetcode.com/problems/add-two-numbers/"
+        },
+        {
+          "id": "LC_15",
+          "title": "3Sum",
+          "difficulty": "medium",
+          "pattern": "two pointers",
+          "url": "https://leetcode.com/problems/3sum/"
+        },
+        {
+          "id": "LC_11",
+          "title": "Container With Most Water",
+          "difficulty": "medium",
+          "pattern": "two pointers",
+          "url": "https://leetcode.com/problems/container-with-most-water/"
+        },
+        {
+          "id": "LC_42",
+          "title": "Trapping Rain Water",
+          "difficulty": "hard",
+          "pattern": "two pointers or stack",
+          "url": "https://leetcode.com/problems/trapping-rain-water/"
+        },
+        {
+          "id": "LC_84",
+          "title": "Largest Rectangle in Histogram",
+          "difficulty": "hard",
+          "pattern": "monotonic stack",
+          "url": "https://leetcode.com/problems/largest-rectangle-in-histogram/"
+        },
+        {
+          "id": "LC_98",
+          "title": "Validate Binary Search Tree",
+          "difficulty": "medium",
+          "pattern": "DFS with bounds",
+          "url": "https://leetcode.com/problems/validate-binary-search-tree/"
+        },
+        {
+          "id": "LC_297",
+          "title": "Serialize and Deserialize Binary Tree",
+          "difficulty": "hard",
+          "pattern": "BFS/DFS",
+          "url": "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/"
+        },
+        {
+          "id": "LC_210",
+          "title": "Course Schedule II",
+          "difficulty": "medium",
+          "pattern": "topological sort",
+          "url": "https://leetcode.com/problems/course-schedule-ii/"
+        },
+        {
+          "id": "LC_416",
+          "title": "Partition Equal Subset Sum",
+          "difficulty": "medium",
+          "pattern": "0/1 knapsack DP",
+          "url": "https://leetcode.com/problems/partition-equal-subset-sum/"
+        },
+        {
+          "id": "LC_647",
+          "title": "Palindromic Substrings",
+          "difficulty": "medium",
+          "pattern": "expand around center",
+          "url": "https://leetcode.com/problems/palindromic-substrings/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_42",
+      "day_number": 42,
+      "week_ref": "week_6",
+      "phase_ref": "phase_3",
+      "title": "Week 6 Review + Resume Version 2.0",
+      "category": "review_and_build",
+      "tags": [
+        "review",
+        "resume",
+        "career"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": true,
+      "roast": "Your previous resume bullets were activity-based, not result-based. 'Built WhatsApp API integration handling webhook events' is fine but 'Engineered WhatsApp Business API integration with 15+ conversation flows, processing 2000+ daily messages with <100ms webhook response time' is what gets you calls.",
+      "resume_rules": [
+        "Every bullet has a number or metric — no exceptions",
+        "STAR format for complex bullets: Situation → Task → Action → Result → Impact",
+        "Lead with impact, not implementation: 'Reduced latency by 40%' not 'Used Redis to cache data'",
+        "Remove anything you can't defend in an interview",
+        "Add your project with GitHub link, Lighthouse score, and architecture highlight",
+        "Keep resume to 1 page — you have < 2 years experience"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_43",
+      "day_number": 43,
+      "week_ref": "week_7",
+      "phase_ref": "phase_4",
+      "title": "System Design: Design Netflix/YouTube (CDN + Video Streaming)",
+      "category": "system_design",
+      "tags": [
+        "system-design",
+        "netflix",
+        "youtube",
+        "cdn",
+        "video-streaming",
+        "hls"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day43_t1",
+          "title": "Video Streaming System Design",
+          "subtopics": [
+            "Key insight: video streaming is NOT just file download — adaptive bitrate streaming",
+            "HLS (HTTP Live Streaming): split video into segments (.ts files), serve playlist (.m3u8), client picks quality",
+            "Adaptive bitrate: multiple quality versions (360p, 720p, 1080p, 4K). Client switches based on bandwidth.",
+            "CDN: videos served from edge nodes geographically close to user. Origin pulls from S3 on cache miss.",
+            "Upload pipeline: raw video → S3 → message queue → transcoding workers → multiple quality versions → CDN",
+            "Database: PostgreSQL for video metadata, Cassandra for view counts (high write throughput)",
+            "Recommendation: collaborative filtering, user history, real-time signals",
+            "DAU 100M, 5B video views/day — estimate storage, bandwidth, server requirements"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is adaptive bitrate streaming? How does HLS implement it?",
+          "Why can't you just store video in a regular database?",
+          "How does a CDN serve video? What happens on a cache miss?",
+          "Design the video upload pipeline for YouTube. What happens after you click 'Upload'?",
+          "How do you count video views at scale? Why is a simple SQL counter a problem?",
+          "What is the difference between HLS and DASH (MPEG-DASH)?",
+          "How do you implement video thumbnails at scale?",
+          "How do you handle copyright detection (Content ID like YouTube)?",
+          "Estimate: 500 hours of video uploaded to YouTube every minute. Estimate storage needs for 1 year.",
+          "How does YouTube's recommendation system work at a high level?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_44",
+      "day_number": 44,
+      "week_ref": "week_7",
+      "phase_ref": "phase_4",
+      "title": "Behavioral Interview Mastery",
+      "category": "interview_prep",
+      "tags": [
+        "behavioral",
+        "star-method",
+        "storytelling",
+        "career"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "roast": "The startup shutting down is NOT a negative. It's 'I operated in a high-ambiguity, fast-moving environment where I built real production systems that served real users, end to end, with minimal hand-holding.' That's GOLD. Own it.",
+      "star_stories": [
+        {
+          "story_id": 1,
+          "title": "Technical Challenge Overcome",
+          "context": "WhatsApp state machine with 15+ flows. What was hard? How did you design it? What would you do differently?"
+        },
+        {
+          "story_id": 2,
+          "title": "Performance Win",
+          "context": "S3 direct upload pipeline. Quantify the improvement. How did you measure it?"
+        },
+        {
+          "story_id": 3,
+          "title": "Working with Ambiguity",
+          "context": "Startup environment, wearing multiple hats, making decisions without full info"
+        },
+        {
+          "story_id": 4,
+          "title": "Failure + Learning",
+          "context": "Something that didn't work at Defyd. Be honest. What did you learn?"
+        },
+        {
+          "story_id": 5,
+          "title": "Leadership/Mentorship",
+          "context": "Mentoring 8 students. How did you structure it? Outcome?"
+        },
+        {
+          "story_id": 6,
+          "title": "Why this company/role",
+          "context": "Tailored for each company. Research culture, tech stack, problems they solve."
+        }
+      ],
+      "must_answer_questions": [
+        "'Tell me about yourself' — 90 seconds. Technical journey. Biggest accomplishment. Why you're here.",
+        "'Why did you leave your last job?' — Startup shut down. Be factual. Pivot to what excites you next.",
+        "'Where do you see yourself in 5 years?' — Depth in fullstack, system design ownership, team leadership",
+        "'What's your biggest weakness?' — Must be REAL and show self-awareness + active improvement",
+        "'Describe a conflict with a teammate' — Show empathy, communication, resolution",
+        "'Why should we hire you?' — Connect your specific skills to their specific problem"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_45",
+      "day_number": 45,
+      "week_ref": "week_7",
+      "phase_ref": "phase_4",
+      "title": "DSA: Hard Problems Practice",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "hard-problems",
+        "deep-practice"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "context": "Go Hard. No Timer. Fight Until You Understand. Don't move to next problem until you understand the current one completely. Write the approach before code.",
+      "leetcode_problems": [
+        {
+          "id": "LC_124",
+          "title": "Binary Tree Maximum Path Sum",
+          "difficulty": "hard",
+          "pattern": "post-order DFS, global max",
+          "url": "https://leetcode.com/problems/binary-tree-maximum-path-sum/"
+        },
+        {
+          "id": "LC_295_2",
+          "title": "Find Median from Data Stream",
+          "difficulty": "hard",
+          "pattern": "two heaps",
+          "url": "https://leetcode.com/problems/find-median-from-data-stream/"
+        },
+        {
+          "id": "LC_76_2",
+          "title": "Minimum Window Substring",
+          "difficulty": "hard",
+          "pattern": "sliding window",
+          "url": "https://leetcode.com/problems/minimum-window-substring/"
+        },
+        {
+          "id": "LC_32",
+          "title": "Longest Valid Parentheses",
+          "difficulty": "hard",
+          "pattern": "stack or DP",
+          "url": "https://leetcode.com/problems/longest-valid-parentheses/"
+        },
+        {
+          "id": "LC_269",
+          "title": "Alien Dictionary",
+          "difficulty": "hard",
+          "pattern": "topological sort",
+          "url": "https://leetcode.com/problems/alien-dictionary/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_46",
+      "day_number": 46,
+      "week_ref": "week_7",
+      "phase_ref": "phase_4",
+      "title": "Mock Technical Interviews x3",
+      "category": "interview_prep",
+      "tags": [
+        "mock-interview",
+        "dsa",
+        "communication"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "tip": "Being wrong with good communication beats being right but silent. Always.",
+      "mock_sessions": [
+        {
+          "platform": "Pramp",
+          "type": "DSA peer mock",
+          "count": 2,
+          "notes": "Free peer mocks"
+        },
+        {
+          "platform": "interviewing.io",
+          "type": "Anonymous mock with FAANG engineers",
+          "count": 1,
+          "notes": "Anonymous with engineers at top companies"
+        }
+      ],
+      "interview_tips": [
+        "Think out loud. Interviewers grade communication as much as correctness.",
+        "Start with brute force, mention complexity, optimize.",
+        "Ask clarifying questions before coding.",
+        "Test your solution with examples before declaring done."
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_47",
+      "day_number": 47,
+      "week_ref": "week_7",
+      "phase_ref": "phase_4",
+      "title": "Company Research + Application Strategy",
+      "category": "career",
+      "tags": [
+        "career",
+        "job-search",
+        "companies",
+        "application-strategy"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "target_companies": [
+        {
+          "tier": 1,
+          "salary_range": "25-40 LPA",
+          "label": "Stretch",
+          "companies": [
+            "Zepto",
+            "Blinkit",
+            "CRED",
+            "Razorpay",
+            "Groww",
+            "PhonePe",
+            "Meesho"
+          ]
+        },
+        {
+          "tier": 2,
+          "salary_range": "18-28 LPA",
+          "label": "Realistic",
+          "companies": [
+            "HasuraDB",
+            "Setu",
+            "Niyo",
+            "BrowserStack",
+            "Chargebee",
+            "Postman"
+          ]
+        },
+        {
+          "tier": 3,
+          "salary_range": "14-20 LPA",
+          "label": "Quick Win",
+          "companies": [
+            "Mid-size product startups",
+            "B2B SaaS companies in Bangalore"
+          ]
+        },
+        {
+          "tier": 0,
+          "salary_range": "N/A",
+          "label": "AVOID",
+          "companies": [
+            "Infosys",
+            "Wipro",
+            "TCS",
+            "HCL — service companies, wrong trajectory"
+          ]
+        }
+      ],
+      "application_channels": [
+        {
+          "priority": 1,
+          "channel": "LinkedIn referrals",
+          "notes": "Connect with engineers at target companies, ask for referral after genuine conversation"
+        },
+        {
+          "priority": 2,
+          "channel": "Direct company website",
+          "notes": "ATS is real but sometimes recruiters check direct applicants"
+        },
+        {
+          "priority": 3,
+          "channel": "Twitter/X",
+          "notes": "Engineers post about hiring. Follow CTOs and senior devs at target companies."
+        },
+        {
+          "priority": 4,
+          "channel": "AngelList/Wellfound",
+          "notes": "Startups hire frequently here, less competition"
+        },
+        {
+          "priority": 5,
+          "channel": "Internshala / Instahyre",
+          "notes": "Some good opportunities in tier 2"
+        }
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_48",
+      "day_number": 48,
+      "week_ref": "week_7",
+      "phase_ref": "phase_4",
+      "title": "GitHub Profile Optimization",
+      "category": "career",
+      "tags": [
+        "github",
+        "portfolio",
+        "personal-branding"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "tip": "Recruiters spend 30 seconds on GitHub. Pinned repos and README are everything. Make those 30 seconds count.",
+      "github_checklist": [
+        "Profile README: pinned repo that introduces you — who you are, what you build, skills, contact",
+        "Pinned repositories: pin your 6 best projects. SyncSpace must be #1.",
+        "Contribution graph: green squares every day. It signals consistency.",
+        "Repository README quality: every pinned repo needs architecture diagram, tech stack, setup instructions, live demo link",
+        "Code quality signals: TypeScript strict, tests, CI badge, well-named commits"
+      ],
+      "commit_conventions": [
+        "feat: new feature",
+        "fix: bug fix",
+        "docs: docs only",
+        "refactor: code restructure",
+        "test: add tests",
+        "perf: performance",
+        "chore: maintenance"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_49",
+      "day_number": 49,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "Final Project Review + Live Demo Prep",
+      "category": "project",
+      "tags": [
+        "project",
+        "syncspace",
+        "deployment",
+        "portfolio",
+        "blog"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": true,
+      "is_review_day": false,
+      "tip": "A live demo URL + Loom video doubles your interview callback rate. Don't skip this.",
+      "tasks": [
+        "Deploy SyncSpace to Vercel (frontend) + Railway/Render (backend) — live URL is non-negotiable",
+        "Record a 3-minute Loom demo: show features, talk through architecture decisions",
+        "Write the technical blog post: 'How I Built a Real-Time Collaborative Platform with Next.js, Socket.IO, and Redis' — publish on Dev.to or Hashnode",
+        "Portfolio website: simple Next.js site. About, Projects (SyncSpace featured), Contact. Lighthouse 95+."
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_50",
+      "day_number": 50,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "DSA: Final Patterns — Trie + Bit Manipulation + Intervals",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "trie",
+        "bit-manipulation",
+        "intervals",
+        "python"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day50_t1",
+          "title": "Trie (Prefix Tree)",
+          "subtopics": [
+            "Node: children (dict or array of 26), is_end flag",
+            "Insert: O(m) where m = word length",
+            "Search, startsWith: O(m)",
+            "Use cases: autocomplete, spell check, IP routing",
+            "LC 208: Implement Trie, LC 212: Word Search II (Trie + DFS)"
+          ]
+        },
+        {
+          "topic_id": "day50_t2",
+          "title": "Bit Manipulation",
+          "subtopics": [
+            "AND &, OR |, XOR ^, NOT ~, Left shift <<, Right shift >>",
+            "x & (x-1): clears lowest set bit (count set bits, check power of 2)",
+            "x ^ x = 0: XOR tricks for finding single number in pairs",
+            "LC 136: Single Number (XOR), LC 191: Number of 1 Bits"
+          ]
+        },
+        {
+          "topic_id": "day50_t3",
+          "title": "Intervals",
+          "subtopics": [
+            "Sort by start time. Merge if overlap.",
+            "LC 56: Merge Intervals, LC 57: Insert Interval",
+            "Meeting rooms: is there a conflict? Sort + single pass or min-heap of end times"
+          ]
+        }
+      ],
+      "leetcode_problems": [
+        {
+          "id": "LC_208",
+          "title": "Implement Trie",
+          "difficulty": "medium",
+          "pattern": "trie",
+          "url": "https://leetcode.com/problems/implement-trie-prefix-tree/"
+        },
+        {
+          "id": "LC_212",
+          "title": "Word Search II",
+          "difficulty": "hard",
+          "pattern": "trie + DFS",
+          "url": "https://leetcode.com/problems/word-search-ii/"
+        },
+        {
+          "id": "LC_136",
+          "title": "Single Number",
+          "difficulty": "easy",
+          "pattern": "XOR",
+          "url": "https://leetcode.com/problems/single-number/"
+        },
+        {
+          "id": "LC_56",
+          "title": "Merge Intervals",
+          "difficulty": "medium",
+          "pattern": "intervals",
+          "url": "https://leetcode.com/problems/merge-intervals/"
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What is a Trie? Implement insert and search operations.",
+          "How would you use a Trie for autocomplete? What is the time complexity?",
+          "What does x & (x-1) do? How do you use it to count set bits?",
+          "How does XOR help find the single unique number when all others appear twice?",
+          "Solve: Merge overlapping intervals. What is your approach?",
+          "What is the time complexity of Trie operations vs hash map operations?",
+          "How do you check if a number is a power of 2 using bit manipulation?",
+          "Solve the meeting rooms problem: given N meeting intervals, find the minimum number of rooms needed.",
+          "What is two's complement representation? How does negative number representation work in binary?",
+          "How do you solve Word Search II efficiently using a Trie instead of brute force?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_51",
+      "day_number": 51,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "Full System Design Mock: Design Instagram",
+      "category": "system_design",
+      "tags": [
+        "system-design",
+        "instagram",
+        "photo-sharing",
+        "fan-out",
+        "newsfeed"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "context": "Full Design Session — Time yourself: 45 minutes",
+      "topics": [
+        {
+          "topic_id": "day51_t1",
+          "title": "Instagram System Design",
+          "subtopics": [
+            "Functional: upload photo, follow users, view feed, like, comment, stories (24hr expiry)",
+            "Scale: 500M DAU, 100M photos uploaded per day",
+            "Pull model (fan-out on read): compute feed when requested. Simple, but slow for popular users.",
+            "Push model (fan-out on write): pre-compute feed for all followers on upload. Fast read, expensive write for celebs.",
+            "Hybrid: pull for celebrities (many followers), push for regular users",
+            "Feed cache: Redis Sorted Set per user, score = timestamp, members = post IDs",
+            "Photo storage: S3 → CDN. Multiple resolutions generated by Lambda/worker on upload.",
+            "Database: posts in PostgreSQL/Cassandra, social graph in graph DB or Redis Sets",
+            "Stories: TTL-based deletion, Redis ZSET with expiry"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "Explain the fan-out problem for Instagram feed. What is the hybrid approach?",
+          "How do you store the social graph at Instagram scale?",
+          "Why use a Redis Sorted Set for storing a user's feed? What is the score?",
+          "How do you handle a celebrity with 100M followers posting? (Write amplification problem)",
+          "How would you implement Instagram Stories with automatic 24-hour expiry?",
+          "Design the photo upload pipeline. What happens after you tap 'Post'?",
+          "How would you implement 'liked by your followers' feature efficiently?",
+          "What database would you use for posts? What about the social graph? Why different choices?",
+          "How would you implement photo search by hashtag?",
+          "Estimate storage: 100M photos per day, average 3MB each. Calculate 5-year storage needs."
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_52",
+      "day_number": 52,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "Interview Active Day: Apply + Company-Specific Prep",
+      "category": "career",
+      "tags": [
+        "job-search",
+        "applications",
+        "linkedin",
+        "leetcode"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "tip": "Application template: 1 sentence on what they do, 1 sentence on why your background fits their tech challenges, 1 sentence on your project relevance. Specific > Generic always.",
+      "tasks": [
+        "Send 10+ applications today using your optimized resume and cover letters",
+        "For each target company: read their engineering blog, understand their tech stack, note interview process from Glassdoor",
+        "Practice 5 DSA problems from the company's tagged problems on LeetCode",
+        "Update LinkedIn: 'Open to work' (visible to recruiters only), update headline"
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_53",
+      "day_number": 53,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "Node.js + Next.js Advanced Edge Cases",
+      "category": "core_learning",
+      "tags": [
+        "nodejs",
+        "nextjs",
+        "debugging",
+        "memory-leaks",
+        "hydration",
+        "gotchas"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": false,
+      "topics": [
+        {
+          "topic_id": "day53_t1",
+          "title": "Node.js Gotchas",
+          "subtopics": [
+            "Memory leaks: common causes — global variables holding references, event listener not removed, closures in long-lived objects, infinite caching",
+            "CPU blocking: while(true), sync crypto, large JSON.parse on main thread — use worker threads",
+            "process.maxOldSpaceSize: increase heap size for Node.js (--max-old-space-size=4096)",
+            "V8 profiling: --prof flag, node --prof-process for flame graphs"
+          ]
+        },
+        {
+          "topic_id": "day53_t2",
+          "title": "Next.js Gotchas",
+          "subtopics": [
+            "Hydration mismatch: server renders X, client renders Y → React error. Causes: Date.now(), random(), window checks.",
+            "Fix: useEffect for client-only code, suppressHydrationWarning for intentional diffs",
+            "Server Component importing Client Component: allowed. Client Component importing Server Component: NOT allowed (use composition).",
+            "Large page props: don't pass huge objects as page props — they serialize to JSON and bloat the page",
+            "Infinite loop in useEffect: missing deps array, object/array as dep (new reference every render)"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 10,
+        "questions": [
+          "What causes memory leaks in Node.js? How do you detect them?",
+          "What is a hydration mismatch error? What causes it and how do you fix it?",
+          "Can a Client Component import a Server Component? Can a Server Component import a Client Component?",
+          "What does --max-old-space-size do for Node.js?",
+          "How do you profile a Node.js application in production?",
+          "What happens if you run a CPU-intensive task on the Node.js main thread?",
+          "How do you fix an infinite loop in useEffect?",
+          "Why should you not pass large objects as Next.js page props?",
+          "What is V8 garbage collection? What are young and old generation objects?",
+          "How does Node.js handle unhandled promise rejections in modern versions (v15+)?"
+        ]
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_54",
+      "day_number": 54,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "DSA: Mock Interview x2 + System Design: Autocomplete",
+      "category": "interview_prep",
+      "tags": [
+        "mock-interview",
+        "dsa",
+        "system-design",
+        "autocomplete",
+        "trie"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "mock_sessions": [
+        {
+          "session": 1,
+          "duration_min": 45,
+          "type": "DSA",
+          "focus": "2 medium problems with a friend or Pramp"
+        },
+        {
+          "session": 2,
+          "duration_min": 45,
+          "type": "DSA",
+          "focus": "Focus on areas you struggled in Mock 1"
+        },
+        {
+          "session": 3,
+          "duration_min": 45,
+          "type": "System Design",
+          "focus": "Design a search autocomplete/typeahead system"
+        }
+      ],
+      "topics": [
+        {
+          "topic_id": "day54_t1",
+          "title": "Typeahead/Autocomplete System Design",
+          "subtopics": [
+            "Trie stored in memory, backed by DB for persistence",
+            "Top-K suggestions per prefix stored directly in Trie nodes (pre-computed)",
+            "Weights: search frequency, recency, personalization",
+            "Cache prefix→suggestions in Redis with TTL",
+            "Debounce on client: only trigger after 300ms pause in typing",
+            "Separate aggregation service: process search logs, update Trie weights offline"
+          ]
+        }
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_55",
+      "day_number": 55,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "LeetCode Contest + Speed Training",
+      "category": "dsa",
+      "tags": [
+        "dsa",
+        "contest",
+        "speed-training",
+        "review"
+      ],
+      "is_dsa_focus": true,
+      "is_project_day": false,
+      "is_review_day": false,
+      "tip": "Easy LeetCode problems in under 5 minutes signals to interviewers that your fundamentals are solid. Speed matters.",
+      "schedule": [
+        {
+          "time": "Morning",
+          "task": "Participate in LeetCode weekly contest (runs every Sunday). Target: solve 2/4 problems in 1.5 hrs."
+        },
+        {
+          "time": "Afternoon",
+          "task": "Speed run — 10 easy problems in 2 hours. Under 5 minutes each."
+        },
+        {
+          "time": "Evening",
+          "task": "Review all problems you couldn't solve this week. Understand pattern. Add to Anki or notes."
+        }
+      ],
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    },
+    {
+      "day_id": "day_56",
+      "day_number": 56,
+      "week_ref": "week_8",
+      "phase_ref": "phase_4",
+      "title": "FINAL DAY: Retrospective + Launch",
+      "category": "milestone",
+      "tags": [
+        "milestone",
+        "retrospective",
+        "launch",
+        "reflection"
+      ],
+      "is_dsa_focus": false,
+      "is_project_day": false,
+      "is_review_day": true,
+      "transformation": [
+        {
+          "before": "Resume lies about WebSockets",
+          "after": "Built real-time app with Socket.IO + Redis — proven"
+        },
+        {
+          "before": "Redis on resume, zero experience",
+          "after": "Caching patterns, pub/sub, rate limiting — all real"
+        },
+        {
+          "before": "Next.js = React with SSR sprinkled",
+          "after": "Deep understanding of 4 caching layers, PPR, App Router internals"
+        },
+        {
+          "before": "Docker = filler skill",
+          "after": "Multi-stage builds, Compose, healthchecks, CI/CD pipeline"
+        },
+        {
+          "before": "TypeScript with any everywhere",
+          "after": "Strict TS, advanced types, proper error typing"
+        },
+        {
+          "before": "0 public proof",
+          "after": "SyncSpace (live), portfolio site, technical blog, green GitHub graph"
+        },
+        {
+          "before": "DSA: barely basics",
+          "after": "Arrays, linked lists, trees, graphs, DP, heaps, binary search, backtracking"
+        },
+        {
+          "before": "System design: zero knowledge",
+          "after": "URL shortener, chat, video streaming, Instagram, autocomplete"
+        },
+        {
+          "before": "8 LPA at a shuttered startup",
+          "after": "Ready for 18-30 LPA at product companies"
+        }
+      ],
+      "final_checklist": [
+        "Is SyncSpace live with a URL you can share in every application?",
+        "Can you explain the entire Next.js caching architecture from memory?",
+        "Can you implement a sliding window rate limiter in Redis without looking it up?",
+        "Can you design a chat system end-to-end in 45 minutes on a whiteboard?",
+        "Can you solve 2 medium LeetCode problems in 45 minutes under interview conditions?",
+        "Is your GitHub contribution graph unbroken for 60 days?",
+        "Have you done at least 5 full mock interviews (DSA + system design)?",
+        "Is your resume under 1 page with every bullet quantified?",
+        "Do you have 3-5 stories in STAR format ready for behavioral questions?",
+        "Have you sent at least 30 applications to companies in your target tier?"
+      ],
+      "closing_message": "The startup shutting down was not the end. It was the beginning of you building the foundation that you should have built before the startup. In 60 days you compressed 2 years of learning that most developers spread across their entire career. Every day you showed up, you became harder to ignore. Every problem you solved, you got closer to the engineer you want to be.",
+      "knowledge_check": {
+        "total": 0,
+        "questions": []
+      },
+      "completion_status": "not_started"
+    }
+  ],
+  "dsa_tracker": {
+    "target_minimum": 94,
+    "target_recommended": 150,
+    "target_beast": 200,
+    "patterns": [
+      {
+        "pattern": "Arrays & Sliding Window",
+        "minimum": 15,
+        "key_problems": [
+          "LC 76",
+          "LC 239",
+          "LC 3"
+        ]
+      },
+      {
+        "pattern": "Linked Lists",
+        "minimum": 8,
+        "key_problems": [
+          "LC 206",
+          "LC 23",
+          "LC 141"
+        ]
+      },
+      {
+        "pattern": "Stacks & Queues",
+        "minimum": 8,
+        "key_problems": [
+          "LC 84",
+          "LC 739",
+          "LC 20"
+        ]
+      },
+      {
+        "pattern": "Trees (Binary Tree + BST)",
+        "minimum": 15,
+        "key_problems": [
+          "LC 124",
+          "LC 235",
+          "LC 297"
+        ]
+      },
+      {
+        "pattern": "Graphs (BFS + DFS)",
+        "minimum": 10,
+        "key_problems": [
+          "LC 200",
+          "LC 207",
+          "LC 417"
+        ]
+      },
+      {
+        "pattern": "Dynamic Programming",
+        "minimum": 12,
+        "key_problems": [
+          "LC 322",
+          "LC 1143",
+          "LC 312"
+        ]
+      },
+      {
+        "pattern": "Binary Search",
+        "minimum": 8,
+        "key_problems": [
+          "LC 875",
+          "LC 33",
+          "LC 1011"
+        ]
+      },
+      {
+        "pattern": "Heaps",
+        "minimum": 6,
+        "key_problems": [
+          "LC 295",
+          "LC 23",
+          "LC 347"
+        ]
+      },
+      {
+        "pattern": "Backtracking",
+        "minimum": 6,
+        "key_problems": [
+          "LC 46",
+          "LC 79",
+          "LC 51"
+        ]
+      },
+      {
+        "pattern": "Trie & Intervals & Bit Manipulation",
+        "minimum": 6,
+        "key_problems": [
+          "LC 208",
+          "LC 56",
+          "LC 136"
+        ]
+      }
+    ]
+  },
+  "progress_tracking": {
+    "fields_per_day": {
+      "completion_status": {
+        "type": "enum",
+        "values": [
+          "not_started",
+          "in_progress",
+          "completed",
+          "skipped"
+        ]
+      },
+      "dsa_problems_solved": {
+        "type": "array",
+        "description": "List of LC problem IDs solved on this day"
+      },
+      "knowledge_check_score": {
+        "type": "object",
+        "description": "{ attempted: number, correct: number }"
+      },
+      "notes": {
+        "type": "string",
+        "description": "Personal notes for the day"
+      },
+      "time_spent_hours": {
+        "type": "number",
+        "description": "Actual hours spent"
+      },
+      "blockers": {
+        "type": "string",
+        "description": "What slowed you down"
+      },
+      "mood": {
+        "type": "enum",
+        "values": [
+          "crushed_it",
+          "solid",
+          "okay",
+          "struggled",
+          "skipped"
+        ]
+      }
+    }
+  }
+}

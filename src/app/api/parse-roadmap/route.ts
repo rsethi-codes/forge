@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import mammoth from 'mammoth'
 import pdf from 'pdf-parse'
-import { parseRoadmapText, saveParsedRoadmapToDb } from '@/lib/parsing/roadmap-parser'
+import { parseRoadmapText, parseRoadmapJson, saveParsedRoadmapToDb } from '@/lib/parsing/roadmap-parser'
+import { isBeastRoadmap, saveBeastRoadmapToDb } from '@/lib/parsing/beast-parser'
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser } from '@/lib/auth-utils'
 
 export async function POST(req: NextRequest) {
     try {
@@ -49,22 +51,36 @@ export async function POST(req: NextRequest) {
             .from('roadmap-files')
             .getPublicUrl(filename)
 
-        // 3. Parse hierarchy
-        const { parseRoadmapText, parseRoadmapJson, saveParsedRoadmapToDb } = await import('@/lib/parsing/roadmap-parser')
-
-        const roadmap = jsonMetadata
-            ? parseRoadmapJson(jsonMetadata)
-            : parseRoadmapText(rawText)
-
-        // 4. Save to DB
-        const { getCurrentUser } = await import('@/lib/auth-utils')
+        // 3. User check early
         const user = await getCurrentUser()
-
         if (!user) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
         }
 
-        const program = await saveParsedRoadmapToDb(user.id, roadmap, rawText, publicUrl, jsonMetadata)
+        // 4. Determine parsing & saving strategy
+        let program;
+
+        if (jsonMetadata) {
+            if (isBeastRoadmap(jsonMetadata)) {
+                try {
+                    console.log('Detected Beast Roadmap format. Using Beast Parser...')
+                    program = await saveBeastRoadmapToDb(user.id, jsonMetadata)
+                } catch (beastError: any) {
+                    console.error('Beast Parser failed, falling back to standard...', beastError)
+                    // Fallback to standard JSON parser if possible
+                    const roadmap = parseRoadmapJson(jsonMetadata as any)
+                    program = await saveParsedRoadmapToDb(user.id, roadmap, rawText, publicUrl, jsonMetadata as any)
+                }
+            } else {
+                // Standard JSON roadmap
+                const roadmap = parseRoadmapJson(jsonMetadata as any)
+                program = await saveParsedRoadmapToDb(user.id, roadmap, rawText, publicUrl, jsonMetadata as any)
+            }
+        } else {
+            // Text-based roadmap (PDF/DOCX)
+            const roadmap = parseRoadmapText(rawText)
+            program = await saveParsedRoadmapToDb(user.id, roadmap, rawText, publicUrl)
+        }
 
         return NextResponse.json({
             message: 'Roadmap parsed and saved successfully',

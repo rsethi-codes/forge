@@ -37,11 +37,14 @@ export async function middleware(request: NextRequest) {
 
     const { data: { user } } = await supabase.auth.getUser()
 
+    // DEV ONLY: Bypass Auth for testing
+    const isTestMode = process.env.NODE_ENV === 'development' && request.cookies.get('forge_test_mode')?.value === 'true'
+
     const isLogin = pathname.startsWith('/login')
     const isPublic = pathname === '/' || pathname.startsWith('/blog') || pathname.startsWith('/profile') || pathname.startsWith('/auth')
 
     // Only redirect to login if accessing a protected route without a session
-    if (!user && !isPublic && !isLogin) {
+    if (!user && !isPublic && !isLogin && !isTestMode) {
         return NextResponse.redirect(new URL('/login', request.url))
     }
 

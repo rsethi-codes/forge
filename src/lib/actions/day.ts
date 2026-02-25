@@ -76,13 +76,14 @@ export async function getDayDetail(dayNumber: number | string) {
     }
 
     // 4, 5, 6. Fetch related data in parallel
-    const [tasks, completions, kcs, kcResults, topicsData, topicCompletions] = await Promise.all([
+    const [tasks, completions, kcs, kcResults, topicsData, topicCompletions, leetcodeProblems] = await Promise.all([
         db.select().from(schema.roadmapTasks).where(eq(schema.roadmapTasks.dayId, day.id)).orderBy(schema.roadmapTasks.sortOrder),
         db.select().from(schema.taskCompletions).where(eq(schema.taskCompletions.dailyProgressId, progress.id)),
         db.select().from(schema.knowledgeChecks).where(eq(schema.knowledgeChecks.dayId, day.id)).orderBy(schema.knowledgeChecks.sortOrder),
         db.select().from(schema.knowledgeCheckResults).where(eq(schema.knowledgeCheckResults.dailyProgressId, progress.id)),
         db.select().from(schema.roadmapTopics).where(eq(schema.roadmapTopics.dayId, day.id)).orderBy(schema.roadmapTopics.sortOrder),
-        db.select().from(schema.topicCompletions).where(eq(schema.topicCompletions.dailyProgressId, progress.id))
+        db.select().from(schema.topicCompletions).where(eq(schema.topicCompletions.dailyProgressId, progress.id)),
+        db.select().from(schema.leetcodeProblems).where(eq(schema.leetcodeProblems.dayId, day.id)).orderBy(schema.leetcodeProblems.sortOrder)
     ])
 
     // Get subtopics for all topics at once
@@ -131,7 +132,8 @@ export async function getDayDetail(dayNumber: number | string) {
                 notes: comp?.notes || '',
                 subtopics: subtopics.filter((s: any) => s.topicId === t.id)
             }
-        })
+        }),
+        leetcodeProblems
     }
 }
 
@@ -217,6 +219,7 @@ export async function updateTaskDetail(
         notes?: string
     }
 ) {
+    const user = await requireUser()
     await db
         .insert(schema.taskCompletions)
         .values({
@@ -308,6 +311,7 @@ export async function updateTopicDetail(
         notes?: string
     }
 ) {
+    const user = await requireUser()
     await db
         .insert(schema.topicCompletions)
         .values({
@@ -515,6 +519,17 @@ export async function syncTimerState(
         sessions?: any[]
     }
 ) {
+    // Guard: ensure the progress record belongs to the calling user
+    const user = await requireUser()
+    const [prog] = await db
+        .select({ userId: schema.dailyProgress.userId })
+        .from(schema.dailyProgress)
+        .where(and(
+            eq(schema.dailyProgress.id, progressId),
+            eq(schema.dailyProgress.userId, user.id)
+        ))
+        .limit(1)
+    if (!prog) throw new Error('Unauthorized')
     const table: any = type === 'task' ? schema.taskCompletions : schema.topicCompletions
     const idField = type === 'task' ? 'taskId' : 'topicId'
 

@@ -123,7 +123,7 @@ export function TimerBackupRecovery() {
                 <div className="flex-1">
                     <p className="text-sm font-bold text-amber-300">Unsaved Timer Data Found</p>
                     <p className="text-xs text-text-secondary mt-1">
-                        {backups.length} item{backups.length > 1 ? 's' : ''} weren't saved to the server last session.
+                        {backups.length} item{backups.length > 1 ? 's' : ''} weren&apos;t saved to the server last session.
                         Total: {formatMinutes(backups.reduce((a, b) => a + b.data.timeSpentNet, 0))} of work.
                     </p>
                     <div className="flex items-center gap-2 mt-3">

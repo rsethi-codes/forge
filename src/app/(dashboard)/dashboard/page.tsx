@@ -28,6 +28,7 @@ import PageWrapper from '@/components/PageWrapper'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import WhatToStartCard from '@/components/behavior/WhatToStartCard'
 import ActiveFocusCard from '@/components/behavior/ActiveFocusCard'
+import BeastAnalysis from '@/components/dashboard/BeastAnalysis'
 import SessionHUD from '@/components/behavior/SessionHUD'
 import EndOfDayModal from '@/components/behavior/EndOfDayModal'
 import { startSession, endSession } from '@/lib/actions/behavior'
@@ -45,7 +46,25 @@ export default function DashboardPage() {
         queryFn: async () => {
             const response = await fetch('/api/stats/dashboard')
             if (!response.ok) throw new Error('Failed to fetch dashboard data')
-            return response.json()
+            const baseStats = await response.json()
+
+            // DEV ONLY: Test Mode
+            if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+                const isMock = localStorage.getItem('forge_mock_beast') === 'true'
+                if (isMock && baseStats.hasProgram && !baseStats.metadata) {
+                    baseStats.metadata = {
+                        bluntTruth: "You're a code monkey until you prove otherwise.",
+                        roasts: ["Resume looks like a generic template.", "Zero evidence of scale."],
+                        strengths: [{ content: "Elite TypeScript Mastery" }, { content: "Architectural Foresight" }],
+                        dsaLanguage: "TypeScript",
+                        specialization: "Next.js Performance Engineer",
+                        targetPackage: "24-36",
+                        specializationDecision: { reasoning: "Market depth and tech stack proximity." }
+                    }
+                }
+            }
+
+            return baseStats
         },
         staleTime: 60 * 1000, // 1 minute
     })
@@ -71,6 +90,27 @@ export default function DashboardPage() {
                     <Link href="/setup" className="bg-primary hover:bg-red-600 text-white px-8 py-4 rounded-2xl font-bold inline-flex items-center gap-2 transition-all shadow-lg shadow-primary/20">
                         Upload Roadmap <ArrowRight className="w-5 h-5" />
                     </Link>
+
+                    {/* DEV ONLY: Quick Seed for Demo */}
+                    {process.env.NODE_ENV === 'development' && typeof document !== 'undefined' && document.cookie.includes('forge_test_mode=true') && (
+                        <button
+                            onClick={async () => {
+                                const toastId = toast.loading('Igniting Beast Mode...')
+                                try {
+                                    const { seedBeastRoadmap } = await import('@/lib/actions/dev')
+                                    await seedBeastRoadmap()
+                                    toast.success('Beast Mode Ignited!', { id: toastId })
+                                    queryClient.invalidateQueries({ queryKey: ['dashboard-data'] })
+                                } catch (e: any) {
+                                    toast.error(e.message || 'Seeding failed', { id: toastId })
+                                }
+                            }}
+                            className="text-text-secondary hover:text-white text-xs font-bold uppercase tracking-widest flex items-center gap-2 transition-all"
+                        >
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            Seed Sample Beast Roadmap (Local Dev)
+                        </button>
+                    )}
                 </div>
             </PageWrapper>
         )
@@ -239,6 +279,12 @@ export default function DashboardPage() {
                         )}
                     </div>
                 </section>
+
+                {/* Beast Analysis (New) */}
+                {stats.metadata && (
+                    <BeastAnalysis metadata={stats.metadata} />
+                )}
+
 
                 {/* Primary Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -447,7 +493,17 @@ export default function DashboardPage() {
                                     <div className="w-full h-1 bg-border-subtle rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-primary"
-                                            style={{ width: `${Math.min(100, (stats.streak / m.criteriaValue) * 100)}%` }}
+                                            style={{
+                                                width: `${Math.min(100, (() => {
+                                                    switch (m.criteriaType) {
+                                                        case 'streak': return (stats.streak / m.criteriaValue) * 100
+                                                        case 'tasks_done': return ((stats.totalTasksDone ?? 0) / m.criteriaValue) * 100
+                                                        case 'hours_logged': return ((stats.hoursLogged ?? 0) / m.criteriaValue) * 100
+                                                        case 'kc_passed': return ((stats.kcPassed ?? 0) / m.criteriaValue) * 100
+                                                        default: return (stats.streak / m.criteriaValue) * 100
+                                                    }
+                                                })())}%`
+                                            }}
                                         />
                                     </div>
                                 </div>

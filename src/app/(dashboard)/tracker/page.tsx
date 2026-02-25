@@ -101,20 +101,23 @@ export default function RoadmapOverview() {
 
                     <div className="flex flex-wrap gap-4 items-center">
                         <div className="flex gap-2 p-1.5 bg-[#0c0c0c] border border-white/5 rounded-[1.5rem] w-fit">
-                            {[1, 2].map((m) => (
-                                <button
-                                    key={m}
-                                    onClick={() => setActiveMonth(m)}
-                                    className={cn(
-                                        "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
-                                        activeMonth === m
-                                            ? "bg-primary text-white shadow-xl shadow-primary/20"
-                                            : "text-text-secondary hover:text-white"
-                                    )}
-                                >
-                                    Phase 0{m}
-                                </button>
-                            ))}
+                            {(data?.containers || [1, 2]).map((c: any) => {
+                                const num = typeof c === 'number' ? c : (c.phaseNumber || c.monthNumber)
+                                return (
+                                    <button
+                                        key={num}
+                                        onClick={() => setActiveMonth(num)}
+                                        className={cn(
+                                            "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all",
+                                            activeMonth === num
+                                                ? "bg-primary text-white shadow-xl shadow-primary/20"
+                                                : "text-text-secondary hover:text-white"
+                                        )}
+                                    >
+                                        {data?.containerType || 'Phase'} {num < 10 ? `0${num}` : num}
+                                    </button>
+                                )
+                            })}
                         </div>
 
                         <div className="bg-primary/5 border border-primary/20 px-6 py-3 rounded-[1.5rem] flex items-center gap-4">
@@ -162,7 +165,9 @@ export default function RoadmapOverview() {
                     animate={{ opacity: 1, y: 0 }}
                     className="bg-primary/5 border border-primary/20 rounded-3xl p-8"
                 >
-                    <h2 className="text-xl font-syne font-bold text-primary mb-2 uppercase tracking-tighter">Month {activeMonth} Objective</h2>
+                    <h2 className="text-xl font-syne font-bold text-primary mb-2 uppercase tracking-tighter">
+                        {data?.containerType || 'Phase'} {activeMonth} Objective
+                    </h2>
                     <p className="text-text-secondary leading-relaxed font-lora italic text-lg">
                         {data.month.objective}
                     </p>
@@ -235,7 +240,7 @@ export default function RoadmapOverview() {
                                             <div className="w-full h-1 bg-border-subtle rounded-full overflow-hidden">
                                                 <motion.div
                                                     initial={{ width: 0 }}
-                                                    animate={{ width: day.isComplete ? '100%' : '0%' }}
+                                                    animate={{ width: `${day.isComplete ? 100 : (day.completionRate ?? 0)}%` }}
                                                     className="h-full bg-primary"
                                                 />
                                             </div>

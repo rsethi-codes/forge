@@ -2,10 +2,10 @@
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
-import { eq, desc, not, and, isNull } from 'drizzle-orm'
+import { eq, desc, not, and, isNull, or } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 
-import { requireUser } from '../auth-utils'
+import { requireUser, getCurrentUser } from '../auth-utils'
 
 export async function listRoadmaps() {
     const user = await requireUser()

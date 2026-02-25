@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, Square, Timer, Clock, CloudOff, RefreshCw } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -22,6 +22,13 @@ export interface TimerResult {
 
 type TimerState = 'idle' | 'running' | 'paused'
 type SyncStatus = 'idle' | 'syncing' | 'saved' | 'error'
+
+export interface TimerHandle {
+    /** Imperatively stop the timer and flush time to DB (e.g. when checkbox is ticked) */
+    stopNow: () => void
+    /** Current timer state */
+    getState: () => TimerState
+}
 
 interface TopicTimerProps {
     /** Unique ID for the item */
@@ -79,7 +86,7 @@ function clearLocalBackup(key: string) {
 
 // ── Timer Component ───────────────────────────────────────────────────────────
 
-export default function TopicTimer({
+const TopicTimer = forwardRef<TimerHandle, TopicTimerProps>(function TopicTimer({
     id,
     type,
     progressId,
@@ -91,7 +98,7 @@ export default function TopicTimer({
     onStop,
     label,
     compact = false
-}: TopicTimerProps) {
+}, ref) {
     const [state, setState] = useState<TimerState>(initialStatus)
     const [displayGross, setDisplayGross] = useState(0)
     const [displayNet, setDisplayNet] = useState(0)
@@ -216,7 +223,7 @@ export default function TopicTimer({
         }
     }, [initialStatus, startInterval, tick, storedGross, storedNet])
 
-    const handleStart = () => {
+    const handleStart = useCallback(() => {
         const now = new Date()
         startedAtRef.current = now
         segmentStartRef.current = now
@@ -225,9 +232,9 @@ export default function TopicTimer({
         startInterval()
         sync('running')
         lastSyncRef.current = Date.now()
-    }
+    }, [startInterval, sync])
 
-    const handlePause = () => {
+    const handlePause = useCallback(() => {
         const now = new Date()
         if (segmentStartRef.current) {
             sessionsRef.current = [
@@ -239,17 +246,17 @@ export default function TopicTimer({
         setState('paused')
         stopInterval()
         sync('paused')
-    }
+    }, [stopInterval, sync])
 
-    const handleResume = () => {
+    const handleResume = useCallback(() => {
         segmentStartRef.current = new Date()
         setState('running')
         startInterval()
         sync('running')
         lastSyncRef.current = Date.now()
-    }
+    }, [startInterval, sync])
 
-    const handleStop = () => {
+    const handleStop = useCallback(() => {
         stopInterval()
         const now = new Date()
         let sessions = [...sessionsRef.current]
@@ -288,13 +295,21 @@ export default function TopicTimer({
         setDisplayNet(0)
 
         onStop(result)
-    }
+    }, [onStop, stopInterval, sync])
 
     // Manual retry after a sync failure
     const handleRetry = () => {
         setRetryCount(c => c + 1)
         sync(state)
     }
+
+    // Expose imperative handle so parent can stop the timer when e.g. checkbox is ticked
+    useImperativeHandle(ref, () => ({
+        stopNow: () => {
+            if (state !== 'idle') handleStop()
+        },
+        getState: () => state
+    }), [state, handleStop])
 
     // ── Render ─────────────────────────────────────────────────────────────────
 
@@ -537,4 +552,6 @@ export default function TopicTimer({
             </AnimatePresence>
         </div>
     )
-}
+})
+
+export default TopicTimer
