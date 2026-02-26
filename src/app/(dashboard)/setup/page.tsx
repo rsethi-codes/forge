@@ -20,9 +20,13 @@ export default function SetupPage() {
     const [editTitle, setEditTitle] = useState('')
     const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
     const [deletePhrase, setDeletePhrase] = useState('')
+    const [deleting, setDeleting] = useState(false)
+    const [renamingId, setRenamingId] = useState<string | null>(null)
     const [showDocsPrompt, setShowDocsPrompt] = useState(false)
     const [docsUrl, setDocsUrl] = useState('')
     const [newProgramId, setNewProgramId] = useState<string | null>(null)
+    const [activatingId, setActivatingId] = useState<string | null>(null)
+    const [savingDocs, setSavingDocs] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
@@ -85,18 +89,26 @@ export default function SetupPage() {
 
     const saveDocsUrl = async () => {
         if (!newProgramId) return
+        setSavingDocs(true)
         try {
             await updateRoadmapDocsUrl(newProgramId, docsUrl)
             router.push('/dashboard')
         } catch (err) {
             router.push('/dashboard') // Proceed anyway
+        } finally {
+            setSavingDocs(false)
         }
     }
 
     const handleActivate = async (id: string) => {
-        await setActiveRoadmap(id)
-        loadRoadmaps()
-        router.refresh()
+        setActivatingId(id)
+        try {
+            await setActiveRoadmap(id)
+            await loadRoadmaps()
+            router.refresh()
+        } finally {
+            setActivatingId(null)
+        }
     }
 
     const handleDelete = (id: string) => {
@@ -107,17 +119,26 @@ export default function SetupPage() {
     const confirmPermanentDelete = async () => {
         if (deletePhrase !== 'ERASE DATA') return
         if (!confirmDeleteId) return
-
-        await deleteRoadmap(confirmDeleteId)
-        setConfirmDeleteId(null)
-        loadRoadmaps()
+        setDeleting(true)
+        try {
+            await deleteRoadmap(confirmDeleteId)
+            setConfirmDeleteId(null)
+            await loadRoadmaps()
+        } finally {
+            setDeleting(false)
+        }
     }
 
     const handleRename = async (id: string) => {
         if (!editTitle.trim()) return
-        await updateRoadmapTitle(id, editTitle)
-        setEditingId(null)
-        loadRoadmaps()
+        setRenamingId(id)
+        try {
+            await updateRoadmapTitle(id, editTitle)
+            setEditingId(null)
+            await loadRoadmaps()
+        } finally {
+            setRenamingId(null)
+        }
     }
 
     return (
@@ -169,7 +190,13 @@ export default function SetupPage() {
                                                                 if (e.key === 'Escape') setEditingId(null)
                                                             }}
                                                         />
-                                                        <button onClick={() => handleRename(rm.id)} className="text-success hover:scale-110 transition-transform"><Check className="w-4 h-4" /></button>
+                                                        <button
+                                                            onClick={() => handleRename(rm.id)}
+                                                            disabled={renamingId === rm.id}
+                                                            className="text-success hover:scale-110 transition-transform disabled:opacity-50"
+                                                        >
+                                                            {renamingId === rm.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                                                        </button>
                                                         <button onClick={() => setEditingId(null)} className="text-text-secondary hover:scale-110 transition-transform"><X className="w-4 h-4" /></button>
                                                     </div>
                                                 ) : (
@@ -196,9 +223,15 @@ export default function SetupPage() {
                                             {!rm.isActive && (
                                                 <button
                                                     onClick={() => handleActivate(rm.id)}
-                                                    className="flex-1 bg-white/5 hover:bg-primary hover:text-white border border-border-subtle hover:border-primary text-text-primary py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                                                    disabled={activatingId === rm.id}
+                                                    className="flex-1 bg-white/5 hover:bg-primary hover:text-white border border-border-subtle hover:border-primary text-text-primary py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                                                 >
-                                                    <Zap className="w-3 h-3" /> Ignite
+                                                    {activatingId === rm.id ? (
+                                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                                    ) : (
+                                                        <Zap className="w-3 h-3" />
+                                                    )}
+                                                    {activatingId === rm.id ? 'Igniting...' : 'Ignite'}
                                                 </button>
                                             )}
                                             {rm.isActive && (
@@ -260,9 +293,16 @@ export default function SetupPage() {
 
                                             <button
                                                 onClick={saveDocsUrl}
-                                                className="w-full bg-white text-black hover:bg-white/90 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-widest"
+                                                disabled={savingDocs}
+                                                className="w-full bg-white text-black hover:bg-white/90 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-widest disabled:opacity-50"
                                             >
-                                                Finalize Mandate <ArrowRight className="w-4 h-4" />
+                                                {savingDocs ? (
+                                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                                ) : (
+                                                    <>
+                                                        Finalize Mandate <ArrowRight className="w-4 h-4" />
+                                                    </>
+                                                )}
                                             </button>
                                         </div>
                                     </motion.div>
@@ -419,16 +459,19 @@ export default function SetupPage() {
                             <div className="flex gap-4">
                                 <button
                                     onClick={() => setConfirmDeleteId(null)}
-                                    className="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-xs font-bold uppercase tracking-widest transition-all"
+                                    disabled={deleting}
+                                    className="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-40"
                                 >
                                     Abort
                                 </button>
                                 <button
-                                    disabled={deletePhrase !== 'ERASE DATA'}
+                                    disabled={deletePhrase !== 'ERASE DATA' || deleting}
                                     onClick={confirmPermanentDelete}
-                                    className="flex-1 py-4 rounded-2xl bg-red-500 hover:bg-red-600 disabled:opacity-20 disabled:grayscale text-white text-xs font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)]"
+                                    className="flex-1 py-4 rounded-2xl bg-red-500 hover:bg-red-600 disabled:opacity-20 disabled:grayscale text-white text-xs font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)] flex items-center justify-center gap-2"
                                 >
-                                    Confirm
+                                    {deleting ? (
+                                        <><Loader2 className="w-4 h-4 animate-spin" /> Deleting...</>
+                                    ) : 'Confirm'}
                                 </button>
                             </div>
                         </motion.div>

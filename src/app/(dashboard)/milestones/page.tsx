@@ -119,13 +119,22 @@ export default function MilestonesPage() {
                                         </div>
                                     )}
                                 </div>
-                                <div className="pt-4 flex items-center gap-2">
-                                    <div className="h-1 flex-1 bg-border-subtle rounded-full overflow-hidden">
-                                        <div className="h-full bg-primary/20" style={{ width: '0%' }} />
+                                <div className="pt-4 space-y-2">
+                                    <div className="flex items-center justify-between text-[10px] font-bold text-text-secondary uppercase tracking-widest">
+                                        <span>Progress</span>
+                                        <span>{Math.min(100, Math.floor(((m.currentValue || 0) / m.criteriaValue) * 100))}%</span>
                                     </div>
-                                    <span className="text-[10px] font-bold text-text-secondary">
-                                        {m.criteriaValue} {m.criteriaType?.replace('_', ' ')}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-1 flex-1 bg-border-subtle rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-primary/40 transition-all duration-1000"
+                                                style={{ width: `${Math.min(100, ((m.currentValue || 0) / m.criteriaValue) * 100)}%` }}
+                                            />
+                                        </div>
+                                        <span className="text-[10px] font-bold text-text-secondary">
+                                            {m.currentValue || 0} / {m.criteriaValue}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

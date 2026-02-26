@@ -2,14 +2,15 @@
 
 import { db } from '@/lib/db'
 import * as schema from '@/lib/supabase/schema'
-import { eq, desc, and, sql, inArray, isNull, or } from 'drizzle-orm'
-import { format } from 'date-fns'
+import { eq, desc, and, sql, inArray, isNull, or, asc } from 'drizzle-orm'
+import { format, addDays, parseISO, isBefore, startOfDay } from 'date-fns'
 import { calculateDailyDiscipline, calculateCurrentStreak } from '@/lib/discipline'
 import { requireUser } from '@/lib/auth-utils'
+import { getRoadmapSchedule } from './scheduling'
 
-export async function getDashboardData() {
+export async function getDashboardData(clientDate?: string) {
     const user = await requireUser()
-    const today = format(new Date(), 'yyyy-MM-dd')
+    const today = clientDate || format(new Date(), 'yyyy-MM-dd')
 
     // 1. Get current (active) program
     let program;
@@ -101,7 +102,8 @@ export async function getDashboardData() {
         tasksDoneTodayArr,
         wallet,
         strengthsArr,
-        gapsArr
+        gapsArr,
+        adjustments
     ] = await Promise.all([
         db.select()
             .from(schema.dailyProgress)
@@ -116,7 +118,7 @@ export async function getDashboardData() {
                 eq(schema.disciplineScores.userId, user.id)
             )).limit(1),
         calculateCurrentStreak(user.id),
-        db.select().from(schema.milestones).where(eq(schema.milestones.userId, user.id)).orderBy(schema.milestones.criteriaType, schema.milestones.criteriaValue),
+        db.select().from(schema.milestones).where(and(eq(schema.milestones.userId, user.id), sql`${schema.milestones.achievedAt} IS NOT NULL`)).orderBy(desc(schema.milestones.achievedAt)).limit(3),
         db.select({ count: sql<number>`count(*)::int` })
             .from(schema.taskCompletions)
             .innerJoin(schema.dailyProgress, eq(schema.taskCompletions.dailyProgressId, schema.dailyProgress.id))
@@ -138,15 +140,24 @@ export async function getDashboardData() {
             .where(metadata ? eq(schema.resumeStrengths.metadataId, metadata.id) : sql`1=0`),
         db.select()
             .from(schema.resumeGaps)
-            .where(metadata ? eq(schema.resumeGaps.metadataId, metadata.id) : sql`1=0`)
+            .where(metadata ? eq(schema.resumeGaps.metadataId, metadata.id) : sql`1=0`),
+        db.select()
+            .from(schema.roadmapAdjustments)
+            .where(and(
+                eq(schema.roadmapAdjustments.userId, user.id),
+                eq(schema.roadmapAdjustments.programId, program.id)
+            ))
     ])
 
     let allMilestones = fetchedMilestones
     if (allMilestones.length === 0) {
         const { initializeUserMilestones } = await import('@/lib/actions/milestones')
         await initializeUserMilestones()
-        allMilestones = await db.select().from(schema.milestones).where(eq(schema.milestones.userId, user.id)).orderBy(schema.milestones.criteriaType, schema.milestones.criteriaValue)
+        allMilestones = await db.select().from(schema.milestones).where(and(eq(schema.milestones.userId, user.id), sql`${schema.milestones.achievedAt} IS NOT NULL`)).orderBy(desc(schema.milestones.achievedAt)).limit(3)
     }
+
+    // 4. Fetch the full schedule
+    const { schedule, lastDate } = await getRoadmapSchedule(program.id)
 
     const dailyProgress = dailyProgressArr[0]
     const discipline = disciplineArr[0]
@@ -156,9 +167,55 @@ export async function getDashboardData() {
     const gaps = gapsArr || []
 
     // 4. Get active day details
-    const start = new Date(program.startDate)
-    const diffDays = Math.floor((new Date().getTime() - start.getTime()) / (1000 * 3600 * 24))
-    const calendarDayNum = Math.min(Math.max(diffDays + 1, 1), 60)
+    const [completedDaysRes] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.dailyProgress)
+        .where(and(
+            eq(schema.dailyProgress.userId, user.id),
+            eq(schema.dailyProgress.status, 'complete')
+        ))
+
+    const completedDaysCount = completedDaysRes?.count ?? 0
+
+    // Fetch program days for mapping
+    const daysMeta = await db
+        .select({ id: schema.roadmapDays.id, dayNumber: schema.roadmapDays.dayNumber })
+        .from(schema.roadmapDays)
+        .innerJoin(schema.roadmapWeeks, eq(schema.roadmapDays.weekId, schema.roadmapWeeks.id))
+        .leftJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
+        .leftJoin(schema.roadmapPhases, eq(schema.roadmapWeeks.phaseId, schema.roadmapPhases.id))
+        .where(or(
+            eq(schema.roadmapMonths.programId, program.id),
+            eq(schema.roadmapPhases.programId, program.id)
+        ))
+
+    // Linear Logic: The active day is the FIRST day that is NOT complete
+    const userProgress = await db
+        .select({
+            dayId: schema.dailyProgress.dayId,
+            status: schema.dailyProgress.status,
+            date: schema.dailyProgress.date
+        })
+        .from(schema.dailyProgress)
+        .where(eq(schema.dailyProgress.userId, user.id))
+
+    const statusMap = new Map(userProgress.map(p => [p.dayId, p.status]))
+
+    // Sort daysMeta numerically
+    const sortedDays = [...daysMeta].sort((a, b) => parseInt(a.dayNumber) - parseInt(b.dayNumber))
+
+    const firstIncomplete = sortedDays.find(d => statusMap.get(d.id) !== 'complete')
+
+    // activeDayNum is for logic, calendarDayNum is for display context
+    // The user wants to see "Day 1" even if it's the 26th
+    let calendarDayNum = firstIncomplete ? parseInt(firstIncomplete.dayNumber) : sortedDays.length
+
+    // Verify if today has an override (e.g. they explicitly worked on something else)
+    const todayProgress = userProgress.find(p => (p as any).date === today) // Note: date field check
+    // Actually, we'll stick to the first incomplete for the primary "Active Card"
+
+    // Estimate Completion Date
+    const estimatedCompletionDate = lastDate ? parseISO(lastDate) : null
 
     // Use latestProgress.dayId if available to track "active" context
     const [currentDay] = await db
@@ -187,14 +244,20 @@ export async function getDashboardData() {
                     )
                 )
         )
-        .orderBy(schema.roadmapDays.sortOrder)
+        .orderBy(asc(sql`CAST(${schema.roadmapDays.dayNumber} AS INTEGER)`))
         .limit(1)
 
     const activeDayNum = currentDay ? parseInt(currentDay.dayNumber) : calendarDayNum
 
+    // Check if the scheduled date for this active day is in the past
+    const scheduledDates = currentDay ? schedule[currentDay.id] : []
+    const scheduledDate = scheduledDates && scheduledDates.length > 0 ? scheduledDates[0] : null
+    const isPastDue = scheduledDate ? isBefore(parseISO(scheduledDate), startOfDay(parseISO(today))) : false
+
     // 5. Tasks for the Active Day
     let activeDayTasks: any[] = []
     let activeDayTasksTodo = 0
+    let activeDayProgressId = null
 
     if (currentDay) {
         activeDayTasks = await db
@@ -216,6 +279,7 @@ export async function getDashboardData() {
             .limit(1)
 
         if (activeDayProgress) {
+            activeDayProgressId = activeDayProgress.id
             const completions = await db
                 .select()
                 .from(schema.taskCompletions)
@@ -248,6 +312,7 @@ export async function getDashboardData() {
 
     return {
         hasProgram: true,
+        programId: program.id,
         programTitle: program.title,
         day: activeDayNum,
         totalDays: program.totalDays || 60,
@@ -284,7 +349,13 @@ export async function getDashboardData() {
         },
         weekInfo,
         ...behavioralDiagnostics(wallet?.coinsBalance ?? 0, activeDayTasks),
-        activeTimer: await getActiveTimer(user.id)
+        activeTimer: await getActiveTimer(user.id),
+        estimatedCompletionDate,
+        activeDayProgressId,
+        schedule,
+        isPastDue,
+        scheduledDate,
+        adjustments
     }
 }
 
@@ -420,8 +491,9 @@ export async function logHours(hours: number) {
     return { success: true }
 }
 
-export async function getTrackerData(month: number = 1) {
+export async function getTrackerData(month: number = 1, clientDate?: string) {
     const user = await requireUser()
+    const todayStr = clientDate || format(new Date(), 'yyyy-MM-dd')
     let [program] = await db
         .select()
         .from(schema.roadmapPrograms)
@@ -500,7 +572,7 @@ export async function getTrackerData(month: number = 1) {
         .select()
         .from(schema.roadmapDays)
         .where(inArray(schema.roadmapDays.weekId, weekIds))
-        .orderBy(schema.roadmapDays.sortOrder)
+        .orderBy(asc(sql`CAST(${schema.roadmapDays.dayNumber} AS INTEGER)`))
 
     const dayIds = days.map((d: any) => d.id)
     const progress = dayIds.length > 0
@@ -513,25 +585,48 @@ export async function getTrackerData(month: number = 1) {
             ))
         : []
 
+    const { schedule, lastDate } = await getRoadmapSchedule(program.id)
+    const estimatedCompletionDate = lastDate ? parseISO(lastDate) : null
+
+    // Determine currentDayNum from schedule
+    // Linear Logic: currentDayNum is the first day that is NOT complete
+    const statusMap = new Map((progress as any[]).map(p => [p.dayId, p.status]))
+    const sortedTrackerDays = [...days].sort((a, b) => parseInt(a.dayNumber) - parseInt(b.dayNumber))
+    const firstIncompleteTracker = sortedTrackerDays.find(d => statusMap.get(d.id) !== 'complete')
+
+    const currentDayNum = firstIncompleteTracker ? parseInt(firstIncompleteTracker.dayNumber) : sortedTrackerDays.length
+
     return {
         month: containerData,
         containerType: roadmapMonths.length > 0 ? 'Month' : 'Phase',
         containers: roadmapMonths.length > 0 ? roadmapMonths : roadmapPhases,
+        currentDayNum,
+        estimatedCompletionDate,
+        schedule,
         weeks: weeks.map((w: any) => ({
             ...w,
             days: days
                 .filter((d: any) => d.weekId === w.id)
-                .map((d: any) => ({
-                    ...d,
-                    isComplete: progress.some((p: any) => p.dayId === d.id && p.status === 'complete'),
-                    completionRate: (() => {
-                        const dayProg = progress.find((p: any) => p.dayId === d.id);
-                        if (!dayProg) return 0;
-                        // Return actual calculated completion rate if needed, or 100 if complete
-                        return dayProg.status === 'complete' ? 100 : 50;
-                    })(),
-                    isCurrent: false,
-                }))
+                .map((d: any) => {
+                    const dayNum = parseInt(d.dayNumber) || 0
+                    const isComplete = progress.some((p: any) => p.dayId === d.id && p.status === 'complete')
+                    const isCurrent = dayNum === currentDayNum
+                    // A day is "past" if its number is behind the current day AND it's not complete (missed)
+                    const isPast = dayNum < currentDayNum && !isComplete
+                    const isFuture = dayNum > currentDayNum
+                    return {
+                        ...d,
+                        isComplete,
+                        completionRate: (() => {
+                            const dayProg = progress.find((p: any) => p.dayId === d.id)
+                            if (!dayProg) return 0
+                            return dayProg.status === 'complete' ? 100 : 50
+                        })(),
+                        isCurrent,
+                        isPast,
+                        isFuture,
+                    }
+                })
         }))
     }
 }

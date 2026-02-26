@@ -18,7 +18,9 @@ import {
     Calendar,
     Trophy,
     Database,
-    Coins
+    Coins,
+    AlertTriangle,
+    Quote
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -32,19 +34,68 @@ import BeastAnalysis from '@/components/dashboard/BeastAnalysis'
 import SessionHUD from '@/components/behavior/SessionHUD'
 import EndOfDayModal from '@/components/behavior/EndOfDayModal'
 import { startSession, endSession } from '@/lib/actions/behavior'
+import { updateDayProgress } from '@/lib/actions/day'
+import { setDayOff } from '@/lib/actions/scheduling'
+import { toggleTaskCompletion } from '@/lib/actions/day'
 import { toast } from 'react-hot-toast'
+import { format } from 'date-fns'
+import { syncUserDailyLogin } from '@/lib/actions/login-sync'
+import DailyBriefingModal from '@/components/dashboard/DailyBriefingModal'
+import DayOffModal from '@/components/dashboard/DayOffModal'
+import { AnimatePresence } from 'framer-motion'
+import { ShieldCheck } from 'lucide-react'
+import PomodoroTimer from '@/components/PomodoroTimer'
 
 export default function DashboardPage() {
     const queryClient = useQueryClient()
     const [activeSession, setActiveSession] = React.useState<{ id: string, title: string } | null>(null)
     const [showEndOfDay, setShowEndOfDay] = React.useState(false)
+    const [showDailyBrief, setShowDailyBrief] = React.useState(false)
     const [isManualMomentum, setIsManualMomentum] = React.useState(false)
     const [isDismissedMomentum, setIsDismissedMomentum] = React.useState(false)
+    const [dailyInsight, setDailyInsight] = React.useState('')
+    const [showStartPomodoro, setShowStartPomodoro] = React.useState(false)
+    const [showDayOffReason, setShowDayOffReason] = React.useState(false)
+    const [dayOffReason, setDayOffReason] = React.useState('')
+    const [togglingTaskId, setTogglingTaskId] = React.useState<string | null>(null)
+
+    const INSIGHTS = React.useMemo(
+        () => [
+            "Seniority is measured by the complexity of problems you solve, not the years you've spent.",
+            "Infrastructure is not a chore. It's the foundation of reliability.",
+            "If you can't explain your architecture to a junior, you don't understand it yet.",
+            "Shipping code is the only real measure of progress.",
+            "Design for the next engineer, not for your ego."
+        ],
+        []
+    )
+
+    React.useEffect(() => {
+        setDailyInsight(INSIGHTS[Math.floor(Math.random() * INSIGHTS.length)])
+    }, [INSIGHTS])
+
+    // Daily Sync and Briefing Check
+    React.useEffect(() => {
+        const handleSync = async () => {
+            try {
+                const todayStr = format(new Date(), 'yyyy-MM-dd')
+                const result = await syncUserDailyLogin(todayStr)
+                if (result.isFirstLoginToday) {
+                    setShowDailyBrief(true)
+                    queryClient.invalidateQueries({ queryKey: ['dashboard-data'] })
+                }
+            } catch (error) {
+                console.error('Failed to sync daily login:', error)
+            }
+        }
+        handleSync()
+    }, [queryClient])
 
     const { data: stats, isLoading: loading } = useQuery({
         queryKey: ['dashboard-data'],
         queryFn: async () => {
-            const response = await fetch('/api/stats/dashboard')
+            const today = format(new Date(), 'yyyy-MM-dd')
+            const response = await fetch(`/api/stats/dashboard?date=${today}`)
             if (!response.ok) throw new Error('Failed to fetch dashboard data')
             const baseStats = await response.json()
 
@@ -139,6 +190,15 @@ export default function DashboardPage() {
             setIsManualMomentum(false) // Reset after starting
             setIsDismissedMomentum(false)
             toast.success("Protocol Engaged. Focus Mode Active.")
+
+            try {
+                const shouldStartPomodoro = typeof window !== 'undefined'
+                    ? window.localStorage.getItem('forge_start_with_pomodoro') !== 'false'
+                    : false
+                if (shouldStartPomodoro) setShowStartPomodoro(true)
+            } catch {
+                // ignore localStorage errors
+            }
         } catch (error) {
             toast.error("Failed to ignite forge.")
         }
@@ -168,9 +228,50 @@ export default function DashboardPage() {
         return 'text-text-secondary'
     }
 
+    const todayStr = format(new Date(), 'yyyy-MM-dd')
+    const isDayOffToday = stats.adjustments?.some((a: any) => a.date === todayStr && a.adjustmentType === 'day_off')
+
+    const toggleDayOffToday = async (reason?: string) => {
+        if (!isDayOffToday && !reason) {
+            setShowDayOffReason(true)
+            return
+        }
+
+        const toastId = toast.loading(isDayOffToday ? 'Resuming Neural Sync...' : 'Recording Recalibration Day...')
+        try {
+            await setDayOff(stats.programId, todayStr, !isDayOffToday, reason)
+            queryClient.invalidateQueries({ queryKey: ['dashboard-data'] })
+            toast.success(isDayOffToday ? 'Back on the grid. Protocol restored.' : 'Schedule recalibrated.', { id: toastId })
+            setShowDayOffReason(false)
+            setDayOffReason('')
+        } catch (e) {
+            toast.error('Failed to adjust schedule', { id: toastId })
+        }
+    }
+
     return (
         <PageWrapper>
             <div className="p-6 md:p-10 space-y-10 max-w-7xl mx-auto">
+                {showStartPomodoro && (
+                    <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
+                        <div className="w-full max-w-md bg-[#0f0f0f] border border-primary/20 rounded-[2.5rem] p-6 shadow-[0_0_60px_rgba(255,49,49,0.15)]">
+                            <div className="flex items-center justify-between pb-4">
+                                <div className="space-y-1">
+                                    <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Auto Focus</span>
+                                    <h3 className="text-xl font-syne font-bold">Pomodoro Started</h3>
+                                </div>
+                                <button
+                                    onClick={() => setShowStartPomodoro(false)}
+                                    className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-text-secondary hover:text-white hover:border-primary/30 transition-all"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                            <PomodoroTimer autoStartOnMount />
+                        </div>
+                    </div>
+                )}
+
                 {/* Hero Behavior Section */}
                 {!activeSession && (
                     <motion.div
@@ -190,13 +291,15 @@ export default function DashboardPage() {
                             />
                         ) : (
                             <WhatToStartCard
-                                dayNumber={heroStats.day}
-                                dayTitle={heroStats.dayTitle}
-                                recommendedAction={heroStats.recommendedAction}
-                                topTask={heroStats.topTask}
-                                shortDiagnostic={heroStats.shortDiagnostic}
-                                coinsBalance={heroStats.coinsBalance}
+                                dayNumber={stats.day}
+                                dayTitle={stats.dayTitle}
+                                recommendedAction={stats.recommendedAction}
+                                topTask={stats.topTask}
+                                shortDiagnostic={stats.shortDiagnostic}
+                                coinsBalance={stats.coinsBalance}
                                 onStart={handleStartSession}
+                                isPastDue={stats.isPastDue}
+                                scheduledDate={stats.scheduledDate}
                                 onForceMomentum={() => {
                                     setIsManualMomentum(true)
                                     setIsDismissedMomentum(false)
@@ -219,6 +322,81 @@ export default function DashboardPage() {
                     </motion.div>
                 )}
 
+                {/* Streak Break Guard Warning */}
+                {stats.isLateStart && !activeSession && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-orange-500/10 border-2 border-orange-500/30 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_0_30px_rgba(249,115,22,0.1)]"
+                    >
+                        <div className="flex items-center gap-5">
+                            <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-orange-500/40 shrink-0 animate-pulse">
+                                <AlertTriangle className="w-8 h-8" />
+                            </div>
+                            <div className="space-y-1">
+                                <h3 className="text-xl font-syne font-black text-orange-500 uppercase tracking-tighter italic">STREAK BREAK GUARD ACTIVE</h3>
+                                <p className="text-text-secondary text-sm font-medium">
+                                    Inertia detected. You are trending towards a <span className="text-orange-500 font-bold">broken streak</span>. Execute any task now to lock in progress.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleStartSession}
+                            className="bg-orange-500 hover:bg-orange-600 text-white font-black px-8 py-4 rounded-2xl flex items-center gap-2 transition-all shadow-lg shadow-orange-500/20 whitespace-nowrap uppercase tracking-widest text-[10px]"
+                        >
+                            <Zap className="w-4 h-4 fill-current" />
+                            Lock in Progress
+                        </button>
+                    </motion.div>
+                )}
+
+                {/* Day Off Recalibration Widget */}
+                {!activeSession && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className={cn(
+                            "p-6 rounded-[2.5rem] border-2 transition-all flex flex-col md:flex-row items-center justify-between gap-6",
+                            isDayOffToday
+                                ? "bg-blue-500/10 border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.1)]"
+                                : "bg-surface border-white/5"
+                        )}
+                    >
+                        <div className="flex items-center gap-5">
+                            <div className={cn(
+                                "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
+                                isDayOffToday ? "bg-blue-500 text-white shadow-lg shadow-blue-500/40" : "bg-white/5 text-text-secondary"
+                            )}>
+                                <Calendar className="w-8 h-8" />
+                            </div>
+                            <div className="space-y-1">
+                                <h3 className={cn(
+                                    "text-xl font-syne font-black uppercase tracking-tighter italic",
+                                    isDayOffToday ? "text-blue-500" : "text-text-primary"
+                                )}>
+                                    {isDayOffToday ? 'RECALIBRATION IN PROGRESS' : 'OPERATIONAL WINDOW OPEN'}
+                                </h3>
+                                <p className="text-text-secondary text-sm font-medium">
+                                    {isDayOffToday
+                                        ? stats.adjustments?.find((a: any) => a.date === todayStr && a.adjustmentType === 'day_off')?.aiAnalysis || "Neural resting cycle active. Future schedule shifted +1 day. Resume today to override."
+                                        : "Protocol active for today. Logging in secures the streak. Taking a day off shifts the timeline."}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => toggleDayOffToday()}
+                            className={cn(
+                                "font-black px-10 py-5 rounded-3xl transition-all shadow-lg uppercase tracking-widest text-[10px]",
+                                isDayOffToday
+                                    ? "bg-white text-black hover:bg-white/90 shadow-white/10"
+                                    : "bg-surface-elevated hover:bg-white/5 text-text-secondary border border-white/10"
+                            )}
+                        >
+                            {isDayOffToday ? 'Override: Return to Grind' : 'Recalibrate: Today is Off'}
+                        </button>
+                    </motion.div>
+                )}
+
                 {/* Header Section */}
                 <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="flex-1">
@@ -229,6 +407,14 @@ export default function DashboardPage() {
                         <h1 className="text-4xl md:text-5xl font-syne font-black tracking-tighter mb-2">
                             The Grind: <span className="text-primary">Day {stats.day}</span>
                         </h1>
+                        {stats.estimatedCompletionDate && (
+                            <div className="flex items-center gap-2 mb-4 opacity-80">
+                                <Calendar className="w-3.5 h-3.5 text-success" />
+                                <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest">
+                                    Est. Completion: <span className="text-success">{new Date(stats.estimatedCompletionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                                </span>
+                            </div>
+                        )}
                         <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-text-secondary">
                             <span className="bg-white/5 px-2 py-1 rounded border border-white/5">{stats.currentPhase}</span>
                             <span className="bg-white/5 px-2 py-1 rounded border border-white/5">{stats.currentWeek}</span>
@@ -279,12 +465,6 @@ export default function DashboardPage() {
                         )}
                     </div>
                 </section>
-
-                {/* Beast Analysis (New) */}
-                {stats.metadata && (
-                    <BeastAnalysis metadata={stats.metadata} />
-                )}
-
 
                 {/* Primary Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -407,6 +587,16 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
+                <div className="bg-[#0c0c0c] border border-primary/20 p-8 rounded-[2.5rem] space-y-4">
+                            <div className="flex items-center gap-3">
+                                <Quote className="w-6 h-6 text-primary" />
+                                <span className="text-[10px] font-bold text-primary uppercase tracking-[0.3em]">Daily Intel</span>
+                            </div>
+                            <p className="text-md font-medium leading-relaxed italic text-text-primary font-lora">
+                                &quot;{dailyInsight}&quot;
+                            </p>
+                        </div>
+
                 {/* Secondary Layout: Task Drilldown & Upcoming Milestones */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                     <section className="lg:col-span-2 space-y-6">
@@ -432,36 +622,65 @@ export default function DashboardPage() {
                             <div className="p-4 space-y-3">
                                 {stats.tasks && stats.tasks.length > 0 ? (
                                     stats.tasks.map((task: any) => (
-                                        <div
+                                        <motion.div
                                             key={task.id}
+                                            layout
+                                            animate={{ opacity: task.completed ? 0.55 : 1 }}
                                             className={cn(
                                                 "p-5 rounded-2xl border transition-all flex items-center gap-4 group",
                                                 task.completed
-                                                    ? "bg-success/5 border-success/20 opacity-60"
+                                                    ? "bg-success/5 border-success/20"
                                                     : "bg-[#0a0a0a] border-border-subtle hover:border-primary/30"
                                             )}
                                         >
-                                            <div className={cn(
-                                                "w-10 h-10 rounded-xl flex items-center justify-center border transition-colors",
-                                                task.completed
-                                                    ? "bg-success border-success text-white"
-                                                    : "bg-surface border-border-subtle group-hover:border-primary/50"
-                                            )}>
-                                                {task.completed ? <CheckCircle2 className="w-5 h-5" /> : <div className="w-2 h-2 rounded-full bg-primary" />}
-                                            </div>
-                                            <div className="flex-1">
-                                                <h4 className={cn("text-sm font-bold tracking-tight", task.completed ? "line-through text-text-secondary" : "text-text-primary")}>
+                                            {/* Inline Clickable Checkbox */}
+                                            <button
+                                                disabled={!!togglingTaskId}
+                                                onClick={async () => {
+                                                    if (!stats.activeDayProgressId) {
+                                                        toast.error('No active progress session found.')
+                                                        return
+                                                    }
+                                                    setTogglingTaskId(task.id)
+                                                    try {
+                                                        await toggleTaskCompletion(task.id, stats.activeDayProgressId, !task.completed)
+                                                        queryClient.invalidateQueries({ queryKey: ['dashboard-data'] })
+                                                        if (!task.completed) toast.success(`"${task.title}" locked in. ✓`)
+                                                    } catch {
+                                                        toast.error('Failed to update task.')
+                                                    } finally {
+                                                        setTogglingTaskId(null)
+                                                    }
+                                                }}
+                                                className={cn(
+                                                    "w-10 h-10 rounded-xl flex items-center justify-center border transition-all shrink-0",
+                                                    task.completed
+                                                        ? "bg-success border-success text-white"
+                                                        : "bg-surface border-border-subtle hover:border-success hover:bg-success/10 hover:text-success"
+                                                )}
+                                            >
+                                                {togglingTaskId === task.id ? (
+                                                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                                                ) : task.completed ? (
+                                                    <CheckCircle2 className="w-5 h-5" />
+                                                ) : (
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-current opacity-30 group-hover:opacity-100 transition-opacity" />
+                                                )}
+                                            </button>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className={cn("text-sm font-bold tracking-tight truncate", task.completed ? "line-through text-text-secondary" : "text-text-primary")}>
                                                     {task.title}
                                                 </h4>
-                                                <p className="text-xs text-text-secondary mt-0.5">{task.duration} Target</p>
+                                                <p className="text-xs text-text-secondary mt-0.5">{task.duration} · {task.type}</p>
                                             </div>
                                             <Link
                                                 href="/tracker"
-                                                className="opacity-0 group-hover:opacity-100 p-2 bg-surface-elevated rounded-lg hover:text-primary transition-all"
+                                                className="opacity-0 group-hover:opacity-100 p-2 bg-surface-elevated rounded-lg hover:text-primary transition-all shrink-0"
+                                                title="View in Tracker"
                                             >
                                                 <ArrowRight className="w-4 h-4" />
                                             </Link>
-                                        </div>
+                                        </motion.div>
                                     ))
                                 ) : (
                                     <div className="py-12 text-center space-y-4">
@@ -475,7 +694,22 @@ export default function DashboardPage() {
                     </section>
 
                     <section className="space-y-6">
-                        <div className="flex items-center justify-between border-b border-border-subtle pb-4">
+                        <div className="bg-surface border border-border-subtle rounded-[2.5rem] p-8 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                                        <Clock className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-bold uppercase tracking-widest">Focus Timer</h3>
+                                        <p className="text-[10px] text-text-secondary font-bold uppercase tracking-[0.2em]">Pomodoro Protocol</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <PomodoroTimer />
+                        </div>
+
+                        {/* <div className="flex items-center justify-between border-b border-border-subtle pb-4">
                             <h2 className="text-2xl font-syne font-bold uppercase tracking-tighter flex items-center gap-3">
                                 <Trophy className="w-6 h-6 text-primary" />
                                 Achievements
@@ -511,10 +745,16 @@ export default function DashboardPage() {
                         </div>
                         <Link href="/milestones" className="w-full block py-4 bg-surface-elevated border border-border-subtle rounded-2xl text-center text-xs font-bold uppercase tracking-[0.2em] hover:border-primary transition-all">
                             View All Milestones
-                        </Link>
+                        </Link> */}
                     </section>
                 </div>
+                {/* Beast Analysis (New) */}
+            {stats.metadata && (
+                <BeastAnalysis metadata={stats.metadata} />
+            )}
             </div>
+
+            
 
             {activeSession && (
                 <SessionHUD
@@ -528,6 +768,14 @@ export default function DashboardPage() {
                 <EndOfDayModal
                     isOpen={showEndOfDay}
                     onClose={() => setShowEndOfDay(false)}
+                    onSaveReflection={async (reflection) => {
+                        if (!stats?.activeDayProgressId) return
+                        const res = await updateDayProgress(stats.activeDayProgressId, { reflection })
+                        if (res.success) {
+                            toast.success('Reflection archived in Neural Archive')
+                            setShowEndOfDay(false)
+                        }
+                    }}
                     summary={{
                         disciplineScore: stats.disciplineScore,
                         hoursLogged: stats.hoursLogged,
@@ -542,6 +790,19 @@ export default function DashboardPage() {
                     }}
                 />
             )}
+            {showDailyBrief && (
+                <DailyBriefingModal
+                    isOpen={showDailyBrief}
+                    onClose={() => setShowDailyBrief(false)}
+                    stats={stats}
+                />
+            )}
+
+            <DayOffModal
+                isOpen={showDayOffReason}
+                onClose={() => setShowDayOffReason(false)}
+                onConfirm={(reason) => toggleDayOffToday(reason)}
+            />
         </PageWrapper>
     )
 }

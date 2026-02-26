@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { Plus, Search, Filter, MoreVertical, Eye, Edit2, Trash2, Globe, Lock, Clock, Loader2 } from 'lucide-react'
+import { Plus, Search, Filter, MoreVertical, Eye, Edit2, Trash2, Globe, Lock, Clock, Loader2, Link2 } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { getBlogPostsForManagement, deleteBlogPost } from '@/lib/actions/blog'
+import toast from 'react-hot-toast'
 
 export default function BlogManagementPage() {
     const [filter, setFilter] = useState<'all' | 'public' | 'private'>('all')
@@ -31,6 +32,12 @@ export default function BlogManagementPage() {
     const handleDelete = (id: string) => {
         setConfirmDeleteId(id)
         setDeletePhrase('')
+    }
+
+    const handleCopyLink = (slug: string) => {
+        const url = `${window.location.origin}/blog/${slug}`
+        navigator.clipboard.writeText(url)
+        toast.success('Link copied to clipboard')
     }
 
     const confirmPermanentDelete = async () => {
@@ -141,6 +148,13 @@ export default function BlogManagementPage() {
                                             <p className="text-[10px] text-text-secondary font-bold uppercase">Views</p>
                                         </div>
                                         <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleCopyLink(post.slug)}
+                                                className="p-3 bg-surface-elevated hover:bg-blue-500/20 hover:text-blue-500 rounded-xl transition-all"
+                                                title="Copy Link"
+                                            >
+                                                <Link2 className="w-4 h-4" />
+                                            </button>
                                             <Link href={`/blog/manage/${post.id}`} className="p-3 bg-surface-elevated hover:bg-primary/20 hover:text-primary rounded-xl transition-all">
                                                 <Edit2 className="w-4 h-4" />
                                             </Link>

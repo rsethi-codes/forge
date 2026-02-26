@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { motion } from 'framer-motion'
 
 // Data freshness is handled by React Query (staleTime 60s).
@@ -31,7 +31,7 @@ import {
     FileText
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { getAnalyticsData } from '@/lib/actions/analytics'
+import Link from 'next/link'
 
 import { useQuery } from '@tanstack/react-query'
 
@@ -55,6 +55,14 @@ export default function AnalyticsPage() {
         )
     }
 
+    if (!data) {
+        return (
+            <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
+                <p className="text-text-secondary font-bold uppercase tracking-widest text-xs">No analytics data available yet. Keep building.</p>
+            </div>
+        )
+    }
+
     return (
         <div className="p-6 md:p-10 max-w-7xl mx-auto space-y-10">
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border-subtle">
@@ -65,11 +73,11 @@ export default function AnalyticsPage() {
                 <div className="flex gap-4">
                     <div className="bg-surface border border-border-subtle px-6 py-4 rounded-2xl text-center">
                         <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Avg. Discipline</p>
-                        <p className="text-2xl font-syne font-bold text-primary">{data.avgDiscipline}%</p>
+                        <p className="text-2xl font-syne font-bold text-primary">{data.avgDiscipline ?? 0}%</p>
                     </div>
                     <div className="bg-surface border border-border-subtle px-6 py-4 rounded-2xl text-center">
                         <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Articles</p>
-                        <p className="text-2xl font-syne font-bold text-secondary">{data.blogCount}</p>
+                        <p className="text-2xl font-syne font-bold text-secondary">{data.blogCount ?? 0}</p>
                     </div>
                     <div className="bg-surface border border-border-subtle px-6 py-4 rounded-2xl text-center">
                         <p className="text-[10px] font-bold text-text-secondary uppercase tracking-widest mb-1">Days Active</p>
@@ -117,8 +125,8 @@ export default function AnalyticsPage() {
                         </div>
                         <div>
                             <h3 className="text-2xl font-syne font-bold mb-2 uppercase tracking-tighter">Current Tier</h3>
-                            <p className="text-7xl font-syne font-bold tracking-tighter italic decoration-2 underline-offset-8" style={{ color: data.currentTier.color }}>
-                                {data.currentTier.tier}
+                            <p className="text-7xl font-syne font-bold tracking-tighter italic decoration-2 underline-offset-8" style={{ color: data.currentTier?.color ?? '#ff3131' }}>
+                                {data.currentTier?.tier ?? 'B'}
                             </p>
                         </div>
                         <p className="text-sm text-text-secondary leading-relaxed font-medium">
@@ -250,24 +258,24 @@ export default function AnalyticsPage() {
                 </section>
 
                 {/* Growth Velocity */}
-                <section className="bg-primary/5 border-2 border-primary/20 p-8 rounded-[2.5rem] flex flex-col justify-between">
+                <section className="bg-primary/5 border-2 border-primary/20 p-8 rounded-[2.5rem] flex flex-col justify-between min-h-[280px]">
                     <div className="space-y-4">
-                        <h3 className="font-syne font-bold text-sm uppercase tracking-widest">Velocity Grade</h3>
-                        <p className="text-5xl font-syne font-bold tracking-tighter text-primary"
-                            style={{ color: data.currentTier?.color }}>
+                        <h3 className="font-syne font-bold text-sm uppercase tracking-widest text-primary">Velocity Grade</h3>
+                        <p className="text-6xl font-syne font-black tracking-tighter"
+                            style={{ color: data.currentTier?.color || '#ff3131' }}>
                             {data.currentTier?.tier ?? 'B'}
                         </p>
                     </div>
-                    <div className="pt-8 space-y-4">
-                        <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest italic">
+                    <div className="pt-10 space-y-6">
+                        <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest italic leading-relaxed max-w-xs">
                             &quot;Avg discipline {data.avgDiscipline}%. Tier {data.currentTier?.tier ?? 'B'}. Streak: {data.streak ?? 0} days.&quot;
                         </p>
-                        <button
-                            onClick={() => window.dispatchEvent(new CustomEvent('forge-hud-open', { detail: { mode: 'mentor' } }))}
-                            className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
+                        <Link
+                            href="/forge-chat"
+                            className="w-full py-3 bg-primary text-white rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-primary/20 text-center hover:bg-red-600 transition-colors"
                         >
                             Ask Forge Mentor
-                        </button>
+                        </Link>
                     </div>
                 </section>
             </div>
@@ -307,33 +315,50 @@ export default function AnalyticsPage() {
                 </section>
 
                 {/* Content Metrics */}
-                <section className="bg-surface border border-border-subtle p-8 rounded-[2.5rem] space-y-6">
-                    <div className="flex items-center gap-3">
-                        <FileText className="w-6 h-6 text-secondary" />
-                        <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">Deep View Audit</h3>
-                    </div>
-                    <div className="space-y-4">
-                        {data.blogStats.map((post: any) => (
-                            <div key={post.id} className="p-4 bg-[#0a0a0a] border border-border-subtle rounded-2xl group hover:border-secondary/50 transition-all">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h4 className="text-xs font-bold line-clamp-1 flex-1">{post.title}</h4>
-                                    <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded ml-2 whitespace-nowrap">
-                                        {post.views} VIEWS
-                                    </span>
+                {data.blogStats && data.blogStats.length > 0 ? (
+                    <section className="bg-surface border border-border-subtle p-8 rounded-[2.5rem] space-y-6">
+                        <div className="flex items-center gap-3">
+                            <FileText className="w-6 h-6 text-secondary" />
+                            <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">Deep View Audit</h3>
+                        </div>
+                        <div className="space-y-4">
+                            {data.blogStats.map((post: any) => (
+                                <div key={post.id} className="p-4 bg-[#0a0a0a] border border-border-subtle rounded-2xl group hover:border-secondary/50 transition-all">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h4 className="text-xs font-bold line-clamp-1 flex-1">{post.title}</h4>
+                                        <span className="text-[10px] font-bold text-secondary bg-secondary/10 px-2 py-0.5 rounded ml-2 whitespace-nowrap">
+                                            {post.views} VIEWS
+                                        </span>
+                                    </div>
+                                    <div className="w-full h-1 bg-border-subtle rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-secondary"
+                                            style={{ width: `${Math.min(100, (post.views / 100) * 100)}%` }}
+                                        />
+                                    </div>
                                 </div>
-                                <div className="w-full h-1 bg-border-subtle rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-secondary"
-                                        style={{ width: `${Math.min(100, (post.views / 100) * 100)}%` }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <button className="w-full py-3 bg-surface-elevated border border-border-subtle rounded-xl text-[10px] font-bold uppercase tracking-widest hover:border-secondary transition-all">
-                        View Detailed Insights
-                    </button>
-                </section>
+                            ))}
+                        </div>
+                        <Link
+                            href="/forge-chat"
+                            className="w-full py-3 bg-surface-elevated border border-border-subtle rounded-xl text-[10px] font-bold uppercase tracking-widest hover:border-secondary transition-all text-center"
+                        >
+                            View Detailed Insights
+                        </Link>
+                    </section>
+                ) : (
+                    <section className="bg-surface border border-border-subtle p-8 rounded-[2.5rem] space-y-6">
+                        <div className="flex items-center gap-3">
+                            <FileText className="w-6 h-6 text-text-secondary/40" />
+                            <h3 className="text-xl font-syne font-bold uppercase tracking-tighter text-text-secondary/40">Deep View Audit</h3>
+                        </div>
+                        <div className="text-center py-12">
+                            <p className="text-sm text-text-secondary/60 max-w-md mx-auto">
+                                This stat becomes available once you write any blog post. Share your learning journey and track audience engagement here.
+                            </p>
+                        </div>
+                    </section>
+                )}
             </div>
 
             {/* Bottleneck Audit */}
@@ -346,30 +371,26 @@ export default function AnalyticsPage() {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-[#0a0a0a] border border-border-subtle p-5 rounded-2xl hover:border-primary/30 transition-all">
-                        <div className="flex items-center gap-2 text-primary text-xs font-bold uppercase mb-2" >
-                            <Target className="w-4 h-4" /> Focus Density
+                    {data.bottleneckInsights?.map((insight: any, idx: number) => (
+                        <div key={insight.type} className={cn(
+                            "bg-[#0a0a0a] border border-border-subtle p-5 rounded-2xl transition-all",
+                            idx === 0 ? "hover:border-primary/30" : idx === 1 ? "hover:border-secondary/30" : "hover:border-success/30"
+                        )}>
+                            <div className={cn(
+                                "flex items-center gap-2 text-xs font-bold uppercase mb-2",
+                                idx === 0 ? "text-primary" : idx === 1 ? "text-secondary" : "text-success"
+                            )}>
+                                {idx === 0 ? <Target className="w-4 h-4" /> : idx === 1 ? <Brain className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
+                                {insight.type}
+                            </div>
+                            <p className="text-sm font-medium leading-relaxed italic font-lora">
+                                &quot;{insight.text}&quot;
+                            </p>
                         </div>
-                        <p className="text-sm font-medium leading-relaxed italic font-lora">
-                            &quot;Your deep-work blocks are most effective during the first 4 hours of your logged sessions. Retention drops significantly after 6 hours.&quot;
-                        </p>
-                    </div>
-                    <div className="bg-[#0a0a0a] border border-border-subtle p-5 rounded-2xl hover:border-secondary/30 transition-all">
-                        <div className="flex items-center gap-2 text-secondary text-xs font-bold uppercase mb-2">
-                            <Brain className="w-4 h-4" /> Cognitive Load
-                        </div>
-                        <p className="text-sm font-medium leading-relaxed italic font-lora">
-                            &quot;Topics related to Infra and Optimization show the highest failure rates in Knowledge Checks. Revisit foundational concepts before proceeding.&quot;
-                        </p>
-                    </div>
-                    <div className="bg-[#0a0a0a] border border-border-subtle p-5 rounded-2xl hover:border-success/30 transition-all">
-                        <div className="flex items-center gap-2 text-success text-xs font-bold uppercase mb-2">
-                            <TrendingUp className="w-4 h-4" /> Momentum Engine
-                        </div>
-                        <p className="text-sm font-medium leading-relaxed italic font-lora">
-                            &quot;Current streak of <span className="text-success not-italic font-bold">{data.streak ?? 0}</span> days has increased your avg discipline score by <span className="text-success not-italic font-bold">{Math.round((data.streak ?? 0) * 1.5)}%</span>. Momentum is your greatest asset.&quot;
-                        </p>
-                    </div>
+                    ))}
+                    {(!data.bottleneckInsights || data.bottleneckInsights.length === 0) && (
+                        <p className="text-text-secondary text-sm italic col-span-3 text-center py-10">Initializing pattern analysis... Continue the build to generate insights.</p>
+                    )}
                 </div>
             </section>
         </div>

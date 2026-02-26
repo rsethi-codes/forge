@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
+import { toast } from 'react-hot-toast'
 
 // Client-rendered page — no force-dynamic needed.
 import {
@@ -34,10 +35,22 @@ export default function SettingsPage() {
     const [saved, setSaved] = useState(false)
     const [profile, setProfile] = useState<any>(null)
     const [zenFullscreen, setZenFullscreen] = useState(false)
+    const [startWithPomodoro, setStartWithPomodoro] = useState(false)
+    const [pomodoroWorkMinutes, setPomodoroWorkMinutes] = useState(25)
+    const [pomodoroShortBreakMinutes, setPomodoroShortBreakMinutes] = useState(5)
+    const [pomodoroLongBreakMinutes, setPomodoroLongBreakMinutes] = useState(15)
+    const [sendingTest, setSendingTest] = useState(false)
+    const [resetting, setResetting] = useState(false)
+    const [showResetModal, setShowResetModal] = useState(false)
+    const [resetPhrase, setResetPhrase] = useState('')
 
     useEffect(() => {
         loadProfile()
         setZenFullscreen(localStorage.getItem('pomodoro_zen_fullscreen') === 'true')
+        setStartWithPomodoro(localStorage.getItem('forge_start_with_pomodoro') !== 'false')
+        setPomodoroWorkMinutes(parseInt(localStorage.getItem('pomodoro_work_minutes') || '25', 10) || 25)
+        setPomodoroShortBreakMinutes(parseInt(localStorage.getItem('pomodoro_short_break_minutes') || '5', 10) || 5)
+        setPomodoroLongBreakMinutes(parseInt(localStorage.getItem('pomodoro_long_break_minutes') || '15', 10) || 15)
     }, [])
 
     const loadProfile = async () => {
@@ -58,20 +71,32 @@ export default function SettingsPage() {
     const handleSaveProfile = async () => {
         if (!profile) return
         setSaving(true)
-        await updateProfile(profile.email, {
-            fullName: profile.fullName,
-            bio: profile.bio,
-        })
+        try {
+            await updateProfile(profile.id, {
+                fullName: profile.fullName,
+                bio: profile.bio,
+                headline: profile.headline,
+                vanityHandle: profile.vanityHandle,
+                githubUrl: profile.githubUrl,
+                linkedinUrl: profile.linkedinUrl,
+                roleInterested: profile.roleInterested,
+                isPublic: profile.isPublic,
+                skills: profile.skills || [],
+            })
+            showSaved()
+        } catch (e: any) {
+            toast.error(e.message || 'Failed to update profile')
+        }
         setSaving(false)
-        showSaved()
     }
 
     const handleSavePreferences = async () => {
         if (!profile) return
         setSaving(true)
-        await updateProfile(profile.email, {
+        await updateProfile(profile.id, {
             emailNotifications: profile.emailNotifications,
             morningDigestTime: profile.morningDigestTime,
+            reminderEmailTime: profile.reminderEmailTime,
         })
         setSaving(false)
         showSaved()
@@ -163,13 +188,75 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Short Bio (Public Blog)</label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Target Role / Headline</label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Senior Frontend Engineer"
+                                            value={profile.headline || ''}
+                                            onChange={e => setProfile({ ...profile, headline: e.target.value })}
+                                            className="w-full bg-[#0a0a0a] border border-border-subtle rounded-xl py-3 px-4 text-sm outline-none focus:border-primary transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Custom Vanity URL (/p/_)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="raghav-codes"
+                                            value={profile.vanityHandle || ''}
+                                            onChange={e => setProfile({ ...profile, vanityHandle: e.target.value })}
+                                            className="w-full bg-[#0a0a0a] border border-border-subtle rounded-xl py-3 px-4 text-sm outline-none focus:border-primary transition-all font-mono"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">GitHub Profile</label>
+                                        <input
+                                            type="text"
+                                            placeholder="https://github.com/..."
+                                            value={profile.githubUrl || ''}
+                                            onChange={e => setProfile({ ...profile, githubUrl: e.target.value })}
+                                            className="w-full bg-[#0a0a0a] border border-border-subtle rounded-xl py-3 px-4 text-sm outline-none focus:border-primary transition-all"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">LinkedIn Profile</label>
+                                        <input
+                                            type="text"
+                                            placeholder="https://linkedin.com/in/..."
+                                            value={profile.linkedinUrl || ''}
+                                            onChange={e => setProfile({ ...profile, linkedinUrl: e.target.value })}
+                                            className="w-full bg-[#0a0a0a] border border-border-subtle rounded-xl py-3 px-4 text-sm outline-none focus:border-primary transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 pt-4 border-t border-white/5">
+                                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Mission Bio / Engineering Philosophy</label>
                                     <textarea
                                         value={profile.bio || ''}
                                         onChange={e => setProfile({ ...profile, bio: e.target.value })}
                                         className="w-full bg-[#0a0a0a] border border-border-subtle rounded-2xl p-4 text-sm min-h-[100px] outline-none focus:border-primary transition-all"
+                                        placeholder="Ex: Passionate about React internals and performance optimization..."
                                     />
+                                </div>
+
+                                <div className="space-y-4 pt-4 border-t border-white/5">
+                                    <div className="flex items-center justify-between">
+                                        <div className="space-y-1">
+                                            <h4 className="text-sm font-bold text-primary">Forge Nexus Status</h4>
+                                            <p className="text-[10px] text-text-secondary uppercase tracking-widest">Visibility of your live profile to recruiters</p>
+                                        </div>
+                                        <div
+                                            onClick={() => setProfile({ ...profile, isPublic: !profile.isPublic })}
+                                            className={cn("w-12 h-6 rounded-full p-1 cursor-pointer transition-all", profile.isPublic ? "bg-primary shadow-[0_0_10px_#ff3131]" : "bg-border-subtle")}
+                                        >
+                                            <div className={cn("w-4 h-4 bg-white rounded-full transition-all", profile.isPublic ? "ml-auto" : "ml-0")} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -221,19 +308,42 @@ export default function SettingsPage() {
 
                                     <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
                                         <div className="flex items-center gap-3">
+                                            <Clock className="w-4 h-4 text-primary" />
+                                            <div className="flex flex-col">
+                                                <span>Work Reminders</span>
+                                                <span className="text-[10px] text-text-secondary uppercase">Time to nudge you back to the grind</span>
+                                            </div>
+                                        </div>
+                                        <input
+                                            type="time"
+                                            value={profile.reminderEmailTime || '20:00'}
+                                            onChange={e => setProfile({ ...profile, reminderEmailTime: e.target.value })}
+                                            className="bg-surface-elevated border border-border-subtle rounded-lg px-3 py-1.5 text-xs outline-none focus:border-primary font-mono"
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
+                                        <div className="flex items-center gap-3">
                                             <Mail className="w-4 h-4 text-text-secondary" />
-                                            <span>Test Email Integration</span>
+                                            <span>Test Integration</span>
                                         </div>
                                         <button
+                                            disabled={sendingTest}
                                             onClick={async () => {
-                                                const { sendMorningDigest } = await import('@/lib/actions/email')
-                                                const res = await sendMorningDigest(profile.email)
-                                                if (res.success) alert('Test email sent!')
-                                                else alert('Failed: ' + res.error)
+                                                setSendingTest(true)
+                                                try {
+                                                    const { sendMorningDigest } = await import('@/lib/actions/email')
+                                                    const res = await sendMorningDigest(profile.email)
+                                                    if (res.success) toast.success('Test digest sent to ' + profile.email)
+                                                    else toast.error('Failed: ' + res.error)
+                                                } finally {
+                                                    setSendingTest(false)
+                                                }
                                             }}
-                                            className="px-4 py-1.5 bg-surface-elevated border border-border-subtle rounded-lg text-[10px] font-bold uppercase tracking-widest hover:border-primary transition-all"
+                                            className="px-4 py-1.5 bg-surface-elevated border border-border-subtle rounded-lg text-[10px] font-bold uppercase tracking-widest hover:border-primary transition-all disabled:opacity-50 flex items-center gap-1.5"
                                         >
-                                            Send Test
+                                            {sendingTest ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3 h-3" />}
+                                            {sendingTest ? 'Sending...' : 'Send Test'}
                                         </button>
                                     </div>
                                 </div>
@@ -244,6 +354,84 @@ export default function SettingsPage() {
                                         <h3 className="text-xl font-syne font-bold uppercase tracking-tighter">Focus Mode</h3>
                                     </div>
                                     <div className="space-y-4 text-sm">
+                                        <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
+                                            <div className="flex items-center gap-3">
+                                                <Zap className="w-4 h-4 text-primary" />
+                                                <div className="flex flex-col">
+                                                    <span>Start Tasks With Pomodoro</span>
+                                                    <span className="text-[10px] text-text-secondary uppercase">Auto-launch timer when you start the day’s action</span>
+                                                </div>
+                                            </div>
+                                            <div
+                                                onClick={() => {
+                                                    const newValue = !startWithPomodoro
+                                                    setStartWithPomodoro(newValue)
+                                                    localStorage.setItem('forge_start_with_pomodoro', String(newValue))
+                                                    window.dispatchEvent(new Event('storage'))
+                                                }}
+                                                className={cn("w-10 h-5 rounded-full p-1 cursor-pointer transition-all", startWithPomodoro ? "bg-primary" : "bg-border-subtle")}
+                                            >
+                                                <div className={cn("w-3 h-3 bg-white rounded-full transition-all", startWithPomodoro ? "ml-auto" : "ml-0")} />
+                                            </div>
+                                        </div>
+
+                                        <div className="p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle space-y-4">
+                                            <div className="flex items-center gap-3">
+                                                <Clock className="w-4 h-4 text-text-secondary" />
+                                                <div className="flex flex-col">
+                                                    <span>Pomodoro Defaults (Minutes)</span>
+                                                    <span className="text-[10px] text-text-secondary uppercase">Used for auto-start and timer reset</span>
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Work</label>
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        value={pomodoroWorkMinutes}
+                                                        onChange={(e) => {
+                                                            const v = Math.max(1, parseInt(e.target.value || '25', 10) || 25)
+                                                            setPomodoroWorkMinutes(v)
+                                                            localStorage.setItem('pomodoro_work_minutes', String(v))
+                                                            window.dispatchEvent(new Event('storage'))
+                                                        }}
+                                                        className="w-full bg-surface-elevated border border-border-subtle rounded-lg px-3 py-2 text-xs outline-none focus:border-primary font-mono"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Short Break</label>
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        value={pomodoroShortBreakMinutes}
+                                                        onChange={(e) => {
+                                                            const v = Math.max(1, parseInt(e.target.value || '5', 10) || 5)
+                                                            setPomodoroShortBreakMinutes(v)
+                                                            localStorage.setItem('pomodoro_short_break_minutes', String(v))
+                                                            window.dispatchEvent(new Event('storage'))
+                                                        }}
+                                                        className="w-full bg-surface-elevated border border-border-subtle rounded-lg px-3 py-2 text-xs outline-none focus:border-primary font-mono"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Long Break</label>
+                                                    <input
+                                                        type="number"
+                                                        min={1}
+                                                        value={pomodoroLongBreakMinutes}
+                                                        onChange={(e) => {
+                                                            const v = Math.max(1, parseInt(e.target.value || '15', 10) || 15)
+                                                            setPomodoroLongBreakMinutes(v)
+                                                            localStorage.setItem('pomodoro_long_break_minutes', String(v))
+                                                            window.dispatchEvent(new Event('storage'))
+                                                        }}
+                                                        className="w-full bg-surface-elevated border border-border-subtle rounded-lg px-3 py-2 text-xs outline-none focus:border-primary font-mono"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div className="flex items-center justify-between p-4 bg-[#0a0a0a] rounded-xl border border-border-subtle">
                                             <div className="flex items-center gap-3">
                                                 <Zap className="w-4 h-4 text-primary" />
@@ -300,18 +488,13 @@ export default function SettingsPage() {
                                     </button>
 
                                     <button
-                                        onClick={async () => {
-                                            if (confirm("THIS WILL DELETE ALL PROGRESS. ARE YOU SURE?")) {
-                                                const { resetRoadmap } = await import('@/lib/actions/reset')
-                                                await resetRoadmap()
-                                                window.location.href = '/setup'
-                                            }
-                                        }}
-                                        className="w-full flex items-center justify-between p-4 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all group"
+                                        disabled={resetting}
+                                        onClick={() => setShowResetModal(true)}
+                                        className="w-full flex items-center justify-between p-4 bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl transition-all group disabled:opacity-60 disabled:cursor-not-allowed"
                                     >
                                         <div className="flex items-center gap-3 text-sm font-bold text-primary">
-                                            <Trash2 className="w-4 h-4" />
-                                            Reset Current Roadmap
+                                            {resetting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                            {resetting ? 'Resetting...' : 'Reset Current Roadmap'}
                                         </div>
                                         <AlertTriangle className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                                     </button>
@@ -321,6 +504,79 @@ export default function SettingsPage() {
                     )}
                 </main>
             </div>
+
+            {/* Reset Confirmation Modal */}
+            <AnimatePresence>
+                {showResetModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/80 backdrop-blur-xl z-[100] flex items-center justify-center p-6"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-[#0f0f0f] border border-red-500/30 rounded-[2.5rem] p-10 max-w-md w-full shadow-[0_0_50px_rgba(239,68,68,0.2)] text-center space-y-8"
+                        >
+                            <div className="w-20 h-20 bg-red-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                <AlertTriangle className="w-10 h-10 text-red-500" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-syne font-bold text-white uppercase tracking-tighter">Nuclear Reset</h3>
+                                <p className="text-text-secondary text-sm">
+                                    This will permanently delete all progress, streaks, and focus metrics. Type <span className="text-red-500 font-black">ERASE DATA</span> to authorize.
+                                </p>
+                            </div>
+
+                            <input
+                                autoFocus
+                                type="text"
+                                value={resetPhrase}
+                                onChange={(e) => setResetPhrase(e.target.value)}
+                                placeholder="Authorization phrase..."
+                                className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 text-center text-sm font-bold uppercase tracking-widest text-red-500 outline-none focus:border-red-500/50 transition-all placeholder:text-white/5"
+                            />
+
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => {
+                                        setShowResetModal(false)
+                                        setResetPhrase('')
+                                    }}
+                                    disabled={resetting}
+                                    className="flex-1 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-xs font-bold uppercase tracking-widest transition-all disabled:opacity-40"
+                                >
+                                    Abort
+                                </button>
+                                <button
+                                    disabled={resetPhrase !== 'ERASE DATA' || resetting}
+                                    onClick={async () => {
+                                        setResetting(true)
+                                        const toastId = toast.loading('Reshaping reality...')
+                                        try {
+                                            const { resetRoadmap } = await import('@/lib/actions/reset')
+                                            await resetRoadmap()
+                                            toast.success('Reset complete. Redirecting...', { id: toastId })
+                                            window.location.href = '/setup'
+                                        } catch (e: any) {
+                                            toast.error('Reset failed: ' + (e.message || 'Unknown error'), { id: toastId })
+                                            setResetting(false)
+                                        }
+                                    }}
+                                    className="flex-1 py-4 rounded-2xl bg-red-500 hover:bg-red-600 disabled:opacity-20 disabled:grayscale text-white text-xs font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(239,68,68,0.2)] flex items-center justify-center gap-2"
+                                >
+                                    {resetting ? (
+                                        <><Loader2 className="w-4 h-4 animate-spin" /> Resetting...</>
+                                    ) : 'Confirm Reset'}
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     )
 }

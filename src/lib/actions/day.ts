@@ -38,18 +38,41 @@ export async function getDayDetail(dayNumber: number | string) {
 
     if (!program) return null
 
-    // Calculate the target date for this dayNumber
+    // Calculate the actual date for this dayNumber (accounting for shifts)
+    // and the original target date (static from start)
     const dNum = parseInt(dayNumber.toString())
-    const targetDate = format(addDays(new Date(program.startDate), dNum - 1), 'yyyy-MM-dd')
+    const originalTargetDate = format(addDays(new Date(program.startDate), dNum - 1), 'yyyy-MM-dd')
+
+    // For now, in this view, we look for the progress matching this dayId 
+    // Usually it's the latest one or the one for today... 
+    // But since the user selects the day from the tracker, we should find/create for the "scheduled" date
+    const { schedule } = await import('@/lib/actions/scheduling').then(mod => mod.getRoadmapSchedule(program.id))
 
     // 2. Get the day definition
-    const [day] = await db
+    const [dayRow] = await db
         .select()
         .from(schema.roadmapDays)
-        .where(eq(schema.roadmapDays.dayNumber, dayNumber.toString()))
+        .leftJoin(schema.roadmapWeeks, eq(schema.roadmapDays.weekId, schema.roadmapWeeks.id))
+        .leftJoin(schema.roadmapMonths, eq(schema.roadmapWeeks.monthId, schema.roadmapMonths.id))
+        .leftJoin(schema.roadmapPhases, eq(schema.roadmapWeeks.phaseId, schema.roadmapPhases.id))
+        .where(and(
+            eq(schema.roadmapDays.dayNumber, dayNumber.toString()),
+            sql`(${schema.roadmapMonths.programId} = ${program.id} OR ${schema.roadmapPhases.programId} = ${program.id})`
+        ))
         .limit(1)
 
-    if (!day) return null
+    if (!dayRow) return null
+    const day = dayRow.roadmap_days
+
+    // Defensive: ensure this day belongs to the active program
+    const belongsToProgram =
+        (dayRow.roadmap_months?.programId === program.id) ||
+        (dayRow.roadmap_phases?.programId === program.id)
+    if (!belongsToProgram) {
+        throw new Error(`Day ${dayNumber} does not belong to the active program ${program.id}`)
+    }
+
+    const scheduledDate = schedule[day.id] ? schedule[day.id][0] : originalTargetDate
 
     // 3. Get or create daily progress for this date and day
     let [progress] = await db
@@ -57,9 +80,9 @@ export async function getDayDetail(dayNumber: number | string) {
         .from(schema.dailyProgress)
         .where(and(
             eq(schema.dailyProgress.dayId, day.id),
-            eq(schema.dailyProgress.date, targetDate),
             eq(schema.dailyProgress.userId, user.id)
         ))
+        .orderBy(desc(schema.dailyProgress.date))
         .limit(1)
 
     if (!progress) {
@@ -68,7 +91,8 @@ export async function getDayDetail(dayNumber: number | string) {
             .values({
                 dayId: day.id,
                 userId: user.id,
-                date: targetDate,
+                date: format(new Date(), 'yyyy-MM-dd'), // Progress is always started ON the actual date
+                targetDate: originalTargetDate,        // Keep track of when it WAS supposed to be done
                 status: 'not_started',
                 hoursLogged: '0'
             })
@@ -180,6 +204,11 @@ export async function toggleTaskCompletion(taskId: string, progressId: string, c
 
     let unlockedMilestones: any[] = []
     if (prog) {
+        if (completed) {
+            await db.update(schema.profiles)
+                .set({ hasStartedRoadmap: true })
+                .where(eq(schema.profiles.id, prog.userId))
+        }
         await calculateDailyDiscipline(prog.date, prog.userId)
         unlockedMilestones = await checkAndUnlockMilestones(prog.userId)
 
@@ -290,6 +319,11 @@ export async function toggleTopicCompletion(topicId: string, progressId: string,
 
     let unlockedMilestones: any[] = []
     if (prog) {
+        if (completed) {
+            await db.update(schema.profiles)
+                .set({ hasStartedRoadmap: true })
+                .where(eq(schema.profiles.id, prog.userId))
+        }
         await calculateDailyDiscipline(prog.date, prog.userId)
         unlockedMilestones = await checkAndUnlockMilestones(prog.userId)
     }
@@ -373,7 +407,7 @@ async function recalcDayHours(progressId: string) {
         .where(eq(schema.dailyProgress.id, progressId))
 }
 
-export async function updateDayProgress(progressId: string, data: { status?: any, hours?: string, notes?: string }) {
+export async function updateDayProgress(progressId: string, data: { status?: any, hours?: string, notes?: string, reflection?: string }) {
     await db
         .update(schema.dailyProgress)
         .set({
@@ -382,6 +416,7 @@ export async function updateDayProgress(progressId: string, data: { status?: any
             ...(data.hours !== undefined && { hoursLogged: data.hours }),
             // Use !== undefined so clearing notes (empty string) actually saves
             ...(data.notes !== undefined && { sessionNotes: data.notes }),
+            ...(data.reflection !== undefined && { reflection: data.reflection }),
             ...(data.status === 'complete' && { completedAt: new Date() })
         })
         .where(eq(schema.dailyProgress.id, progressId))
@@ -405,6 +440,29 @@ export async function updateDayProgress(progressId: string, data: { status?: any
     revalidatePath('/dashboard')
 
     return { success: true, unlockedMilestones }
+}
+
+export async function getReflections() {
+    const user = await requireUser()
+    const reflections = await db
+        .select({
+            id: schema.dailyProgress.id,
+            date: schema.dailyProgress.date,
+            reflection: schema.dailyProgress.reflection,
+            dayNumber: schema.roadmapDays.dayNumber,
+            dayTitle: schema.roadmapDays.title,
+            focus: schema.roadmapDays.focus
+        })
+        .from(schema.dailyProgress)
+        .innerJoin(schema.roadmapDays, eq(schema.dailyProgress.dayId, schema.roadmapDays.id))
+        .where(and(
+            eq(schema.dailyProgress.userId, user.id),
+            sql`${schema.dailyProgress.reflection} IS NOT NULL`,
+            sql`${schema.dailyProgress.reflection} != ''`
+        ))
+        .orderBy(desc(schema.dailyProgress.date))
+
+    return reflections
 }
 
 

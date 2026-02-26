@@ -4,18 +4,33 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import {
     Play, Pause, RotateCcw, Coffee, Zap, X, Target, Sparkles,
     Maximize2, Volume2, VolumeX, Settings, ChevronRight,
-    Trophy, Flame, TrendingUp
+    Trophy,
+    TrendingUp
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { createPomodoroSession, completePomodoroSession } from '@/lib/actions/pomodoro'
 import { createPortal } from 'react-dom'
 
-const MODES = {
-    work: { label: 'Focus', time: 25 * 60, color: '#ff3131', icon: Zap, message: 'Deep Work Protocol' },
-    short_break: { label: 'Short Break', time: 5 * 60, color: '#00d68f', icon: Coffee, message: 'Neural Recharge' },
-    long_break: { label: 'Long Break', time: 15 * 60, color: '#3b82f6', icon: Target, message: 'Strategic Reset' },
+type PomodoroMode = 'work' | 'short_break' | 'long_break'
+
+type PomodoroDurationsMinutes = {
+    work: number
+    short_break: number
+    long_break: number
 }
+
+const DEFAULT_DURATIONS_MINUTES: PomodoroDurationsMinutes = {
+    work: 25,
+    short_break: 5,
+    long_break: 15,
+}
+
+const DURATION_STORAGE_KEYS = {
+    work: 'pomodoro_work_minutes',
+    short_break: 'pomodoro_short_break_minutes',
+    long_break: 'pomodoro_long_break_minutes',
+} as const
 
 type ExitStage = null | 'first' | 'second'
 type AmbientSound = 'none' | 'focus' | 'rain' | 'noise'
@@ -33,10 +48,25 @@ const MANTRAS = [
     "One more minute beats an hour of regret."
 ]
 
-export default function PomodoroTimer() {
+export default function PomodoroTimer({
+    autoStartOnMount = false,
+}: {
+    autoStartOnMount?: boolean
+}) {
+    const [durationsMinutes, setDurationsMinutes] = useState<PomodoroDurationsMinutes>(DEFAULT_DURATIONS_MINUTES)
+
+    const MODES = React.useMemo(() => {
+        const m = durationsMinutes
+        return {
+            work: { label: 'Focus', time: m.work * 60, color: '#ff3131', icon: Zap, message: 'Deep Work Protocol' },
+            short_break: { label: 'Short Break', time: m.short_break * 60, color: '#00d68f', icon: Coffee, message: 'Neural Recharge' },
+            long_break: { label: 'Long Break', time: m.long_break * 60, color: '#3b82f6', icon: Target, message: 'Strategic Reset' },
+        } as const
+    }, [durationsMinutes])
+
     // --- Core State ---
-    const [mode, setMode] = useState<keyof typeof MODES>('work')
-    const [timeLeft, setTimeLeft] = useState(MODES.work.time)
+    const [mode, setMode] = useState<PomodoroMode>('work')
+    const [timeLeft, setTimeLeft] = useState(() => DEFAULT_DURATIONS_MINUTES.work * 60)
     const [isActive, setIsActive] = useState(false)
     const [isFullscreen, setIsFullscreen] = useState(false)
     const [zenEnabled, setZenEnabled] = useState(true)
@@ -49,6 +79,20 @@ export default function PomodoroTimer() {
     // --- Audio Handles ---
     const ambientAudioRef = useRef<HTMLAudioElement | null>(null)
 
+    const refreshDurations = useCallback(() => {
+        if (typeof window === 'undefined') return
+        const readInt = (k: string) => {
+            const v = parseInt(localStorage.getItem(k) || '', 10)
+            return Number.isFinite(v) && v > 0 ? v : null
+        }
+
+        setDurationsMinutes({
+            work: readInt(DURATION_STORAGE_KEYS.work) ?? DEFAULT_DURATIONS_MINUTES.work,
+            short_break: readInt(DURATION_STORAGE_KEYS.short_break) ?? DEFAULT_DURATIONS_MINUTES.short_break,
+            long_break: readInt(DURATION_STORAGE_KEYS.long_break) ?? DEFAULT_DURATIONS_MINUTES.long_break,
+        })
+    }, [])
+
     // --- Settings Sync ---
     const refreshZenSetting = useCallback(() => {
         if (typeof window === 'undefined') return
@@ -57,11 +101,14 @@ export default function PomodoroTimer() {
     }, [])
 
     useEffect(() => {
+        refreshDurations()
         refreshZenSetting()
         const onStorage = () => refreshZenSetting()
+        const onStorageDurations = () => refreshDurations()
         window.addEventListener('storage', onStorage)
+        window.addEventListener('storage', onStorageDurations)
         return () => window.removeEventListener('storage', onStorage)
-    }, [refreshZenSetting])
+    }, [refreshDurations, refreshZenSetting])
 
     // --- Fullscreen Manager ---
     useEffect(() => {
@@ -76,12 +123,18 @@ export default function PomodoroTimer() {
     }, [])
 
     // --- Timer Logic ---
-    const switchMode = useCallback((newMode: keyof typeof MODES) => {
+    const switchMode = useCallback((newMode: PomodoroMode) => {
         setMode(newMode)
         setTimeLeft(MODES[newMode].time)
         setIsActive(false)
         setIsCompleted(false)
-    }, [])
+    }, [MODES])
+
+    // Keep timer in sync if settings change while not active
+    useEffect(() => {
+        if (isActive || isCompleted) return
+        setTimeLeft(MODES[mode].time)
+    }, [MODES, isActive, isCompleted, mode])
 
     const handleComplete = useCallback(async () => {
         setIsActive(false)
@@ -148,38 +201,6 @@ export default function PomodoroTimer() {
     }, [isFullscreen, isActive])
 
     // --- User Actions ---
-    const handleStart = async () => {
-        const starting = !isActive
-        if (starting && mode === 'work' && !sessionId) {
-            const session = await createPomodoroSession({
-                type: 'work',
-                durationMinutes: 25
-            })
-            setSessionId(session.id)
-        }
-
-        setIsActive(starting)
-
-        // Ignition Sound
-        if (starting && typeof window !== 'undefined') {
-            const ignite = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3')
-            ignite.volume = 0.3
-            ignite.play().catch(() => { })
-        }
-
-        if (starting && zenEnabled && !isFullscreen) {
-            await toggleFullscreen()
-        }
-    }
-
-    const resetTimer = () => {
-        setIsActive(false)
-        setTimeLeft(MODES[mode].time)
-        setSessionId(null)
-        setExitStage(null)
-        setIsCompleted(false)
-    }
-
     const toggleFullscreen = async () => {
         if (!document.fullscreenElement) {
             try {
@@ -198,6 +219,48 @@ export default function PomodoroTimer() {
             setIsFullscreen(false)
             setExitStage(null)
         }
+    }
+
+    const handleStart = useCallback(async () => {
+        const starting = !isActive
+        setIsActive(starting)
+        setIsCompleted(false)
+
+        // Create session on first start
+        if (!sessionId && starting) {
+            const session = await createPomodoroSession({ type: mode, durationMinutes: durationsMinutes[mode] })
+            setSessionId(session.id)
+        }
+
+        // Play start sound
+        if (typeof window !== 'undefined') {
+            const ignite = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3')
+            ignite.volume = 0.3
+            ignite.play().catch(() => { })
+        }
+
+        // Only auto-fullscreen on manual start, not on autoStartOnMount
+        if (starting && zenEnabled && !isFullscreen && !autoStartOnMount) {
+            await toggleFullscreen()
+        }
+    }, [isActive, sessionId, mode, durationsMinutes, zenEnabled, isFullscreen, autoStartOnMount])
+
+    useEffect(() => {
+        if (!autoStartOnMount) return
+        if (isActive) return
+        // Defer one tick so MODES/timeLeft are initialized from settings
+        const t = window.setTimeout(() => {
+            handleStart()
+        }, 50)
+        return () => window.clearTimeout(t)
+    }, [autoStartOnMount, zenEnabled, handleStart, isActive])
+
+    const resetTimer = () => {
+        setIsActive(false)
+        setTimeLeft(MODES[mode].time)
+        setSessionId(null)
+        setExitStage(null)
+        setIsCompleted(false)
     }
 
     const handleExitClick = () => {
@@ -272,20 +335,8 @@ export default function PomodoroTimer() {
                 <motion.div
                     initial={{ y: -20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
-                    className="absolute top-12 px-12 w-full flex justify-between items-center z-50 text-[10px] font-bold uppercase tracking-[0.5em] text-white/20"
+                    className="absolute top-12 px-12 w-full flex justify-end items-center z-50 text-[10px] font-bold uppercase tracking-[0.5em] text-white/20"
                 >
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <Flame className="w-3 h-3 text-primary" />
-                            <span>Streak: 5 days</span>
-                        </div>
-                        <div className="w-px h-4 bg-white/5" />
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="w-3 h-3 text-white/40" />
-                            <span>Daily: 4.2h</span>
-                        </div>
-                    </div>
-
                     <div className="flex items-center gap-4">
                         <motion.div
                             animate={{ opacity: isActive ? [0.2, 1, 0.2] : 0.5 }}
@@ -293,7 +344,7 @@ export default function PomodoroTimer() {
                             className="w-2 h-2 rounded-full bg-primary"
                             style={{ filter: `drop-shadow(0 0 8px ${MODES[mode].color})` }}
                         />
-                        <span>{mode.replace('_', ' ')} state</span>
+                        <span>{MODES[mode].message}</span>
                     </div>
                 </motion.div>
 
@@ -571,81 +622,76 @@ export default function PomodoroTimer() {
         document.body
     )
 
-    const Icon = MODES[mode].icon
-
     return (
         <div className="relative">
             {zenPortal}
 
-            <div className="w-full bg-[#111] border border-white/5 rounded-[2.5rem] p-8 backdrop-blur-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={toggleFullscreen} className="p-2 hover:bg-white/5 rounded-lg text-text-secondary" title="Fullscreen">
-                        <Maximize2 className="w-4 h-4" />
-                    </button>
-                </div>
-
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 shadow-inner">
-                            <Icon className="w-5 h-5 text-primary" style={{ color: MODES[mode].color }} />
-                        </div>
-                        <div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-text-secondary block">{MODES[mode].label}</span>
-                            <span className="text-[8px] font-bold text-primary uppercase tracking-widest opacity-50" style={{ color: MODES[mode].color }}>Forge Active</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="text-center space-y-6 mb-8">
-                    <motion.div
-                        layoutId="pomodoro-timer"
-                        className="text-7xl font-syne font-bold tracking-tighter tabular-nums text-white"
-                    >
-                        {formatTime(timeLeft)}
-                    </motion.div>
-                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                        <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: MODES[mode].color }}
-                            initial={false}
-                            animate={{ width: `${(timeLeft / MODES[mode].time) * 100}%` }}
-                            transition={{ duration: 0.5 }}
-                        />
-                    </div>
-                </div>
-
-                <div className="flex items-center justify-center gap-4">
-                    <button
-                        onClick={resetTimer}
-                        className="p-4 bg-white/5 border border-white/10 rounded-2xl text-text-secondary hover:text-white transition-colors"
-                    >
-                        <RotateCcw className="w-5 h-5" />
-                    </button>
-                    <button
-                        onClick={handleStart}
-                        className="flex-1 py-4 text-white rounded-2xl font-bold flex items-center justify-center gap-3 shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
-                        style={{ backgroundColor: MODES[mode].color, boxShadow: `0 10px 30px ${MODES[mode].color}20` }}
-                    >
-                        {isActive ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-                        {isActive ? 'Freeze' : 'Ignite'}
-                    </button>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 mt-8">
+            {/* Compact HUD card — must fit w-80 without overflow */}
+            <div className="w-full space-y-4">
+                {/* Mode selector — 3 pills */}
+                <div className="grid grid-cols-3 gap-1.5">
                     {Object.entries(MODES).map(([k, v]) => (
                         <button
                             key={k}
                             onClick={() => switchMode(k as keyof typeof MODES)}
                             className={cn(
-                                "py-2.5 rounded-xl text-[8px] font-bold uppercase tracking-widest border transition-all",
+                                "py-2 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all",
                                 mode === k
-                                    ? "bg-white/10 border-white/20 text-white shadow-sm"
-                                    : "bg-transparent border-transparent text-text-secondary hover:text-white"
+                                    ? "border-white/20 text-white"
+                                    : "bg-transparent border-transparent text-text-secondary hover:text-white/60"
                             )}
+                            style={mode === k ? { backgroundColor: `${v.color}20`, borderColor: `${v.color}50`, color: v.color } : {}}
                         >
                             {v.label}
                         </button>
                     ))}
+                </div>
+
+                {/* Clock */}
+                <div className="text-center py-2">
+                    <div className="text-6xl font-syne font-bold tracking-tighter tabular-nums text-white">
+                        {formatTime(timeLeft)}
+                    </div>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.3em] mt-1" style={{ color: MODES[mode].color }}>
+                        {isActive ? MODES[mode].message : 'Ready'}
+                    </p>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-full h-0.5 bg-white/5 rounded-full overflow-hidden">
+                    <motion.div
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: MODES[mode].color }}
+                        initial={false}
+                        animate={{ width: `${(timeLeft / MODES[mode].time) * 100}%` }}
+                        transition={{ duration: 0.5 }}
+                    />
+                </div>
+
+                {/* Controls */}
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={resetTimer}
+                        className="p-3 bg-white/5 border border-white/10 rounded-xl text-text-secondary hover:text-white transition-colors"
+                        title="Reset"
+                    >
+                        <RotateCcw className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={handleStart}
+                        className="flex-1 py-3 text-white rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all hover:opacity-90 active:scale-[0.98]"
+                        style={{ backgroundColor: MODES[mode].color, boxShadow: `0 8px 20px ${MODES[mode].color}30` }}
+                    >
+                        {isActive ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
+                        {isActive ? 'Pause' : 'Ignite'}
+                    </button>
+                    <button
+                        onClick={toggleFullscreen}
+                        className="p-3 bg-white/5 border border-white/10 rounded-xl text-text-secondary hover:text-white transition-colors"
+                        title="Zen Mode"
+                    >
+                        <Maximize2 className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
         </div>

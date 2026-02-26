@@ -16,25 +16,30 @@ import {
     X,
     Wrench,
     Zap,
-    Terminal,
-    Sparkles
+    Quote,
+    MessageSquare
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
+import { format } from 'date-fns'
 
 const navItems = [
     { name: 'Command Center', href: '/dashboard', icon: Home, badge: 'Active' },
     { name: 'Mission Roadmap', href: '/tracker', icon: Map },
     { name: 'Strategic Intel', href: '/analytics', icon: BarChart2 },
+    { name: 'Forge Chat', href: '/forge-chat', icon: MessageSquare },
     { name: 'Rewards Armory', href: '/rewards', icon: Zap },
     { name: 'Honor Milestones', href: '/milestones', icon: Shield },
+    { name: 'Neural Archive', href: '/reflections', icon: Quote },
     { name: 'War Logs', href: '/blog/manage', icon: PenTool },
+    { name: 'Forge Nexus', href: '/share', icon: Share2 },
     { name: 'Setup', href: '/setup', icon: Wrench },
     { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import CommandPalette from './CommandPalette'
 
 export default function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
@@ -45,10 +50,11 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     // 1. Proactive Global Prefetching (Background Warmup)
     React.useEffect(() => {
         const prefetchCoreData = async () => {
+            const today = format(new Date(), 'yyyy-MM-dd')
             // Dashboard
             queryClient.prefetchQuery({
                 queryKey: ['dashboard-data'],
-                queryFn: () => fetch('/api/stats/dashboard').then(res => res.json()),
+                queryFn: () => fetch(`/api/stats/dashboard?date=${today}`).then(res => res.json()),
                 staleTime: 60 * 1000
             })
             // Analytics
@@ -70,7 +76,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             })
             queryClient.prefetchQuery({
                 queryKey: ['tracker', 1],
-                queryFn: () => fetch('/api/roadmap/tracker?month=1').then(res => res.json()),
+                queryFn: () => fetch(`/api/roadmap/tracker?month=1&date=${today}`).then(res => res.json()),
                 staleTime: 5 * 60 * 1000
             })
         }
@@ -98,7 +104,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
     // Hover-intent prefetching for specific tabs
     const prefetchTab = (href: string) => {
-        if (href === '/dashboard') queryClient.prefetchQuery({ queryKey: ['dashboard-data'], queryFn: () => fetch('/api/stats/dashboard').then(res => res.json()) })
+        if (href === '/dashboard') {
+            const today = format(new Date(), 'yyyy-MM-dd')
+            queryClient.prefetchQuery({ queryKey: ['dashboard-data'], queryFn: () => fetch(`/api/stats/dashboard?date=${today}`).then(res => res.json()) })
+        }
         if (href === '/analytics') queryClient.prefetchQuery({ queryKey: ['analytics-data'], queryFn: () => fetch('/api/stats/analytics').then(res => res.json()) })
         if (href === '/milestones') queryClient.prefetchQuery({ queryKey: ['milestones-list'], queryFn: () => fetch('/api/milestones/list').then(res => res.json()) })
         if (href === '/tracker') queryClient.prefetchQuery({ queryKey: ['tracker', 1], queryFn: () => fetch('/api/roadmap/tracker?month=1').then(res => res.json()) })
@@ -119,13 +128,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-text-primary">
             {/* Sidebar Desktop */}
-            <aside className="hidden md:flex w-64 flex-col border-r border-border-subtle bg-[#111111] sticky top-0 h-screen">
-                <div className="p-6 flex items-center gap-2">
+            <aside className="hidden md:flex w-64 flex-col border-r border-border-subtle bg-[#111111] h-screen shrink-0">
+                <div className="p-6 flex items-center gap-2 shrink-0">
                     <Shield className="w-8 h-8 text-primary" />
                     <span className="text-2xl font-syne font-bold tracking-tighter">FORGE</span>
                 </div>
 
-                <nav className="flex-1 px-4 py-4 space-y-2">
+                <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
                     {navItems.map((item) => {
                         const isActive = item.href === '/dashboard'
                             ? pathname === '/dashboard'
@@ -136,14 +145,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                 href={item.href}
                                 onMouseEnter={() => prefetchTab(item.href)}
                                 className={cn(
-                                    "flex items-center justify-between px-4 py-3 rounded-xl transition-all group relative overflow-hidden",
+                                    "flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all relative overflow-hidden group/nav",
                                     isActive
-                                        ? "bg-primary/10 text-primary border border-primary/20"
-                                        : "text-text-secondary hover:bg-white/5 hover:text-text-primary border border-transparent"
+                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                        : "text-text-secondary hover:bg-white/5 hover:text-white"
                                 )}
                             >
-                                <div className="flex items-center gap-3 relative z-10">
-                                    <item.icon className={cn("w-5 h-5 transition-transform group-hover:scale-110", isActive ? "text-primary" : "group-hover:text-primary")} />
+                                <div className="flex items-center gap-3 relative z-10 transition-transform group-hover/nav:translate-x-1">
+                                    <item.icon className={cn("w-5 h-5", isActive ? "text-white" : "text-text-secondary group-hover/nav:text-primary")} />
                                     <span className="font-bold text-xs uppercase tracking-widest">{item.name}</span>
                                 </div>
 
@@ -167,13 +176,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                     })}
                 </nav>
 
-                <div className="p-4 space-y-4">
+                <div className="p-4 space-y-4 flex-shrink-0 border-t border-white/5">
                     {/* Sidebar Meta */}
                     <div className="bg-[#0c0c0c] rounded-2xl p-5 border border-white/5 space-y-5">
                         <div className="space-y-3">
                             <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-text-secondary">
                                 <span>Day Progress</span>
-                                <span className="text-primary">{displayStats.day} / 60</span>
+                                <span className="text-primary">{displayStats.day} / {displayStats.totalDays || 60}</span>
                             </div>
                             <div className="flex gap-1 h-1.5">
                                 {[...Array(10)].map((_, i) => (
@@ -181,7 +190,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                         key={i}
                                         className={cn(
                                             "flex-1 rounded-full transition-colors",
-                                            (displayStats.day / 60) * 10 >= i + 1
+                                            (displayStats.day / (displayStats.totalDays || 60)) * 10 >= i + 1
                                                 ? "bg-primary shadow-[0_0_5px_#ff3131]"
                                                 : "bg-white/5"
                                         )}
@@ -201,24 +210,18 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* HUD Launcher */}
-                    <button
-                        onClick={() => window.dispatchEvent(new CustomEvent('forge-hud-open'))}
-                        className="group relative w-full bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-2xl p-4 transition-all overflow-hidden"
-                    >
-                        <div className="flex items-center gap-3 relative z-10">
-                            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                <Terminal className="w-4 h-4" />
-                            </div>
-                            <div className="text-left">
-                                <span className="block text-[9px] font-black text-primary uppercase tracking-widest leading-none mb-1">Engage Intelligence</span>
-                                <span className="block text-[10px] font-bold text-text-secondary group-hover:text-primary transition-colors">Forge HUD System</span>
-                            </div>
-                        </div>
-                        <Sparkles className="absolute -top-1 -right-1 w-12 h-12 text-primary opacity-10 group-hover:opacity-20 transition-opacity" />
-                    </button>
+                        {displayStats.vanityHandle && (
+                            <Link
+                                href={`/p/${displayStats.vanityHandle}`}
+                                target="_blank"
+                                className="flex items-center justify-center gap-2 w-full py-2 bg-white/5 border border-white/10 rounded-xl text-[8px] font-black uppercase tracking-widest text-text-secondary hover:bg-white/10 hover:text-white transition-all group"
+                            >
+                                <Share2 className="w-3 h-3 group-hover:scale-110 transition-transform" />
+                                Public Identity
+                            </Link>
+                        )}
+                    </div>
 
                     <button
                         onClick={handleSignOut}
@@ -227,6 +230,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         <LogOut className="w-5 h-5" />
                         Sign Out
                     </button>
+
+                    {/* Command Palette discoverability hint */}
+                    <div className="flex items-center justify-center gap-2 text-text-secondary/40 pb-1">
+                        <kbd className="text-[8px] font-black bg-white/5 border border-white/10 rounded px-1.5 py-0.5 font-mono">Ctrl</kbd>
+                        <span className="text-[8px]">+</span>
+                        <kbd className="text-[8px] font-black bg-white/5 border border-white/10 rounded px-1.5 py-0.5 font-mono">K</kbd>
+                        <span className="text-[8px] font-bold uppercase tracking-widest">Command Palette</span>
+                    </div>
                 </div>
             </aside>
 
@@ -268,24 +279,51 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                 </button>
                             </div>
 
-                            <div className="space-y-4">
+                            <motion.div
+                                variants={{
+                                    hidden: { opacity: 0 },
+                                    show: {
+                                        opacity: 1,
+                                        transition: {
+                                            staggerChildren: 0.05,
+                                            delayChildren: 0.2
+                                        }
+                                    }
+                                }}
+                                initial="hidden"
+                                animate="show"
+                                className="space-y-4"
+                            >
                                 {navItems.map((item) => (
-                                    <Link
+                                    <motion.div
                                         key={item.href}
-                                        href={item.href}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className={cn(
-                                            "flex items-center gap-4 py-4 px-4 rounded-xl",
-                                            (item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href))
-                                                ? "bg-primary text-white"
-                                                : "text-text-secondary"
-                                        )}
+                                        variants={{
+                                            hidden: { opacity: 0, x: 20 },
+                                            show: { opacity: 1, x: 0 }
+                                        }}
                                     >
-                                        <item.icon className="w-6 h-6" />
-                                        <span className="text-lg font-medium">{item.name}</span>
-                                    </Link>
+                                        <Link
+                                            href={item.href}
+                                            onClick={() => setIsMobileMenuOpen(false)}
+                                            className={cn(
+                                                "flex items-center gap-4 py-4 px-4 rounded-xl",
+                                                (item.href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(item.href))
+                                                    ? "bg-primary text-white"
+                                                    : "text-text-secondary"
+                                            )}
+                                        >
+                                            <item.icon className="w-6 h-6" />
+                                            <span className="text-lg font-medium">{item.name}</span>
+                                        </Link>
+                                    </motion.div>
                                 ))}
-                                <div className="pt-8 border-t border-border-subtle">
+                                <motion.div
+                                    variants={{
+                                        hidden: { opacity: 0, y: 10 },
+                                        show: { opacity: 1, y: 0 }
+                                    }}
+                                    className="pt-8 border-t border-border-subtle"
+                                >
                                     <button
                                         onClick={handleSignOut}
                                         className="flex items-center gap-4 py-4 px-4 text-primary w-full text-left"
@@ -293,17 +331,18 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                                         <LogOut className="w-6 h-6" />
                                         <span className="text-lg font-medium">Sign Out</span>
                                     </button>
-                                </div>
-                            </div>
+                                </motion.div>
+                            </motion.div>
                         </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className="flex-1 w-full pt-16 md:pt-0 overflow-x-hidden">
+            <main className="flex-1 w-full h-screen overflow-y-auto pt-16 md:pt-0 overflow-x-hidden relative">
                 {children}
             </main>
+            <CommandPalette />
         </div>
     )
 }

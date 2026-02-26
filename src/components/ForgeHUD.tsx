@@ -49,25 +49,28 @@ export default function ForgeHUD() {
 
     const isChatLoading = status === 'submitted' || status === 'streaming'
 
+    const sendQuery = (text: string) => {
+        if (!text.trim() || isChatLoading) return
+        sendMessage({ text }, {
+            headers: { 'Content-Type': 'application/json' },
+            body: { context: { pathname, timestamp: new Date().toISOString() } }
+        })
+    }
+
     const handleChatSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        if (!chatInput.trim() || isChatLoading) return
-
-        sendMessage({
-            text: chatInput,
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: {
-                context: {
-                    pathname,
-                    timestamp: new Date().toISOString()
-                }
-            }
-        })
+        sendQuery(chatInput)
         setChatInput('')
     }
+
+    const FAQ_CHIPS = [
+        { label: "What should I focus on today?", icon: "🎯" },
+        { label: "Review my current task approach", icon: "🔍" },
+        { label: "Explain system design for scale", icon: "🏗️" },
+        { label: "How do I stay consistent?", icon: "🔥" },
+        { label: "What's the most important skill to build?", icon: "🧠" },
+        { label: "Give me a hard technical challenge", icon: "⚡" },
+    ]
 
     const chatEndRef = useRef<HTMLDivElement>(null)
 
@@ -126,6 +129,13 @@ export default function ForgeHUD() {
                                     <tab.icon className="w-3.5 h-3.5" />
                                 </button>
                             ))}
+                            <button
+                                title="Close HUD"
+                                onClick={() => setIsOpen(false)}
+                                className="shrink-0 w-9 flex items-center justify-center rounded-xl text-text-secondary hover:text-white hover:bg-white/5 transition-all"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
                         </div>
 
                         {/* Content Area */}
@@ -142,34 +152,72 @@ export default function ForgeHUD() {
                             {mode === 'mentor' && (
                                 <div className="flex flex-col h-[350px]">
                                     <div className="flex-1 overflow-y-auto p-2 space-y-4 custom-scrollbar">
-                                        {messages.length === 0 ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-center space-y-4 opacity-50">
-                                                <Sparkles className="w-8 h-8 text-primary" />
-                                                <p className="text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                                                    Ask about today&apos;s build,<br />code reviews, or roadmap topics.
-                                                </p>
+                                        {messages.length === 0 && !isChatLoading ? (
+                                            <div className="h-full flex flex-col justify-between py-2">
+                                                {/* Header */}
+                                                <div className="flex flex-col items-center text-center space-y-2 pt-2 opacity-60">
+                                                    <Sparkles className="w-6 h-6 text-primary" />
+                                                    <p className="text-[9px] font-bold uppercase tracking-widest leading-relaxed">
+                                                        Forge Intelligence — tap to ask
+                                                    </p>
+                                                </div>
+                                                {/* FAQ chips */}
+                                                <div className="flex flex-col gap-1.5 pb-1">
+                                                    {FAQ_CHIPS.map((chip) => (
+                                                        <motion.button
+                                                            key={chip.label}
+                                                            whileHover={{ x: 3 }}
+                                                            whileTap={{ scale: 0.97 }}
+                                                            onClick={() => sendQuery(chip.label)}
+                                                            className="flex items-center gap-2.5 w-full text-left px-3 py-2.5 rounded-xl bg-black/30 border border-white/5 hover:border-primary/30 hover:bg-primary/5 transition-all group"
+                                                        >
+                                                            <span className="text-base leading-none shrink-0">{chip.icon}</span>
+                                                            <span className="text-[10px] font-bold text-text-secondary group-hover:text-white transition-colors leading-tight">
+                                                                {chip.label}
+                                                            </span>
+                                                        </motion.button>
+                                                    ))}
+                                                </div>
                                             </div>
                                         ) : (
-                                            messages.map((m) => (
-                                                <div key={m.id} className={cn("flex flex-col space-y-1", m.role === 'user' ? "items-end" : "items-start")}>
-                                                    <span className="text-[8px] font-bold uppercase tracking-widest text-text-secondary">
-                                                        {m.role === 'user' ? 'Operator' : 'Forge Intelligence'}
-                                                    </span>
-                                                    <div className={cn(
-                                                        "max-w-[90%] px-3 py-2 rounded-2xl text-[11px] leading-relaxed",
-                                                        m.role === 'user' ? "bg-primary text-white rounded-tr-none" : "bg-surface border border-border-subtle rounded-tl-none font-mono"
-                                                    )}>
-                                                        {m.parts.map((p, i) => (
-                                                            p.type === 'text' ? <span key={i}>{p.text}</span> :
-                                                                p.type === 'reasoning' ? (
-                                                                    <div key={i} className="mb-2 p-2 bg-black/20 rounded-lg text-[10px] opacity-60 italic border-l-2 border-primary/30">
-                                                                        {p.text}
-                                                                    </div>
-                                                                ) : null
-                                                        ))}
+                                            <>
+                                                {messages.map((m) => (
+                                                    <div key={m.id} className={cn("flex flex-col space-y-1", m.role === 'user' ? "items-end" : "items-start")}>
+                                                        <span className="text-[8px] font-bold uppercase tracking-widest text-text-secondary">
+                                                            {m.role === 'user' ? 'Operator' : 'Forge Intelligence'}
+                                                        </span>
+                                                        <div className={cn(
+                                                            "max-w-[90%] px-3 py-2 rounded-2xl text-[11px] leading-relaxed",
+                                                            m.role === 'user' ? "bg-primary text-white rounded-tr-none" : "bg-surface border border-border-subtle rounded-tl-none font-mono"
+                                                        )}>
+                                                            {m.parts.map((p, i) => (
+                                                                p.type === 'text' ? <span key={i}>{p.text}</span> :
+                                                                    p.type === 'reasoning' ? (
+                                                                        <div key={i} className="mb-2 p-2 bg-black/20 rounded-lg text-[10px] opacity-60 italic border-l-2 border-primary/30">
+                                                                            {p.text}
+                                                                        </div>
+                                                                    ) : null
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ))
+                                                ))}
+                                                {/* Typing indicator — shows while awaiting/streaming response */}
+                                                {isChatLoading && (
+                                                    <div className="flex flex-col space-y-1 items-start">
+                                                        <span className="text-[8px] font-bold uppercase tracking-widest text-text-secondary">Forge Intelligence</span>
+                                                        <div className="px-4 py-3 bg-surface border border-border-subtle rounded-2xl rounded-tl-none flex items-center gap-1.5">
+                                                            {[0, 1, 2].map((i) => (
+                                                                <motion.div
+                                                                    key={i}
+                                                                    className="w-1.5 h-1.5 rounded-full bg-primary"
+                                                                    animate={{ opacity: [0.2, 1, 0.2], scale: [0.8, 1.2, 0.8] }}
+                                                                    transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2, ease: 'easeInOut' }}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                         <div ref={chatEndRef} />
 
@@ -179,11 +227,25 @@ export default function ForgeHUD() {
                                             <input
                                                 value={chatInput}
                                                 onChange={(e) => setChatInput(e.target.value)}
-                                                placeholder="Ask Forge..."
-                                                className="w-full bg-black/40 border border-border-subtle rounded-xl py-3 pl-4 pr-10 text-[11px] outline-none focus:border-primary transition-all"
+                                                placeholder={isChatLoading ? 'Forge is thinking...' : 'Ask Forge...'}
+                                                disabled={isChatLoading}
+                                                className={cn(
+                                                    "w-full bg-black/40 border rounded-xl py-3 pl-4 pr-10 text-[11px] outline-none transition-all",
+                                                    isChatLoading
+                                                        ? "border-primary/50 animate-pulse placeholder:text-primary/40 cursor-not-allowed"
+                                                        : "border-border-subtle focus:border-primary"
+                                                )}
                                             />
                                             <button type="submit" disabled={isChatLoading || !chatInput.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:text-primary transition-colors disabled:opacity-30">
-                                                <Send className="w-4 h-4" />
+                                                {isChatLoading ? (
+                                                    <motion.div
+                                                        className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full"
+                                                        animate={{ rotate: 360 }}
+                                                        transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
+                                                    />
+                                                ) : (
+                                                    <Send className="w-4 h-4" />
+                                                )}
                                             </button>
                                         </div>
                                     </form>
@@ -249,19 +311,6 @@ export default function ForgeHUD() {
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Toggle Button */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className={cn(
-                    "w-16 h-16 rounded-[2rem] flex items-center justify-center shadow-2xl transition-all duration-500",
-                    isOpen
-                        ? "bg-black border-2 border-primary rotate-90"
-                        : "bg-primary hover:bg-red-600 scale-110 active:scale-95"
-                )}
-            >
-                {isOpen ? <X className="w-6 h-6 text-white" /> : <Terminal className="w-6 h-6 text-white" />}
-            </button>
         </div>
     )
 }

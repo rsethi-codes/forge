@@ -49,6 +49,8 @@ interface TopicTimerProps {
     storedNet?: number
     /** Called when user stops the timer. Always called, even if paused. */
     onStop: (result: TimerResult) => void
+    /** Called when timer starts (from idle) */
+    onStart?: () => void
     /** Optional label */
     label?: string
     /** Compact mode for task items */
@@ -96,6 +98,7 @@ const TopicTimer = forwardRef<TimerHandle, TopicTimerProps>(function TopicTimer(
     storedGross = 0,
     storedNet = 0,
     onStop,
+    onStart,
     label,
     compact = false
 }, ref) {
@@ -232,7 +235,8 @@ const TopicTimer = forwardRef<TimerHandle, TopicTimerProps>(function TopicTimer(
         startInterval()
         sync('running')
         lastSyncRef.current = Date.now()
-    }, [startInterval, sync])
+        onStart?.()
+    }, [startInterval, sync, onStart])
 
     const handlePause = useCallback(() => {
         const now = new Date()

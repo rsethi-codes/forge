@@ -148,8 +148,10 @@ export const dailyProgress = pgTable('daily_progress', {
     dayId: uuid('day_id').references(() => roadmapDays.id, { onDelete: 'cascade' }).notNull(),
     date: date('date').notNull(),
     status: statusEnum('status').default('not_started').notNull(),
-    hoursLogged: numeric('hours_logged').default('0').notNull(),
+    hoursLogged: numeric('hours_logged').default('0.00').notNull(),
+    targetDate: date('target_date'),
     sessionNotes: text('session_notes'),
+    reflection: text('reflection'),
     startedAt: timestamp('started_at'),
     completedAt: timestamp('completed_at'),
     userId: uuid('user_id').notNull(),
@@ -352,10 +354,38 @@ export const profiles = pgTable('profiles', {
     fullName: text('full_name'),
     bio: text('bio'),
     avatarUrl: text('avatar_url'),
+    headline: text('headline'),
+    vanityHandle: text('vanity_handle').unique(),
+    githubUrl: text('github_url'),
+    linkedinUrl: text('linkedin_url'),
+    twitterUrl: text('twitter_url'),
+    websiteUrl: text('website_url'),
+    isPublic: boolean('is_public').default(false).notNull(),
+    showRoadmap: boolean('show_roadmap').default(true).notNull(),
+    showBlogs: boolean('show_blogs').default(true).notNull(),
+    roleInterested: text('role_interested'),
+    skills: jsonb('skills').default([]),
     emailNotifications: boolean('email_notifications').default(true).notNull(),
     morningDigestTime: text('morning_digest_time').default('08:00').notNull(),
+    reminderEmailTime: text('reminder_email_time').default('20:00').notNull(),
+    lastReminderSentAt: timestamp('last_reminder_sent_at'),
+    lastLoginAt: timestamp('last_login_at'),
+    hasStartedRoadmap: boolean('has_started_roadmap').default(false).notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
+
+export const roadmapAdjustments = pgTable('roadmap_adjustments', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    programId: uuid('program_id').references(() => roadmapPrograms.id, { onDelete: 'cascade' }).notNull(),
+    date: date('date').notNull(),
+    adjustmentType: text('adjustment_type').notNull(), // 'day_off', 'extra_day'
+    reason: text('reason'),
+    aiAnalysis: text('ai_analysis'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+    unq: unique().on(t.userId, t.date),
+}))
 
 export const pomodoroSessions = pgTable('pomodoro_sessions', {
     id: uuid('id').primaryKey().defaultRandom(),
@@ -422,6 +452,17 @@ export const rewardsWallet = pgTable('rewards_wallet', {
     userId: uuid('user_id').primaryKey().notNull(),
     coinsBalance: integer('coins_balance').default(0).notNull(),
     lastEarnedAt: timestamp('last_earned_at'),
+})
+
+export const rewardInventory = pgTable('reward_inventory', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    rewardId: text('reward_id').notNull(),
+    rewardName: text('reward_name').notNull(),
+    rewardType: text('reward_type').notNull(), // 'daily', 'weekly', 'consistency'
+    purchasedAt: timestamp('purchased_at').defaultNow().notNull(),
+    isUsed: boolean('is_used').default(false).notNull(),
+    usedAt: timestamp('used_at'),
 })
 
 // --- JANE (Job Application Network Engine) ---

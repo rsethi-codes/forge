@@ -15,28 +15,53 @@ import {
     FileText,
     Linkedin,
     Terminal,
-    ExternalLink
+    ExternalLink,
+    AlertTriangle,
+    TrendingUp
 } from 'lucide-react'
 import QRCode from 'qrcode'
 import { cn } from '@/lib/utils'
+import { getAuthStatus } from '@/lib/actions/auth-status'
+import { getProfile } from '@/lib/actions/settings'
+import { Loader2 } from 'lucide-react'
 
 export default function SharePage() {
     const [qrCode, setQrCode] = useState('')
     const [copied, setCopied] = useState(false)
     const [activeView, setActiveView] = useState<'sync' | 'snippets' | 'profile'>('profile')
+    const [profile, setProfile] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+
     const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://forge-2026.vercel.app'
-    const profileUrl = `${appUrl}/profile`
+    const profileUrl = profile?.vanityHandle
+        ? `${appUrl}/p/${profile.vanityHandle}`
+        : `${appUrl}/profile`
 
     useEffect(() => {
-        QRCode.toDataURL(profileUrl, {
-            margin: 2,
-            width: 400,
-            color: {
-                dark: '#ff3131', // Forge Red
-                light: '#ffffff'
-            }
-        }).then(setQrCode)
-    }, [profileUrl])
+        loadProfile()
+    }, [])
+
+    const loadProfile = async () => {
+        const { user } = await getAuthStatus()
+        if (user?.email) {
+            const data = await getProfile(user.email)
+            setProfile(data)
+        }
+        setLoading(false)
+    }
+
+    useEffect(() => {
+        if (!loading && profileUrl) {
+            QRCode.toDataURL(profileUrl, {
+                margin: 2,
+                width: 400,
+                color: {
+                    dark: '#ff3131', // Forge Red
+                    light: '#ffffff'
+                }
+            }).then(setQrCode)
+        }
+    }, [profileUrl, loading])
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text)
@@ -94,50 +119,67 @@ Follow the journey: ${profileUrl}`
                         exit={{ opacity: 0, scale: 0.95 }}
                         className="bg-surface border border-border-subtle p-8 rounded-[3rem] space-y-8"
                     >
-                        <div className="flex flex-col md:flex-row gap-10 items-center">
-                            <div className="flex-1 space-y-6">
-                                <div className="flex items-center gap-3 text-primary">
-                                    <Globe className="w-8 h-8" />
-                                    <h3 className="text-3xl font-syne font-bold uppercase tracking-tighter">Public Showcase</h3>
-                                </div>
-                                <p className="text-lg text-text-secondary leading-relaxed">
-                                    Your live engineering profile. Show recruiters your consistency, discipline score, and technical write-ups in real-time.
-                                </p>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3 p-4 bg-[#0a0a0a] border border-border-subtle rounded-2xl group">
-                                        <LinkIcon className="w-5 h-5 text-text-secondary shrink-0" />
-                                        <code className="text-xs text-text-secondary flex-1 truncate">{profileUrl}</code>
-                                        <button
-                                            onClick={() => copyToClipboard(profileUrl)}
-                                            className="p-2.5 bg-surface-elevated hover:bg-primary/20 hover:text-primary rounded-xl transition-all"
-                                        >
-                                            {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
-                                        </button>
+                        {loading ? (
+                            <div className="flex flex-col items-center py-20 gap-4">
+                                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-text-secondary">Syncing Nexus Identity...</p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col md:flex-row gap-10 items-center">
+                                <div className="flex-1 space-y-6">
+                                    <div className="flex items-center gap-3 text-primary">
+                                        <Globe className="w-8 h-8" />
+                                        <h3 className="text-3xl font-syne font-bold uppercase tracking-tighter">Public Showcase</h3>
                                     </div>
-                                    <Link
-                                        href="/profile"
-                                        className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg shadow-primary/20 hover:bg-red-600 transition-all"
-                                    >
-                                        <ExternalLink className="w-4 h-4" /> View Live Profile
-                                    </Link>
+                                    <p className="text-lg text-text-secondary leading-relaxed">
+                                        Your live engineering profile. Show recruiters your consistency, discipline score, and technical write-ups in real-time.
+                                    </p>
+
+                                    {!profile?.vanityHandle && (
+                                        <div className="p-4 bg-primary/10 border border-primary/20 rounded-2xl flex items-center gap-3">
+                                            <AlertTriangle className="w-5 h-5 text-primary" />
+                                            <p className="text-xs font-bold text-primary">
+                                                Vanity URL not set. <Link href="/settings" className="underline">Configure in Command Room</Link> to enable public access.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3 p-4 bg-[#0a0a0a] border border-border-subtle rounded-2xl group">
+                                            <LinkIcon className="w-5 h-5 text-text-secondary shrink-0" />
+                                            <code className="text-xs text-text-secondary flex-1 truncate">{profileUrl}</code>
+                                            <button
+                                                onClick={() => copyToClipboard(profileUrl)}
+                                                className="p-2.5 bg-surface-elevated hover:bg-primary/20 hover:text-primary rounded-xl transition-all"
+                                            >
+                                                {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4" />}
+                                            </button>
+                                        </div>
+                                        <Link
+                                            href={profile?.vanityHandle ? `/p/${profile.vanityHandle}` : '/settings'}
+                                            className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-white rounded-2xl font-bold uppercase text-xs tracking-widest shadow-lg shadow-primary/20 hover:bg-red-600 transition-all font-syne"
+                                        >
+                                            <ExternalLink className="w-4 h-4" /> {profile?.vanityHandle ? 'View Live Profile' : 'Setup Profile URL'}
+                                        </Link>
+                                    </div>
+                                </div>
+                                <div className="w-full md:w-80 aspect-square bg-white p-6 rounded-[2rem] shadow-2xl relative group overflow-hidden">
+                                    {qrCode && (
+                                        <Image
+                                            src={qrCode}
+                                            alt="Profile QR Code"
+                                            width={400}
+                                            height={400}
+                                            className="w-full h-full"
+                                            unoptimized
+                                        />
+                                    )}
+                                    <div className="absolute inset-0 bg-primary/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+                                        <p className="text-white font-bold text-center px-6">Scan to share your <br /> Engineering Legacy</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="w-full md:w-80 aspect-square bg-white p-6 rounded-[2rem] shadow-2xl relative group overflow-hidden">
-                                {qrCode && (
-                                    <Image
-                                        src={qrCode}
-                                        alt="Profile QR Code"
-                                        width={400}
-                                        height={400}
-                                        className="w-full h-full"
-                                        unoptimized
-                                    />
-                                )}
-                                <div className="absolute inset-0 bg-primary/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
-                                    <p className="text-white font-bold text-center px-6">Scan to share your <br /> Engineering Legacy</p>
-                                </div>
-                            </div>
-                        </div>
+                        )}
                     </motion.div>
                 )}
 

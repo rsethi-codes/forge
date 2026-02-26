@@ -38,6 +38,19 @@ export async function addQnA(data: {
     try {
         const user = await requireUser()
 
+        // Verify the day is completed before allowing Q&A
+        const [dayProgress] = await db
+            .select()
+            .from(schema.dailyProgress)
+            .where(and(
+                eq(schema.dailyProgress.dayId, data.dayId),
+                eq(schema.dailyProgress.userId, user.id)
+            ))
+
+        if (!dayProgress || dayProgress.status !== 'complete') {
+            return { success: false, error: 'Q&A is only available after completing the day.' }
+        }
+
         const [qna] = await db
             .insert(schema.topicQnA)
             .values({

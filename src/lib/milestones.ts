@@ -80,9 +80,41 @@ export async function getAllMilestones(userId?: string) {
     const user = userId ? { id: userId } : await requireUser()
     const targetUserId = user.id
 
-    return await db
+    // Fetch required stats for current progress calculation
+    const [streak, totalCompletedDays, blogsResult, scores] = await Promise.all([
+        calculateCurrentStreak(targetUserId),
+        db.select({ count: sql`count(*)` })
+            .from(schema.dailyProgress)
+            .where(and(
+                eq(schema.dailyProgress.status, 'complete'),
+                eq(schema.dailyProgress.userId, targetUserId)
+            )),
+        db.select({ count: sql<number>`count(*)::int` })
+            .from(schema.blogPosts)
+            .where(eq(schema.blogPosts.userId, targetUserId)),
+        db.select({ maxScore: sql`max(cast(${schema.disciplineScores.disciplineScore} as float))` })
+            .from(schema.disciplineScores)
+            .where(eq(schema.disciplineScores.userId, targetUserId))
+    ])
+
+    const completedCount = parseInt((totalCompletedDays[0] as any).count || '0')
+    const blogCount = blogsResult[0]?.count || 0
+    const maxScore = parseFloat((scores[0] as any).maxScore || '0')
+
+    const milestones = await db
         .select()
         .from(schema.milestones)
         .where(eq(schema.milestones.userId, targetUserId))
         .orderBy(schema.milestones.criteriaType, schema.milestones.criteriaValue)
+
+    return milestones.map(m => {
+        let currentValue = 0
+        switch (m.criteriaType) {
+            case 'streak': currentValue = streak; break;
+            case 'days_complete': currentValue = completedCount; break;
+            case 'kc_score': currentValue = maxScore; break;
+            case 'blog_posts': currentValue = blogCount; break;
+        }
+        return { ...m, currentValue }
+    })
 }

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Play, Zap, Brain, Shield, ArrowRight, Coins } from 'lucide-react'
+import { Play, Zap, Brain, Shield, ArrowRight, Coins, Loader2, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface WhatToStartCardProps {
@@ -14,6 +14,8 @@ interface WhatToStartCardProps {
     coinsBalance: number
     onStart: () => void
     onForceMomentum?: () => void
+    isPastDue?: boolean
+    scheduledDate?: string
 }
 
 export default function WhatToStartCard({
@@ -24,10 +26,23 @@ export default function WhatToStartCard({
     shortDiagnostic,
     coinsBalance,
     onStart,
-    onForceMomentum
+    onForceMomentum,
+    isPastDue,
+    scheduledDate
 }: WhatToStartCardProps) {
+    const [starting, setStarting] = React.useState(false)
     const isDeepWork = recommendedAction === 'DeepWork'
     const isMomentum = recommendedAction === 'Momentum'
+
+    const handleStart = async () => {
+        if (starting) return
+        setStarting(true)
+        try {
+            await onStart()
+        } finally {
+            setStarting(false)
+        }
+    }
 
     return (
         <motion.div
@@ -62,6 +77,12 @@ export default function WhatToStartCard({
                             <Coins className="w-4 h-4 text-success" />
                             <span className="text-sm font-bold text-success">{coinsBalance}</span>
                         </div>
+                        {isPastDue && (
+                            <div className="h-10 px-4 bg-primary/20 border border-primary/40 rounded-full flex items-center gap-2 animate-pulse">
+                                <AlertTriangle className="w-4 h-4 text-primary" />
+                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Target Overdue</span>
+                            </div>
+                        )}
                         {!isMomentum && onForceMomentum && (
                             <button
                                 onClick={onForceMomentum}
@@ -128,9 +149,10 @@ export default function WhatToStartCard({
 
                 <div className="w-full md:w-auto">
                     <button
-                        onClick={onStart}
+                        onClick={handleStart}
+                        disabled={starting}
                         className={cn(
-                            "w-full md:w-56 h-56 rounded-[2rem] flex flex-col items-center justify-center gap-4 transition-all duration-500 hover:scale-105 active:scale-95 group/btn border",
+                            "w-full md:w-56 h-56 rounded-[2rem] flex flex-col items-center justify-center gap-4 transition-all duration-500 hover:scale-105 active:scale-95 group/btn border disabled:opacity-80 disabled:cursor-not-allowed disabled:scale-100",
                             isDeepWork
                                 ? "bg-primary text-white border-primary shadow-[0_0_50px_rgba(255,49,49,0.3)] hover:shadow-primary/50"
                                 : isMomentum
@@ -139,14 +161,18 @@ export default function WhatToStartCard({
                         )}
                     >
                         <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md">
-                            <Zap className={cn("w-10 h-10 fill-current", isMomentum ? "text-white" : isDeepWork ? "text-white" : "text-black")} />
+                            {starting ? (
+                                <Loader2 className="w-10 h-10 animate-spin" />
+                            ) : (
+                                <Zap className={cn("w-10 h-10 fill-current", isMomentum ? "text-white" : isDeepWork ? "text-white" : "text-black")} />
+                            )}
                         </div>
                         <div className="text-center">
                             <span className="block text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">
                                 {isMomentum ? "2-Minute Rule" : "Engage System"}
                             </span>
                             <span className="text-xl font-syne font-bold">
-                                {isMomentum ? "Start Starter" : isDeepWork ? "Start Session" : "Start Quick Win"}
+                                {starting ? 'Igniting...' : isMomentum ? "Start Starter" : isDeepWork ? "Start Session" : "Start Quick Win"}
                             </span>
                         </div>
                     </button>

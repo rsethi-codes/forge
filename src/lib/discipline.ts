@@ -22,8 +22,14 @@ export async function calculateDailyDiscipline(dateStr: string, userId: string):
         ))
         .limit(1)
 
-    if (!progress) {
-        return { score: 0, tasksRate: 0, kcRate: 0, hoursRate: 0, message: "No data logged for today yet. Get to work." }
+    const [profile] = await db
+        .select({ hasStartedRoadmap: schema.profiles.hasStartedRoadmap })
+        .from(schema.profiles)
+        .where(eq(schema.profiles.id, userId))
+        .limit(1)
+
+    if (!progress || !profile?.hasStartedRoadmap) {
+        return { score: 0, tasksRate: 0, kcRate: 0, hoursRate: 0, message: !profile?.hasStartedRoadmap ? "Ignite the forge by starting your first task. Strategy is nothing without execution." : "No data logged for today yet. Get to work." }
     }
 
     // 2. Fetch Tasks Completion

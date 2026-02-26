@@ -12,9 +12,12 @@ import {
     AlertCircle,
     Map as MapIcon,
     ChevronDown,
-    Loader2
+    Loader2,
+    Calendar,
+    Zap
 } from 'lucide-react'
 
+import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { getTrackerData } from '@/lib/actions/roadmap'
 import { listRoadmaps, setActiveRoadmap } from '@/lib/actions/roadmap-mgmt'
@@ -33,7 +36,8 @@ export default function RoadmapOverview() {
     const { data, isLoading: loading } = useQuery({
         queryKey: ['tracker', activeMonth],
         queryFn: async () => {
-            const response = await fetch(`/api/roadmap/tracker?month=${activeMonth}`)
+            const today = format(new Date(), 'yyyy-MM-dd')
+            const response = await fetch(`/api/roadmap/tracker?month=${activeMonth}&date=${today}`)
             if (!response.ok) throw new Error('Failed to fetch tracker data')
             return response.json()
         },
@@ -133,6 +137,21 @@ export default function RoadmapOverview() {
                                 />
                             </div>
                         </div>
+
+                        {/* Estimated Completion Date Badge */}
+                        {data?.estimatedCompletionDate && (
+                            <div className="bg-[#111111] border border-success/30 px-6 py-3 rounded-[1.5rem] flex items-center gap-4 shadow-xl shadow-success/10 group hover:border-success transition-all cursor-default">
+                                <div className="flex flex-col">
+                                    <span className="text-[8px] font-black text-success uppercase tracking-widest">Est. Final Deployment</span>
+                                    <span className="text-sm font-black text-text-primary">
+                                        {new Date(data.estimatedCompletionDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                    </span>
+                                </div>
+                                <div className="w-8 h-8 bg-success/20 rounded-lg flex items-center justify-center text-success group-hover:scale-110 transition-transform flex-shrink-0">
+                                    <Zap className="w-4 h-4 fill-current" />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -209,20 +228,33 @@ export default function RoadmapOverview() {
                                         whileHover={{ y: -5 }}
                                         className={cn(
                                             "group relative bg-surface border rounded-3xl p-6 transition-all hover:border-primary/50",
-                                            day.isCurrent && "ring-2 ring-primary ring-offset-4 ring-offset-[#0a0a0a]",
-                                            !day.isComplete && !day.isCurrent && "opacity-60 grayscale-[0.5]"
+                                            day.isCurrent && "ring-2 ring-primary ring-offset-4 ring-offset-[#0a0a0a] border-primary/40",
+                                            day.isComplete && !day.isCurrent && "border-success/20 bg-success/3",
+                                            day.isPast && !day.isComplete && "border-red-500/20 bg-red-500/5",
+                                            day.isFuture && "border-border-subtle opacity-50"
                                         )}
                                     >
                                         <Link href={`/tracker/day/${day.dayNumber}`} className="absolute inset-0 z-10" />
 
-                                        <div className="flex justify-between items-start mb-4">
+                                        <div className="flex justify-between items-start mb-2">
                                             <span className="text-xs font-bold text-text-secondary uppercase tracking-widest">Day {day.dayNumber}</span>
+                                            <div className="text-right">
+                                                {data?.schedule && data.schedule[day.id] && (
+                                                    <span className="block text-[10px] font-bold text-text-secondary uppercase">
+                                                        {new Date(data.schedule[day.id][0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-end mb-4">
                                             {day.isComplete ? (
                                                 <CheckCircle2 className="w-5 h-5 text-success" />
                                             ) : day.isCurrent ? (
                                                 <div className="flex items-center justify-center w-5 h-5">
                                                     <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
                                                 </div>
+                                            ) : day.isPast && !day.isComplete ? (
+                                                <AlertCircle className="w-5 h-5 text-red-500" />
                                             ) : (
                                                 <Circle className="w-5 h-5 text-border-subtle" />
                                             )}
@@ -235,13 +267,18 @@ export default function RoadmapOverview() {
                                         <div className="space-y-3">
                                             <div className="flex items-center justify-between text-[10px] font-bold text-text-secondary uppercase">
                                                 <span>Estimated</span>
-                                                <span>{day.estimatedHours}h Study</span>
+                                                <span className={cn(day.isPast && !day.isComplete && "text-red-500")}>
+                                                    {day.isPast && !day.isComplete ? 'Missed Directive' : `${day.estimatedHours}h Study`}
+                                                </span>
                                             </div>
                                             <div className="w-full h-1 bg-border-subtle rounded-full overflow-hidden">
                                                 <motion.div
                                                     initial={{ width: 0 }}
                                                     animate={{ width: `${day.isComplete ? 100 : (day.completionRate ?? 0)}%` }}
-                                                    className="h-full bg-primary"
+                                                    className={cn(
+                                                        "h-full",
+                                                        day.isComplete ? "bg-success" : (day.isPast && !day.isComplete ? "bg-red-500" : "bg-primary")
+                                                    )}
                                                 />
                                             </div>
                                         </div>

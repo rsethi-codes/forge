@@ -5,6 +5,16 @@ import * as schema from '@/lib/supabase/schema'
 import { eq, sql, desc } from 'drizzle-orm'
 import { requireUser } from '@/lib/auth-utils'
 
+export async function getBlogPostById(id: string) {
+    const [post] = await db
+        .select()
+        .from(schema.blogPosts)
+        .where(eq(schema.blogPosts.id, id))
+        .limit(1)
+
+    return post
+}
+
 export async function getBlogPost(slug: string) {
     const [post] = await db
         .select()
@@ -45,6 +55,9 @@ export async function upsertBlogPost(data: {
 }) {
     const user = await requireUser()
 
+    const wordCount = data.contentHtml ? data.contentHtml.replace(/<[^>]*>/g, '').split(/\s+/).filter(Boolean).length : 0
+    const readTime = Math.ceil(wordCount / 200)
+
     const postData = {
         userId: user.id,
         title: data.title,
@@ -56,6 +69,7 @@ export async function upsertBlogPost(data: {
         visibility: data.visibility,
         technologies: data.technologies || [],
         resources: data.resources || [],
+        readingTimeMinutes: readTime,
         updatedAt: new Date(),
         ...(data.visibility === 'public' && { publishedAt: new Date() })
     }

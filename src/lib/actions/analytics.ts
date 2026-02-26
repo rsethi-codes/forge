@@ -175,6 +175,31 @@ export async function getAnalyticsData(userId?: string) {
     const weeklyHours = hoursData.reduce((acc, h) => acc + h.hours, 0)
     const weeklyFocus = kcPerformance[0]?.topic || "General Systems"
 
+    // 10. Bottleneck Insights (Dynamic generation)
+    const currentStreak = latestScore?.streakDays || 0;
+    const lowPerformanceTopic = kcPerformance.find(p => p.score < 70);
+
+    const bottleneckInsights = [
+        {
+            type: 'Focus Density',
+            text: totalFocusMinutes > 1000
+                ? "Your deep-work blocks are showing high density. Peak cognitive performance is maintained through consistent session intervals."
+                : "Focus session volume is below optimal thresholds. Strategy: Implement 25m micro-blocks to build base endurance.",
+        },
+        {
+            type: 'Cognitive Load',
+            text: lowPerformanceTopic
+                ? `Module '${lowPerformanceTopic.topic}' shows retention volatility. Recommend a targeted review of foundational documentation.`
+                : "Knowledge retention is trending at elite levels. All audited sectors show optimal cognitive integration.",
+        },
+        {
+            type: 'Momentum Engine',
+            text: currentStreak > 3
+                ? `Current streak of ${currentStreak} days has solidified your discipline index. Momentum is now your primary growth driver.`
+                : "Engine is in cold-start state. Engage 'Micro-Task' protocol to restore discipline momentum and streak stability.",
+        }
+    ]
+
     return {
         disciplineTrend,
         hoursData,
@@ -182,7 +207,7 @@ export async function getAnalyticsData(userId?: string) {
         avgDiscipline,
         currentTier,
         blogCount,
-        streak: latestScore?.streakDays || 0,
+        streak: currentStreak,
         heatmapData,
         blogStats: blogPosts,
         taskStats,
@@ -200,6 +225,7 @@ export async function getAnalyticsData(userId?: string) {
             avgDiscipline: weeklyDiscipline,
             totalHours: weeklyHours,
             topTopic: weeklyFocus
-        }
+        },
+        bottleneckInsights
     }
 }

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, Ghost, Power, Pause, Play, Target, Minimize2 } from 'lucide-react'
+import { AlertCircle, Ghost, Power, Pause, Play, Target, Minimize2, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface SessionHUDProps {
@@ -17,6 +17,17 @@ export default function SessionHUD({ sessionId, onEnd, title }: SessionHUDProps)
     const [distractions, setDistractions] = useState(0)
     const [isPaused, setIsPaused] = useState(false)
     const [isMinimized, setIsMinimized] = useState(false)
+    const [ending, setEnding] = useState(false)
+
+    const handleEnd = async () => {
+        if (ending) return
+        setEnding(true)
+        try {
+            await onEnd({ interruptions, distractions })
+        } finally {
+            setEnding(false)
+        }
+    }
 
     useEffect(() => {
         let interval: any
@@ -147,12 +158,13 @@ export default function SessionHUD({ sessionId, onEnd, title }: SessionHUDProps)
                             <Minimize2 className="w-6 h-6" />
                         </button>
                         <button
-                            onClick={() => onEnd({ interruptions, distractions })}
-                            className="h-14 px-8 rounded-2xl bg-primary text-white font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(255,49,49,0.3)] border border-primary/50"
+                            onClick={handleEnd}
+                            disabled={ending}
+                            className="h-14 px-8 rounded-2xl bg-primary text-white font-bold flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(255,49,49,0.3)] border border-primary/50 disabled:opacity-70 disabled:scale-100 disabled:cursor-not-allowed"
                         >
-                            <Power className="w-5 h-5" />
-                            <span className="hidden sm:inline">End Protocol</span>
-                            <span className="sm:hidden">End</span>
+                            {ending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Power className="w-5 h-5" />}
+                            <span className="hidden sm:inline">{ending ? 'Finalizing...' : 'End Protocol'}</span>
+                            <span className="sm:hidden">{ending ? '...' : 'End'}</span>
                         </button>
                     </div>
                 </div>
