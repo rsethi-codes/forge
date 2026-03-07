@@ -422,6 +422,29 @@ export const appEvents = pgTable('app_events', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
+export const docsEventDedup = pgTable('docs_event_dedup', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    idempotencyKey: text('idempotency_key').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+    unq: unique().on(t.userId, t.idempotencyKey)
+}))
+
+export const docsSectionRollup = pgTable('docs_section_rollup', {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id').notNull(),
+    dayId: uuid('day_id').references(() => roadmapDays.id, { onDelete: 'cascade' }).notNull(),
+    docId: text('doc_id').notNull(),
+    sectionId: text('section_id').notNull(),
+    sectionTitle: text('section_title'),
+    viewCount: integer('view_count').default(0).notNull(),
+    lastSeenAt: timestamp('last_seen_at').defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+    unq: unique().on(t.userId, t.dayId, t.docId, t.sectionId)
+}))
+
 export const nudges = pgTable('nudges', {
     id: uuid('id').primaryKey().defaultRandom(),
     userId: uuid('user_id').notNull(),

@@ -38,6 +38,57 @@ export async function getGlobalAnalytics() {
     }
 }
 
+export async function getDocsEvents(params: { dayId?: string; docId?: string; sessionId?: string; limit?: number } = {}) {
+    if (!(await isAdmin())) throw new Error('Unauthorized.')
+
+    const safeLimit = Math.min(Math.max(params.limit ?? 100, 1), 500)
+    const filters: any[] = [sql`${schema.appEvents.eventType} LIKE 'docs_%'`]
+
+    if (params.sessionId) filters.push(eq(schema.appEvents.sessionId, params.sessionId as any))
+    if (params.dayId) filters.push(sql`${schema.appEvents.eventMeta} ->> 'dayId' = ${params.dayId}`)
+    if (params.docId) filters.push(sql`${schema.appEvents.eventMeta} ->> 'docId' = ${params.docId}`)
+
+    const events = await db
+        .select()
+        .from(schema.appEvents)
+        .where(and(...filters))
+        .orderBy(desc(schema.appEvents.createdAt))
+        .limit(safeLimit)
+
+    return events
+}
+
+export async function getDocsSectionHeatmap(params: { dayId?: string; docId?: string; sessionId?: string; userId?: string; limit?: number } = {}) {
+    if (!(await isAdmin())) throw new Error('Unauthorized.')
+
+    const safeLimit = Math.min(Math.max(params.limit ?? 200, 1), 500)
+    const filters: any[] = []
+    if (params.userId) filters.push(eq(schema.docsSectionRollup.userId, params.userId as any))
+    if (params.dayId) filters.push(eq(schema.docsSectionRollup.dayId, params.dayId as any))
+    if (params.docId) filters.push(eq(schema.docsSectionRollup.docId, params.docId))
+
+    // sessionId filter isn't supported on rollup; keep API param for backward compat
+
+    const rows = await db
+        .select({
+            sectionId: schema.docsSectionRollup.sectionId,
+            title: schema.docsSectionRollup.sectionTitle,
+            count: schema.docsSectionRollup.viewCount,
+            lastSeenAt: schema.docsSectionRollup.lastSeenAt,
+        })
+        .from(schema.docsSectionRollup)
+        .where(filters.length ? and(...filters) : undefined as any)
+        .orderBy(desc(schema.docsSectionRollup.viewCount))
+        .limit(safeLimit)
+
+    return (rows as any[]).map((r) => ({
+        sectionId: String(r.sectionId),
+        title: r.title ? String(r.title) : '',
+        count: Number(r.count || 0),
+        lastSeenAt: r.lastSeenAt,
+    }))
+}
+
 export async function getUserManagementData(userId: string) {
     if (!(await isAdmin())) throw new Error('Unauthorized.')
 

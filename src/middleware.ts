@@ -16,6 +16,30 @@ export async function middleware(request: NextRequest) {
         },
     })
 
+    // Security hardening for Forge Docs Reader
+    // Docs HTML is rendered via sandboxed iframe srcDoc (no scripts allowed there).
+    // CSP here protects the Forge page itself while keeping Next.js functional.
+    if (/^\/tracker\/day\/[^\/]+\/docs\/?$/.test(pathname)) {
+        response.headers.set(
+            'Content-Security-Policy',
+            [
+                "default-src 'self'",
+                "base-uri 'self'",
+                "form-action 'self'",
+                "frame-ancestors 'self'",
+                "script-src 'self'",
+                "style-src 'self' 'unsafe-inline' https:",
+                "img-src 'self' https: data:",
+                "font-src 'self' https: data:",
+                "connect-src 'self' https:",
+                "frame-src 'self'",
+                "object-src 'none'",
+            ].join('; ')
+        )
+        response.headers.set('X-Content-Type-Options', 'nosniff')
+        response.headers.set('Referrer-Policy', 'no-referrer')
+    }
+
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

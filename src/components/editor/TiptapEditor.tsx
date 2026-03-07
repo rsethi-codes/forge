@@ -59,7 +59,7 @@ export default function Editor({ content, onChange, placeholder = 'Start writing
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-invert max-w-none focus:outline-none min-h-[600px] p-10 font-lora text-lg leading-relaxed',
+                class: 'prose prose-invert prose-p:leading-relaxed prose-headings:font-syne prose-headings:italic prose-headings:tracking-tighter max-w-none focus:outline-none min-h-[600px] p-10 font-lora text-xl leading-loose selection:bg-primary/30',
             },
         },
     })

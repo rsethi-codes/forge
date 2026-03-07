@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-import { Plus, Search, Filter, MoreVertical, Eye, Edit2, Trash2, Globe, Lock, Clock, Loader2, Link2 } from 'lucide-react'
+import { Plus, Search, Filter, MoreVertical, Eye, Edit2, Trash2, Globe, Lock, Clock, Loader2, Link2, Twitter, Linkedin } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
@@ -154,6 +154,26 @@ export default function BlogManagementPage() {
                                                 title="Copy Link"
                                             >
                                                 <Link2 className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const text = encodeURIComponent(`🚀 Transmitting New Intelligence: ${post.title}\n\nRead the full brief at forge-reader.vercel.app/blog/${post.slug}`)
+                                                    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank')
+                                                }}
+                                                className="p-3 bg-surface-elevated hover:bg-blue-400/20 hover:text-blue-400 rounded-xl transition-all"
+                                                title="Share to Twitter"
+                                            >
+                                                <Twitter className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const url = encodeURIComponent(`${window.location.origin}/blog/${post.slug}`)
+                                                    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank')
+                                                }}
+                                                className="p-3 bg-surface-elevated hover:bg-blue-700/20 hover:text-blue-700 rounded-xl transition-all"
+                                                title="Share to LinkedIn"
+                                            >
+                                                <Linkedin className="w-4 h-4" />
                                             </button>
                                             <Link href={`/blog/manage/${post.id}`} className="p-3 bg-surface-elevated hover:bg-primary/20 hover:text-primary rounded-xl transition-all">
                                                 <Edit2 className="w-4 h-4" />

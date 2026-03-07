@@ -41,7 +41,12 @@ export async function getDayDetail(dayNumber: number | string) {
     // Calculate the actual date for this dayNumber (accounting for shifts)
     // and the original target date (static from start)
     const dNum = parseInt(dayNumber.toString())
-    const originalTargetDate = format(addDays(new Date(program.startDate), dNum - 1), 'yyyy-MM-dd')
+    if (isNaN(dNum) || dNum < 1) {
+        throw new Error(`Invalid dayNumber: ${dayNumber}`)
+    }
+    const dayOffset = Math.max(0, dNum - 1) // Prevent negative offset
+    const programStartDate = program.startDate ? new Date(program.startDate) : new Date()
+    const originalTargetDate = format(addDays(programStartDate, dayOffset), 'yyyy-MM-dd')
 
     // For now, in this view, we look for the progress matching this dayId 
     // Usually it's the latest one or the one for today... 

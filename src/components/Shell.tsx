@@ -12,6 +12,7 @@ import {
     Settings,
     LogOut,
     Shield,
+    PanelLeft,
     Menu,
     X,
     Wrench,
@@ -44,8 +45,24 @@ import CommandPalette from './CommandPalette'
 export default function Shell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false)
     const supabase = createClient()
     const queryClient = useQueryClient()
+
+    const isForgeReader = /^\/tracker\/day\/[^\/]+\/docs\/?$/.test(pathname)
+
+    React.useEffect(() => {
+        try {
+            const stored = localStorage.getItem('forge.sidebar.collapsed')
+            if (stored === '1') setIsSidebarCollapsed(true)
+        } catch { }
+    }, [])
+
+    React.useEffect(() => {
+        try {
+            localStorage.setItem('forge.sidebar.collapsed', isSidebarCollapsed ? '1' : '0')
+        } catch { }
+    }, [isSidebarCollapsed])
 
     // 1. Proactive Global Prefetching (Background Warmup)
     React.useEffect(() => {
@@ -128,55 +145,95 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     return (
         <div className="flex min-h-screen bg-[#0a0a0a] text-text-primary">
             {/* Sidebar Desktop */}
-            <aside className="hidden md:flex w-64 flex-col border-r border-border-subtle bg-[#111111] h-screen shrink-0">
-                <div className="p-6 flex items-center gap-2 shrink-0">
-                    <Shield className="w-8 h-8 text-primary" />
-                    <span className="text-2xl font-syne font-bold tracking-tighter">FORGE</span>
-                </div>
-
-                <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar">
-                    {navItems.map((item) => {
-                        const isActive = item.href === '/dashboard'
-                            ? pathname === '/dashboard'
-                            : pathname.startsWith(item.href)
-                        return (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onMouseEnter={() => prefetchTab(item.href)}
-                                className={cn(
-                                    "flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all relative overflow-hidden group/nav",
-                                    isActive
-                                        ? "bg-primary text-white shadow-lg shadow-primary/20"
-                                        : "text-text-secondary hover:bg-white/5 hover:text-white"
-                                )}
+            {!isForgeReader && (
+                <aside className={cn(
+                    "hidden md:flex flex-col border-r border-border-subtle bg-[#111111] h-screen shrink-0 transition-[width] duration-200",
+                    isSidebarCollapsed ? 'w-20' : 'w-64'
+                )}>
+                    <div className={cn(
+                        "p-6 flex items-center shrink-0",
+                        isSidebarCollapsed ? 'justify-center' : 'justify-between'
+                    )}>
+                        <div className={cn('flex items-center gap-2', isSidebarCollapsed && 'justify-center')}>
+                            <Shield className="w-8 h-8 text-primary" />
+                            {!isSidebarCollapsed && (
+                                <span className="text-2xl font-syne font-bold tracking-tighter">FORGE</span>
+                            )}
+                        </div>
+                        {!isSidebarCollapsed && (
+                            <button
+                                onClick={() => setIsSidebarCollapsed(true)}
+                                className="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-text-secondary hover:text-text-primary transition-all flex items-center justify-center"
+                                title="Collapse sidebar"
                             >
-                                <div className="flex items-center gap-3 relative z-10 transition-transform group-hover/nav:translate-x-1">
-                                    <item.icon className={cn("w-5 h-5", isActive ? "text-white" : "text-text-secondary group-hover/nav:text-primary")} />
-                                    <span className="font-bold text-xs uppercase tracking-widest">{item.name}</span>
-                                </div>
+                                <PanelLeft className="w-5 h-5" />
+                            </button>
+                        )}
+                        {isSidebarCollapsed && (
+                            <button
+                                onClick={() => setIsSidebarCollapsed(false)}
+                                className="w-10 h-10 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-text-secondary hover:text-text-primary transition-all flex items-center justify-center"
+                                title="Expand sidebar"
+                            >
+                                <PanelLeft className="w-5 h-5" />
+                            </button>
+                        )}
+                    </div>
 
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="nav-pulse"
-                                        className="absolute inset-0 bg-primary/5 z-0"
-                                        initial={false}
-                                        animate={{ opacity: [0.3, 1, 0.3] }}
-                                        transition={{ duration: 3, repeat: Infinity }}
-                                    />
-                                )}
+                    <nav className={cn(
+                        "flex-1 px-4 py-4 space-y-2 overflow-y-auto custom-scrollbar",
+                        isSidebarCollapsed && 'px-3'
+                    )}>
+                        {navItems.map((item) => {
+                            const isActive = item.href === '/dashboard'
+                                ? pathname === '/dashboard'
+                                : pathname.startsWith(item.href)
+                            return (
+                                <Link
+                                    key={item.href}
+                                    href={item.href}
+                                    onMouseEnter={() => prefetchTab(item.href)}
+                                    title={isSidebarCollapsed ? item.name : undefined}
+                                    className={cn(
+                                        "flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all relative overflow-hidden group/nav",
+                                        isSidebarCollapsed && 'px-3 justify-center',
+                                        isActive
+                                            ? "bg-primary text-white shadow-lg shadow-primary/20"
+                                            : "text-text-secondary hover:bg-white/5 hover:text-white"
+                                    )}
+                                >
+                                    <div className={cn(
+                                        "flex items-center gap-3 relative z-10 transition-transform group-hover/nav:translate-x-1",
+                                        isSidebarCollapsed && 'gap-0'
+                                    )}>
+                                        <item.icon className={cn("w-5 h-5", isActive ? "text-white" : "text-text-secondary group-hover/nav:text-primary")} />
+                                        {!isSidebarCollapsed && (
+                                            <span className="font-bold text-xs uppercase tracking-widest">{item.name}</span>
+                                        )}
+                                    </div>
 
-                                {(item as any).badge && (
-                                    <span className="text-[8px] font-black bg-primary text-white px-1.5 py-0.5 rounded leading-none relative z-10">
-                                        {(item as any).badge}
-                                    </span>
-                                )}
-                            </Link>
-                        )
-                    })}
-                </nav>
+                                    {isActive && (
+                                        <motion.div
+                                            layoutId="nav-pulse"
+                                            className="absolute inset-0 bg-primary/5 z-0"
+                                            initial={false}
+                                            animate={{ opacity: [0.3, 1, 0.3] }}
+                                            transition={{ duration: 3, repeat: Infinity }}
+                                        />
+                                    )}
 
-                <div className="p-4 space-y-4 flex-shrink-0 border-t border-white/5">
+                                    {!isSidebarCollapsed && (item as any).badge && (
+                                        <span className="text-[8px] font-black bg-primary text-white px-1.5 py-0.5 rounded leading-none relative z-10">
+                                            {(item as any).badge}
+                                        </span>
+                                    )}
+                                </Link>
+                            )
+                        })}
+                    </nav>
+
+                    {!isSidebarCollapsed && (
+                        <div className="p-4 space-y-4 flex-shrink-0 border-t border-white/5">
                     {/* Sidebar Meta */}
                     <div className="bg-[#0c0c0c] rounded-2xl p-5 border border-white/5 space-y-5">
                         <div className="space-y-3">
@@ -238,8 +295,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
                         <kbd className="text-[8px] font-black bg-white/5 border border-white/10 rounded px-1.5 py-0.5 font-mono">K</kbd>
                         <span className="text-[8px] font-bold uppercase tracking-widest">Command Palette</span>
                     </div>
-                </div>
-            </aside>
+                        </div>
+                    )}
+                </aside>
+            )}
 
             {/* Mobile Nav Top Bar */}
             <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#111111] border-b border-border-subtle flex items-center justify-between px-6 z-50">
@@ -339,7 +398,10 @@ export default function Shell({ children }: { children: React.ReactNode }) {
             </AnimatePresence>
 
             {/* Main Content */}
-            <main className="flex-1 w-full h-screen overflow-y-auto pt-16 md:pt-0 overflow-x-hidden relative">
+            <main className={cn(
+                "flex-1 w-full h-screen overflow-y-auto pt-16 md:pt-0 overflow-x-hidden relative",
+                isForgeReader && 'pt-0'
+            )}>
                 {children}
             </main>
             <CommandPalette />

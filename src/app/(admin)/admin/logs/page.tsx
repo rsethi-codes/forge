@@ -1,10 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getSystemLogs } from '@/lib/actions/admin'
-import { Activity, AlertTriangle, Clock } from 'lucide-react'
+import { AlertTriangle, Clock, Activity, Search } from 'lucide-react'
 import { motion } from 'framer-motion'
+import ForgeLoader from '@/components/ForgeLoader'
+import { useDebounce } from '@/hooks/useDebounce'
 
 function fmt(ts: any) {
     try {
@@ -15,18 +17,33 @@ function fmt(ts: any) {
 }
 
 export default function AdminLogsPage() {
+    const [searchTerm, setSearchTerm] = useState('')
+    const debouncedSearch = useDebounce(searchTerm, 300)
+
     const { data, isLoading, error } = useQuery({
-        queryKey: ['admin-system-logs'],
+        queryKey: ['admin-system-logs', 50],
         queryFn: () => getSystemLogs(50),
     })
 
+    const filteredLogs = useMemo(() => {
+        if (!data) return { sessions: [], appEvents: [], analyticsEvents: [] }
+        if (!debouncedSearch) return data
+        const lower = debouncedSearch.toLowerCase()
+        return {
+            sessions: data.sessions.filter((s: any) =>
+                JSON.stringify(s).toLowerCase().includes(lower)
+            ),
+            appEvents: data.appEvents.filter((e: any) =>
+                JSON.stringify(e).toLowerCase().includes(lower)
+            ),
+            analyticsEvents: data.analyticsEvents.filter((e: any) =>
+                JSON.stringify(e).toLowerCase().includes(lower)
+            ),
+        }
+    }, [data, debouncedSearch])
+
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center h-[80vh] space-y-4">
-                <Activity className="w-12 h-12 text-red-500 animate-pulse" />
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500">Streaming System Logs...</p>
-            </div>
-        )
+        return <ForgeLoader title="Loading System Logs" subtitle="Streaming sessions and event traces..." size="lg" />
     }
 
     if (error) {
@@ -50,6 +67,16 @@ export default function AdminLogsPage() {
                 <p className="text-text-secondary text-sm max-w-2xl italic font-lora">
                     Recent activity across sessions, app events, and analytics events.
                 </p>
+                <div className="relative max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                    <input
+                        type="text"
+                        placeholder="Search logs..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2 bg-[#0c0c0c] border border-white/5 rounded-xl text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-violet-500/30 transition-colors"
+                    />
+                </div>
             </header>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -58,7 +85,7 @@ export default function AdminLogsPage() {
                         <Clock className="w-5 h-5 text-red-500" /> Sessions
                     </h2>
                     <div className="space-y-3">
-                        {data?.sessions?.map((s: any, i: number) => (
+                        {filteredLogs.sessions?.map((s: any, i: number) => (
                             <motion.div
                                 key={s.id}
                                 initial={{ opacity: 0, y: 10 }}
@@ -80,7 +107,7 @@ export default function AdminLogsPage() {
                         <Activity className="w-5 h-5 text-red-500" /> App Events
                     </h2>
                     <div className="space-y-3">
-                        {data?.appEvents?.map((e: any, i: number) => (
+                        {filteredLogs.appEvents?.map((e: any, i: number) => (
                             <motion.div
                                 key={e.id}
                                 initial={{ opacity: 0, y: 10 }}
@@ -103,7 +130,7 @@ export default function AdminLogsPage() {
                         <Activity className="w-5 h-5 text-red-500" /> Analytics Events
                     </h2>
                     <div className="space-y-3">
-                        {data?.analyticsEvents?.map((e: any, i: number) => (
+                        {filteredLogs.analyticsEvents?.map((e: any, i: number) => (
                             <motion.div
                                 key={e.id}
                                 initial={{ opacity: 0, y: 10 }}
