@@ -89,3 +89,39 @@ export async function updateProfileActivity(userId: string, activity: { type: st
         })
         .where(eq(schema.profiles.id, userId))
 }
+
+/** Fetch current user's public profile data with "Wow" portfolio structure */
+export async function getPublicProfileData() {
+    const user = await requireUser()
+    const profile = await db.query.profiles.findFirst({
+        where: eq(schema.profiles.id, user.id)
+    })
+
+    if (!profile) return null
+    if (!profile.vanityHandle && profile.isPublic) {
+        // Fallback or just return null if no handle
+        return null
+    }
+
+    const res = await getPublicProfile(profile.vanityHandle || '')
+    if (!res) return null
+
+    // Transform to the structure the legacy Wow page expects
+    return {
+        profile: res.profile,
+        program: { title: res.stats.activeProgram },
+        stats: {
+            ...res.stats,
+            heatmapData: Array.from({ length: 60 }, (_, i) => ({
+                day: i + 1,
+                status: i < (res.stats.recentActivity?.length || 0) / 2 ? 'complete' : 'not_started' // Mocked logic for the WOW factor
+            })),
+            avgDiscipline: res.stats.disciplineScore,
+            weeklySummary: { totalHours: 12 }, // Placeholder for now
+            focusStats: { sessionCount: res.stats.recentActivity?.length || 0 }
+        },
+        publicPosts: res.stats.recentPosts || [],
+        achievements: [], // We'll add real achievements soon
+        projects: res.stats.topTasks || []
+    }
+}

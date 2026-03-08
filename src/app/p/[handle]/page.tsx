@@ -3,6 +3,7 @@
 import React from 'react'
 import { getPublicProfile } from '@/lib/actions/profile'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 import { Zap, Target, Flame, Database, Github, Linkedin, Twitter, Globe, ShieldCheck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -54,7 +55,12 @@ export default function PublicProfilePage({ params }: { params: { handle: string
                         <div className="absolute inset-0 bg-primary/20 rounded-[3rem] blur-2xl group-hover:blur-3xl transition-all" />
                         <div className="w-40 h-40 md:w-48 md:h-48 rounded-[3rem] border-2 border-white/5 bg-surface-elevated relative overflow-hidden flex items-center justify-center shadow-2xl">
                             {profile.avatarUrl ? (
-                                <img src={profile.avatarUrl} alt={profile.fullName} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
+                                <Image
+                                    src={profile.avatarUrl}
+                                    alt={profile.fullName}
+                                    fill
+                                    className="object-cover grayscale hover:grayscale-0 transition-all duration-500"
+                                />
                             ) : (
                                 <Database className="w-16 h-16 text-white/10" />
                             )}

@@ -87,19 +87,19 @@ export default function DayDetailClient(props: DayDetailClientProps) {
         docsStats?.heatmap ?? initialDocsHeatmap ?? []
 
     // Optimistic update helpers
-    const optimisticUpdate = (updater: (prev: any) => any) => {
+    const optimisticUpdate = React.useCallback((updater: (prev: any) => any) => {
         queryClient.setQueryData(['day-detail', dayNumber], updater)
-    }
+    }, [queryClient, dayNumber])
 
     // Invalidate and refetch after mutations
-    const refetch = () => {
+    const refetch = React.useCallback(() => {
         queryClient.invalidateQueries({ queryKey: ['day-detail', dayNumber] })
-    }
+    }, [queryClient, dayNumber])
 
     // Manual refresh function
-    const manualRefresh = () => {
+    const manualRefresh = React.useCallback(() => {
         queryClient.refetchQueries({ queryKey: ['day-detail', dayNumber] })
-    }
+    }, [queryClient, dayNumber])
 
     const router = useRouter()
     const [saving, setSaving] = useState(false)
@@ -648,7 +648,7 @@ export default function DayDetailClient(props: DayDetailClientProps) {
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {currentData.topics.map((topic: any) => {
-                                const topicQnACount = (initialQnAs[topic.id] ?? []).length
+                                const topicQnACount = (safeInitialQnAs[topic.id] ?? []).length
                                 return (
                                     <div
                                         key={topic.id}
@@ -1022,7 +1022,7 @@ export default function DayDetailClient(props: DayDetailClientProps) {
                             </h3>
                             <div className="space-y-2">
                                 {currentData.topics.map((topic: any) => {
-                                    const count = (initialQnAs[topic.id] ?? []).length
+                                    const count = (safeInitialQnAs[topic.id] ?? []).length
                                     return (
                                         <button
                                             key={topic.id}
@@ -1044,9 +1044,9 @@ export default function DayDetailClient(props: DayDetailClientProps) {
                                 >
                                     <span className="text-xs font-bold">General Q&amp;As</span>
                                     <span className={cn('text-[9px] font-bold flex-shrink-0',
-                                        (initialQnAs[''] ?? []).length > 0 ? 'text-violet-400' : 'text-text-secondary/40 group-hover:text-violet-400'
+                                        (safeInitialQnAs[''] ?? []).length > 0 ? 'text-violet-400' : 'text-text-secondary/40 group-hover:text-violet-400'
                                     )}>
-                                        {(initialQnAs[''] ?? []).length > 0 ? `${initialQnAs[''].length} Q&As` : 'Open →'}
+                                        {(safeInitialQnAs[''] ?? []).length > 0 ? safeInitialQnAs[''].length : 'Open →'}
                                     </span>
                                 </button>
                             </div>

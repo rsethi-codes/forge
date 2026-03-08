@@ -267,7 +267,7 @@ export default function DocsReaderClient(props: {
             <div className="max-w-md space-y-6">
                 <ShieldAlert className="w-16 h-16 text-amber-500 mx-auto animate-pulse" />
                 <h1 className="text-2xl font-bold font-syne uppercase tracking-wider">Docs Unavailable</h1>
-                <p className="text-white/40 text-sm">Forge couldn't render this document natively. Use the fallback below.</p>
+                <p className="text-white/40 text-sm">Forge couldn&apos;t render this document natively. Use the fallback below.</p>
                 <a href={externalUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-8 py-4 rounded-2xl bg-primary text-white font-black uppercase tracking-widest text-xs hover:scale-105 transition-all">
                     <ExternalLink className="w-4 h-4" /> Open Source Code
                 </a>

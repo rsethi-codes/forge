@@ -271,6 +271,9 @@ function DocsPageContent({ params }: PageProps) {
                 docMeta={docMeta}
                 html={null}
                 externalUrl={docUrl}
+                tasks={data.tasks || []}
+                topics={data.topics || []}
+                progress={data.progress}
             />
         )
     }
